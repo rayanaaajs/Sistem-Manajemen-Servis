@@ -1,6 +1,13 @@
 {
+  "name": "sistem-manajemen-servis",
+  "version": "1.0.0",
+  "scripts": {
+    "build:css": "tailwindcss -i src/input.css -o assets/css/tailwind.css --minify",
+    "watch:css": "tailwindcss -i src/input.css -o assets/css/tailwind.css --watch"
+  },
   "dependencies": {
     "@tailwindcss/cli": "^4.3.3",
     "tailwindcss": "^4.3.3"
   }
 }
+

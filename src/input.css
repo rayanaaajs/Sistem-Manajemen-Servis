@@ -1,1 +1,9 @@
 @import "tailwindcss";
+
+@theme {
+  --font-sans: 'Poppins', var(--default-font-family);
+  --color-brand-orange: #F26B21;
+  --color-brand-orange-hover: #DF5C13;
+  --color-brand-dark: #090D1F;
+  --color-brand-cream: #FFF9E9;
+}
