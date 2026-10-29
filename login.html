@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Singosari Computer</title>
+  <link rel="icon" type="image/png" href="assets/img/logo polos.png">
+
+  <!-- Google Fonts: Full Poppins (Weights: 300, 400, 500, 600, 700, 800, 900) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Custom Style CSS -->
+  <link rel="stylesheet" href="assets/css/tailwind.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="bg-brand-cream min-h-screen relative flex flex-col justify-between overflow-x-hidden selection:bg-brand-orange selection:text-white">
+
+
+  <!-- Main Content Area -->
+  <main class="w-full grow flex items-center justify-center px-4 sm:px-8 lg:px-16 py-16 lg:py-8">
+    <div class="max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+      
+      <!-- left section -->
+      <section class="lg:col-span-7 flex flex-col justify-center items-center lg:items-start text-center lg:text-left pt-12 lg:pt-7">
+        
+        <!-- Headline -->
+        <h1 class="text-3xl sm:text-4xl lg:text-[48px] font-bold text-brand-dark leading-tight tracking-tight max-w-xl">
+          Servis lebih tertata,<br class="hidden sm:inline">
+          Antrean <span class="pasti-text">PASTI</span> Jelas
+        </h1>
+
+        <!-- Subtitle -->
+        <p class="mt-4 sm:mt-5 text-sm sm:text-base lg:text-[17px] text-[#474957] font-normal leading-relaxed max-w-lg">
+          Catat unit , bagikan ke Teknisi, dan<br>
+          Pantau Progres dalam satu tempat
+        </p>
+
+        <!-- Illustration & Floating Circles Area -->
+        <div class="relative mt-8 sm:mt-10 w-full max-w-115 flex items-center justify-center">
+          
+          <!-- Circle 1: Wrench & Screwdriver (Atas Kanan) -->
+          <div class="floating-circle circle-wrench" title="Manajemen Perbaikan Unit" aria-hidden="true">
+            <img src="assets/img/screw-icon.png" alt="Ikon Servis Teknisi">
+          </div>
+
+          <!-- Circle 2: Handshake (Sisi Kiri) -->
+          <div class="floating-circle circle-handshake" title="Kepercayaan & Kerja Sama" aria-hidden="true">
+            <img src="assets/img/tangan-icon.png" alt="Ikon Kerja Sama">
+          </div>
+
+          <!-- Circle 3: Headset Customer Support (Bawah Kanan) -->
+          <div class="floating-circle circle-headset" title="Layanan Pelanggan Responsif" aria-hidden="true">
+            <img src="assets/img/headset-icon.png" alt="Ikon Layanan Bantuan">
+          </div>
+
+          <!-- Technician Character Illustration -->
+          <img
+            src="assets/img/teknisi.png" 
+            alt="Ilustrasi Teknisi Singosari Computer" 
+            class="mask-fade-bottom w-full max-w-100 sm:max-w-107.5 h-auto object-contain select-none pointer-events-none drop-shadow-sm transition-transform duration-500 hover:scale-[1.02]"
+            loading="eager"
+          >
+          <!-- Efek kabut -->
+        <div class="absolute bottom-0 left-0 w-full h-1/2 bg-linear-to-t from-[#FDF8F0] to-transparent pointer-events-none"></div>
+        </div>
+
+      </section>
+      
+      <!-- right section -->
+      <section class="lg:col-span-5 flex justify-center items-center w-full">
+        <div class="login-card p-8 sm:p-10 lg:p-12">
+          
+          <!-- Card Header: Logo & Titles -->
+          <div class="text-center flex flex-col items-center">
+            <img src="assets/img/logo-polos.png" alt="Logo Singosari Computer" class="w-20 h-20 object-contain">
+            <span class="mt-2 font-semibold text-lg text-[#DA601E]">
+              Singhasari Computer
+            </span>
+            <h2 class="mt-1 text-2xl sm:text-[36px] font-semibold text-brand-dark tracking-tight">
+              Selamat Datang
+            </h2>
+            <p class="mt-4 text-xs sm:text-sm text-[#8A90A2] font-normal">
+              Masuk untuk Admin / Teknisi
+            </p>
+          </div>
+
+          <!-- Login Form -->
+          <form id="loginForm" action="index.php" method="POST" class="mt-8 space-y-5" autocomplete="on">
+            
+            <!-- Input: Username -->
+            <div>
+              <label for="username" class="block text-sm font-normal text-brand-dark mb-2">
+                Username
+              </label>
+              <div class="relative flex items-center">
+                <!-- User Silhouette Icon (Left) -->
+                <div class="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#9CA3AF]">
+                  <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-4.43-.82-6.14-2.88C7.55 15.8 9.68 15 12 15s4.45.8 6.14 2.12C16.43 19.18 14.03 20 12 20z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+                <!-- Username Input -->
+                <input 
+                  type="text" 
+                  id="username" 
+                  name="username" 
+                  class="custom-input pl-12" 
+                  placeholder="Email Anda" 
+                  autocomplete="off" 
+                  required
+                >
+              </div>
+            </div>
+
+            <!-- Input: Password -->
+            <div>
+              <label for="password" class="block text-sm font-normal text-brand-dark mb-2">
+                Password
+              </label>
+              <div class="relative flex items-center">
+                <!-- Lock Icon (Left) -->
+                <div class="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#9CA3AF]">
+                  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                  </svg>
+                </div>
+                <!-- Password Input -->
+                <input 
+                  type="password" 
+                  id="password" 
+                  name="password" 
+                  class="custom-input pl-12" 
+                  placeholder="Kata Sandi Anda" 
+                  autocomplete="off" 
+                  required
+                >
+                <!-- Eye Toggle Button (Right) -->
+                <button 
+                  type="button" 
+                  id="togglePassword" 
+                  class="eye-toggle-btn absolute right-3.5 top-1/2 -translate-y-1/2" 
+                  aria-label="Tampilkan kata sandi" 
+                  title="Tampilkan kata sandi"
+                >
+                  <!-- Eye Open Icon -->
+                  <svg id="iconEyeOpen" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  <!-- Eye Closed Icon -->
+                  <svg id="iconEyeClosed" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Row: Ingat Saya & Lupa Sandi -->
+            <div class="flex items-center justify-between pt-1">
+              <!-- Remember Me Interaction -->
+              <div id="rememberWrapper" class="remember-wrapper group" tabindex="0" role="checkbox" aria-checked="false" aria-label="Ingat saya">
+                <input type="checkbox" id="rememberMe" name="remember" class="sr-only">
+                <div id="rememberCheckbox" class="custom-checkbox">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <span class="text-xs sm:text-sm text-[#5B6275] group-hover:text-[#1E293B] transition-colors">
+                  Ingat saya
+                </span>
+              </div>
+
+              <!-- Forgot Password Link -->
+              <a href="lupa-password.html" class="text-xs sm:text-sm font-semibold text-brand-orange hover:text-brand-orange-hover transition-colors">
+                lupa sandi?
+              </a>
+            </div>
+
+            <!-- Submit Button (Masuk) -->
+            <div class="pt-2">
+              <button type="submit" class="btn-submit">
+                Masuk
+              </button>
+            </div>
+
+          </form>
+
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- JavaScript Interaction Script -->
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
+
