@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "../assets/css/style.css"; /* Ini manggil file custom kamu */
 
 @theme {
   --font-sans: 'Poppins', var(--default-font-family);
@@ -6,4 +7,8 @@
   --color-brand-orange-hover: #DF5C13;
   --color-brand-dark: #090D1F;
   --color-brand-cream: #FFF9E9;
+  --color-brand-tosca: #0E545C;
+  --color-brand-tosca-dark: #0D4F56;
+  --color-brand-white-dark-hover: #99958C;
+  --color-brand-white-dark-active: #737069;
 }
