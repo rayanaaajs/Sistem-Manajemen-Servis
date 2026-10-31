@@ -97,7 +97,7 @@ $daftar_servis_selesai = [
   <aside class="w-60 lg:w-64 bg-tosca-dark text-white-light min-h-screen flex flex-col justify-between p-6 shrink-0 fixed top-0 bottom-0 left-0 z-30 shadow-xl overflow-y-auto">
     <div>
       <div class="flex flex-col items-center mb-10 pt-2">
-        <img src="../assets/img/logo-sc.png" alt="Logo Singhasari Computer" class="w-16 h-auto drop-shadow-md mb-2">
+        <img src="../assets/img/logo-polos.png" alt="Logo Singhasari Computer" class="w-16 h-auto drop-shadow-md mb-2">
         <span class="text-sm font-extrabold tracking-widest text-white-light uppercase">SINGHASARI</span>
         <span class="text-[10px] font-semibold tracking-[0.25em] text-tosca-light-active uppercase">COMPUTER</span>
       </div>
