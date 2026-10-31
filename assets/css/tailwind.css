@@ -8,6 +8,8 @@
       "Courier New", monospace;
     --color-orange-50: oklch(98% 0.016 73.684);
     --color-orange-100: oklch(95.4% 0.038 75.164);
+    --color-orange-200: oklch(90.1% 0.076 70.697);
+    --color-orange-400: oklch(75% 0.183 55.934);
     --color-gray-50: oklch(98.5% 0.002 247.839);
     --color-gray-100: oklch(96.7% 0.003 264.542);
     --color-gray-200: oklch(92.8% 0.006 264.531);
@@ -58,7 +60,9 @@
     --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     --default-font-family: var(--font-sans);
     --default-mono-font-family: var(--font-mono);
+    --color-orange-light-active: #FBD1BA;
     --color-orange: #F26B21;
+    --color-orange-hover: #DA601E;
     --color-blue-dark: #141C43;
     --color-blue-darker: #090D1F;
     --color-white-light: #FFFEFD;
@@ -516,6 +520,15 @@
   .bg-orange-100 {
     background-color: var(--color-orange-100);
   }
+  .bg-orange-200 {
+    background-color: var(--color-orange-200);
+  }
+  .bg-orange-400 {
+    background-color: var(--color-orange-400);
+  }
+  .bg-orange-light-active {
+    background-color: var(--color-orange-light-active);
+  }
   .bg-tosca {
     background-color: var(--color-tosca);
   }
@@ -745,6 +758,12 @@
   .text-gray-800 {
     color: var(--color-gray-800);
   }
+  .text-orange {
+    color: var(--color-orange);
+  }
+  .text-orange-hover {
+    color: var(--color-orange-hover);
+  }
   .text-white {
     color: var(--color-white);
   }
@@ -824,6 +843,9 @@
       .hover\:bg-white\/10:hover {
         background-color: color-mix(in oklab, var(--color-white) 10%, transparent);
       }
+    }
+    .hover\:text-orange-hover:hover {
+      color: var(--color-orange-hover);
     }
     .hover\:text-white:hover {
       color: var(--color-white);
