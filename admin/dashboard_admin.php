@@ -355,7 +355,7 @@ $daftar_servis_selesai = [
   <script>
     window.grafikServisData = <?= json_encode($data_grafik_servis) ?>;
   </script>
-  <script src="../assets/js/dbadmin.js"></script>
+  <script src="../assets/js/dashboard_admin.js"></script>
 
 </body>
 </html>
