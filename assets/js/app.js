@@ -1,10 +1,20 @@
-/**
- * Sistem Manajemen Servis - Singosari Computer
- * Interaksi JavaScript:
- * 1. Buka / Tutup Mata Password (Toggle Visibility)
- * 2. Fitur "Ingat Saya" (Checkbox & LocalStorage Persistence)
- * 3. Animasi Naik-Turun 3 Lingkaran (Smooth JS Floating Physics)
- */
+console.log("File app.js berhasil dipanggil!");
+// Aksi Toggle Sidebar Mobile
+document.addEventListener('DOMContentLoaded', () => {
+    const sidebar = document.getElementById('sidebar');
+    const btnToggle = document.getElementById('btn-toggle');
+    const overlay = document.getElementById('sidebar-overlay');
+
+    if (btnToggle && sidebar && overlay) {
+        function toggleSidebar() {
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        btnToggle.addEventListener('click', toggleSidebar);
+        overlay.addEventListener('click', toggleSidebar);
+    }
+});
 
 document.addEventListener('DOMContentLoaded', () => {
   // ==========================================================================
@@ -206,4 +216,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+
 
