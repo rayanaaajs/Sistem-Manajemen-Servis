@@ -34,16 +34,16 @@ $stat_omzet = ['total' => 'Rp 8,9 jt'];
 $data_grafik_servis = [
     ['minggu' => 'Mg 1', 'masuk' => 10, 'selesai' => 9],
     ['minggu' => 'Mg 2', 'masuk' => 25, 'selesai' => 20],
-    ['minggu' => 'Mg 3', 'masuk' => 80, 'selesai' => 38],
+    ['minggu' => 'Mg 3', 'masuk' => 80, 'selesai' => 50],
     ['minggu' => 'Mg 4', 'masuk' => 120, 'selesai' => 49],
 ];
 
 // --- DATA BEBAN TEKNISI ---
 $max_beban_teknisi = 10;
 $beban_teknisi = [
-    ['nama' => 'Ilham', 'unit' => 9],
-    ['nama' => 'Bagas', 'unit' => 5],
-    ['nama' => 'Dimas', 'unit' => 2],
+    ['nama' => 'Ilham', 'unit' => 8],
+    ['nama' => 'Bagas', 'unit' => 6],
+    ['nama' => 'Dimas', 'unit' => 3],
 ];
 
 // --- DATA LAPORAN BULANAN (DINAMIS) ---
@@ -207,12 +207,12 @@ $daftar_servis_selesai = [
                 
                 // Set kelas warna Tailwind dari input.css
                 $warna_bar_class = 'bg-success'; // Hijau aman (#1F7A45)
-                if ($bt['unit'] >= 10) {
+                if ($bt['unit'] >= 8) {
                     $warna_bar_class = 'bg-danger'; // Merah penuh (#C2402A)
-                } elseif ($bt['unit'] >= 7) {
-                    $warna_bar_class = 'bg-orange'; // Oranye mendekati penuh (#F26B21)
+                } elseif ($bt['unit'] >= 5) {
+                    $warna_bar_class = 'bg-warning'; // Oranye mendekati penuh (#F26B21)
                 } elseif ($bt['unit'] >= 3) {
-                    $warna_bar_class = 'bg-warning'; // Kuning sedang (#F9C25C)
+                    $warna_bar_class = 'bg-success'; // Kuning sedang (#F9C25C)
                 }
               ?>
                 <div>
