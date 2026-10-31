@@ -3,12 +3,100 @@
 
 @theme {
   --font-sans: 'Poppins', var(--default-font-family);
-  --color-brand-orange: #F26B21;
-  --color-brand-orange-hover: #DF5C13;
-  --color-brand-dark: #090D1F;
-  --color-brand-cream: #FFF9E9;
-  --color-brand-tosca: #0E545C;
-  --color-brand-tosca-dark: #0D4F56;
-  --color-brand-white-dark-hover: #99958C;
-  --color-brand-white-dark-active: #737069;
+
+  /* --- ORANGE --- */
+  --color-orange-light: #FEF0E9;
+  --color-orange-light-hover: #FDE9DE;
+  --color-orange-light-active: #FBD1BA;
+  --color-orange: #F26B21;
+  --color-orange-hover: #DA601E;
+  --color-orange-active: #C2561A;
+  --color-orange-dark: #B65019;
+  --color-orange-dark-hover: #914014;
+  --color-orange-dark-active: #6D300F;
+  --color-orange-darker: #55250C;
+
+  /* --- BLUE --- */
+  --color-blue-light: #E8E9EE;
+  --color-blue-light-hover: #DDDEE6;
+  --color-blue-light-active: #B8BBCC;
+  --color-blue: #1B2559;
+  --color-blue-hover: #182150;
+  --color-blue-active: #161E47;
+  --color-blue-dark: #141C43;
+  --color-blue-dark-hover: #101635;
+  --color-blue-dark-active: #0C1128;
+  --color-blue-darker: #090D1F;
+
+  /* --- WHITE / CREAM --- */
+  --color-white-light: #FFFEFD;
+  --color-white-light-hover: #FFFEFC;
+  --color-white-light-active: #FFFDF8;
+  --color-white: #FFF9E9;
+  --color-white-hover: #E6E0D2;
+  --color-white-active: #CCC7BA;
+  --color-white-dark: #BFBBAF;
+  --color-white-dark-hover: #99958C;
+  --color-white-dark-active: #737069;
+  --color-white-darker: #595752;
+
+  /* --- LIGHT BLUE --- */
+  --color-lightblue-light: #E6F5F9;
+  --color-lightblue-light-hover: #D9EFF7;
+  --color-lightblue-light-active: #B0DEEE;
+  --color-lightblue: #0096C7;
+  --color-lightblue-hover: #0087B3;
+  --color-lightblue-active: #00789F;
+  --color-lightblue-dark: #007195;
+  --color-lightblue-dark-hover: #005A77;
+  --color-lightblue-dark-active: #00445A;
+  --color-lightblue-darker: #003546;
+
+  /* --- DANGER --- */
+  --color-danger-light: #F9ECEA;
+  --color-danger-light-hover: #F6E2DF;
+  --color-danger-light-active: #ECC4BD;
+  --color-danger: #C2402A;
+  --color-danger-hover: #AF3A26;
+  --color-danger-active: #9B3322;
+  --color-danger-dark: #923020;
+  --color-danger-dark-hover: #742619;
+  --color-danger-dark-active: #571D13;
+  --color-danger-darker: #44160F;
+
+  /* --- SUCCESS --- */
+  --color-success-light: #E9F2EC;
+  --color-success-light-hover: #DDEBE3;
+  --color-success-light-active: #BAD6C5;
+  --color-success: #1F7A45;
+  --color-success-hover: #1C6E3E;
+  --color-success-active: #196237;
+  --color-success-dark: #175C34;
+  --color-success-dark-hover: #134929;
+  --color-success-dark-active: #0E371F;
+  --color-success-darker: #0B2B18;
+
+  /* --- WARNING --- */
+  --color-warning-light: #FEF9EF;
+  --color-warning-light-hover: #FEF6E7;
+  --color-warning-light-active: #FDECCC;
+  --color-warning: #F9C25C;
+  --color-warning-hover: #E0AF53;
+  --color-warning-active: #C79B4A;
+  --color-warning-dark: #BB9245;
+  --color-warning-dark-hover: #957437;
+  --color-warning-dark-active: #705729;
+  --color-warning-darker: #574420;
+
+  /* --- TOSCA --- */
+  --color-tosca-light: #E7F0F1;
+  --color-tosca-light-hover: #DBE9EA;
+  --color-tosca-light-active: #B5D1D4;
+  --color-tosca: #116973;
+  --color-tosca-hover: #0F5F68;
+  --color-tosca-active: #0E545C;
+  --color-tosca-dark: #0D4F56;
+  --color-tosca-dark-hover: #0A3F45;
+  --color-tosca-dark-active: #082F34;
+  --color-tosca-darker: #062528;
 }
