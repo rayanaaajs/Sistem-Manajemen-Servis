@@ -32,6 +32,8 @@ function badgeStatus($status) {
         'menunggu' => 'bg-[#E8E9EE] text-[#595752] border-[#595752]',
         // Orange/Peach
         'teknisi' => 'bg-[#FEF0E9] text-[#AF3A26] border-[#AF3A26]',
+        'lunas' => 'bg-[#DDEBE3] text-[#1F7A45]',
+        
         
         // Default kalau statusnya gak dikenali
         default => 'bg-gray-100 text-gray-600 border-gray-100'
