@@ -1,5 +1,5 @@
 <?php
-
+$currentPage = basename($_SERVER['PHP_SELF']);
 // Kembalikan deklarasi variabel $__rel yang sempat terhapus
 $__jobsheetRoot = dirname(__DIR__);
 $__scriptDir = dirname($_SERVER['SCRIPT_FILENAME']);
@@ -27,7 +27,7 @@ $base = $__rel === '' ? '' : str_repeat('../', substr_count($__rel, '/') + 1);
     <!-- ================= SIDEBAR ================= -->
     <!-- Overlay Mobile -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden transition-opacity"></div>
-    <aside id="sidebar" class="fixed inset-y-0 left-0 w-58 bg-tosca-active text-white flex flex-col z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
+    <aside id="sidebar" class="fixed inset-y-0 left-0 w-56 bg-tosca-active text-white flex flex-col z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
         <!-- Logo Area -->
         <div class="flex flex-col items-center justify-center pt-10 pb-8">
             <!-- Sisipin $base biar path gambar gak error -->
@@ -37,7 +37,8 @@ $base = $__rel === '' ? '' : str_repeat('../', substr_count($__rel, '/') + 1);
         <!-- Navigation Menu -->
         <nav class="flex-1 px-5 mt-4 space-y-2">
             <!-- Link Dashboard -->
-            <a href="<?= $base ?>dashboard.php" class="flex items-center gap-4 px-4 py-3.5 active:bg-orange bg-orange rounded-xl text-white font-medium transition-all">
+            <a href="<?= $base ?>admin/dashboard.php" 
+               class="flex items-center gap-4 px-4 py-3.5 rounded-xl font-medium transition-all <?= ($currentPage === 'dashboard.php' || $currentPage === 'index.php') ? 'bg-orange text-white-light' : 'text-gray-300 hover:text-white-light hover:bg-white/10' ?>">
                 <svg xmlns="http://www.w3.org/2000/svg" width="1.4em" height="1.4em" viewBox="0 0 24 24">
                     <path d="M0 0h24v24H0z" fill="none" />
                     <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m3 11l2.5-2.5c1.017-1.017 1.526-1.526 2.137-1.638a2 2 0 0 1 .726 0c.611.112 1.12.62 2.137 1.638s1.526 1.526 2.137 1.638c.24.045.486.045.726 0c.611-.112 1.12-.621 2.137-1.638L21 3M3 15v6m6-8v8m6-5v5m6-12v12" />
@@ -46,7 +47,8 @@ $base = $__rel === '' ? '' : str_repeat('../', substr_count($__rel, '/') + 1);
             </a>
 
             <!-- Link Karyawan -->
-            <a href="<?= $base ?>karyawan.php" class="flex items-center gap-4 px-4 py-3.5 text-gray-300 hover:text-white hover:bg-white/10 active:bg-orange rounded-xl transition-all font-medium">
+            <a href="<?= $base ?>admin/karyawan.php" 
+               class="flex items-center gap-4 px-4 py-3.5 rounded-xl font-medium transition-all <?= ($currentPage === 'karyawan.php') ? 'bg-orange text-white-light' : 'text-gray-300 hover:text-white-light hover:bg-white/10' ?>">
                 <svg xmlns="http://www.w3.org/2000/svg" width="1.4em" height="1.4em" viewBox="0 0 24 24">
                     <path d="M0 0h24v24H0z" fill="none" />
                     <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 7h8v1a4 4 0 0 1-8 0zm0 0h8V5a3 3 0 0 0-3-3H8a3 3 0 0 0-3 3zm7 14H4a2 2 0 0 1-2-2a4 4 0 0 1 4-4h4M9 2v2M3.5 7h11m5 15v-1.968A4.5 4.5 0 0 0 22 16c0-1.767-1.018-3.264-2.5-4v2.5a2 2 0 1 1-4 0V12c-1.482.736-2.5 2.233-2.5 4a4.5 4.5 0 0 0 2.5 4.032V22" />
@@ -55,7 +57,8 @@ $base = $__rel === '' ? '' : str_repeat('../', substr_count($__rel, '/') + 1);
             </a>
 
             <!-- Link Antrean -->
-            <a href="<?= $base ?>antrean.php" class="flex items-center gap-4 px-4 py-3.5 text-gray-300 hover:text-white hover:bg-white/10 active:bg-orange rounded-xl transition-all font-medium">
+            <a href="<?= $base ?>admin/antrean.php" 
+               class="flex items-center gap-4 px-4 py-3.5 rounded-xl font-medium transition-all <?= ($currentPage === 'antrean.php') ? 'bg-orange text-white-light' : 'text-gray-300 hover:text-white-light hover:bg-white/10' ?>">
                 <svg xmlns="http://www.w3.org/2000/svg" width="1.4em" height="1.4em" viewBox="0 0 24 24">
                     <path d="M0 0h24v24H0z" fill="none" />
                     <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 0 1 0 3.75H5.625a1.875 1.875 0 0 1 0-3.75" />
@@ -64,7 +67,8 @@ $base = $__rel === '' ? '' : str_repeat('../', substr_count($__rel, '/') + 1);
             </a>
 
             <!-- Link Pelanggan -->
-            <a href="<?= $base ?>pelanggan.php" class="flex items-center gap-4 px-4 py-3.5 text-gray-300 hover:text-white hover:bg-white/10 active:bg-orange  rounded-xl transition-all font-medium">
+            <a href="<?= $base ?>admin/pelanggan.php" 
+               class="flex items-center gap-4 px-4 py-3.5 rounded-xl font-medium transition-all <?= ($currentPage === 'pelanggan.php') ? 'bg-orange text-white-light' : 'text-gray-300 hover:text-white-light hover:bg-white/10' ?>">
                 <svg xmlns="http://www.w3.org/2000/svg" width="1.4em" height="1.4em" viewBox="0 0 24 24">
                     <path d="M0 0h24v24H0z" fill="none" />
                     <g fill="none" stroke="currentColor" stroke-width="2">
@@ -76,7 +80,8 @@ $base = $__rel === '' ? '' : str_repeat('../', substr_count($__rel, '/') + 1);
             </a>
 
             <!-- Link Sparepart -->
-            <a href="<?= $base ?>sparepart.php" class="flex items-center gap-4 px-4 py-3.5 text-gray-300 hover:text-white hover:bg-white/10 active:bg-orange  rounded-xl transition-all font-medium">
+            <a href="<?= $base ?>admin/sparepart.php" 
+               class="flex items-center gap-4 px-4 py-3.5 rounded-xl font-medium transition-all <?= ($currentPage === 'sparepart.php') ? 'bg-orange text-white-light' : 'text-gray-300 hover:text-white-light hover:bg-white/10' ?>">
                 <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" viewBox="0 0 16 16">
                     <path d="M0 0h16v16H0z" fill="none" />
                     <path fill="currentColor" d="M5.669 1a.498.498 0 0 0-.667.47v1.816c0 .275-.225.5-.5.5a.5.5 0 0 1-.5-.5V1.47A.5.5 0 0 0 3.335 1a3.5 3.5 0 0 0-2.333 3.287c0 1.359.79 2.589 2 3.162V13.5c0 .827.673 1.5 1.5 1.5s1.5-.673 1.5-1.5V7.449c1.21-.573 2-1.803 2-3.162A3.5 3.5 0 0 0 5.669 1m-.333 5.644a.5.5 0 0 0-.334.472v6.385c0 .275-.225.5-.5.5a.5.5 0 0 1-.5-.5V7.116a.5.5 0 0 0-.334-.472a2.5 2.5 0 0 1-1.666-2.356c0-.792.383-1.523 1-1.987v.987c0 .827.673 1.5 1.5 1.5s1.5-.673 1.5-1.5v-.987c.617.464 1 1.195 1 1.987c0 1.058-.67 2.005-1.666 2.356M13.5 8h-.498V4.118l.447-.895a.5.5 0 0 0 .027-.382l-.5-1.5a.5.5 0 0 0-.475-.342h-2a.5.5 0 0 0-.475.342l-.5 1.5a.5.5 0 0 0 .027.382l.447.895V8h-.5a.5.5 0 0 0-.5.5v4c0 1.379 1.121 2.5 2.5 2.5s2.5-1.121 2.5-2.5v-4a.5.5 0 0 0-.5-.5m-2.638-5.999h1.279l.32.962l-.407.814a.5.5 0 0 0-.053.224v4h-1v-4a.5.5 0 0 0-.052-.224l-.407-.814zm2.14 10.499c0 .827-.673 1.5-1.5 1.5s-1.5-.673-1.5-1.5V9h3z" />
@@ -135,4 +140,4 @@ $base = $__rel === '' ? '' : str_repeat('../', substr_count($__rel, '/') + 1);
         </header>
 
         <!-- AREA KONTEN HALAMAN -->
-        <div class="px-6 md:px-8 pb-10 pt-4 w-full overflow-x-hidden">
+        <div class="px-5 md:px-8 pb-10 w-full overflow-x-hidden">

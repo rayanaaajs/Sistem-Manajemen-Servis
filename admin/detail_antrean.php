@@ -1,106 +1,9 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Detail Antrean — PASTI Singhasari Computer</title>
+<?php
 
-  <!-- Google Fonts: Poppins -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-
-  <!-- Tailwind CSS & Custom Style CSS -->
-  <link rel="stylesheet" href="../assets/css/tailwind.css">
-  <link rel="stylesheet" href="../assets/css/style.css">
-</head>
-
-<body class="bg-white font-sans text-white-darker antialiased min-h-screen flex">
-
-  <!-- ==============================================================================
-       SIDEBAR NAVIGASI KIRI (TEMPLATE SESUAI header.php)
-       ============================================================================== -->
-  <aside class="w-60 lg:w-64 bg-tosca-dark text-white-light min-h-screen flex flex-col justify-between p-6 shrink-0 fixed top-0 bottom-0 left-0 z-30 shadow-xl overflow-y-auto">
-    <div>
-      <!-- Logo Area -->
-      <div class="flex flex-col items-center mb-10 pt-2">
-        <img src="../assets/img/logo-polos.png" alt="Logo Singhasari Computer" class="w-16 h-auto drop-shadow-md mb-2">
-        <span class="text-sm font-extrabold tracking-widest text-white-light uppercase">SINGHASARI</span>
-        <span class="text-[10px] font-semibold tracking-[0.25em] text-tosca-light-active uppercase">COMPUTER</span>
-      </div>
-
-      <!-- Navigation Menu -->
-      <nav class="space-y-3">
-        <!-- Dashboard -->
-        <a href="dashboard_admin.php" class="flex items-center gap-3.5 px-4 py-3 rounded-[10px] text-tosca-light hover:text-white-light hover:bg-white-light/10 font-medium transition-all group">
-          <svg class="w-5 h-5 shrink-0 text-tosca-light group-hover:text-white-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-          </svg>
-          <span class="text-sm tracking-wide">Dashboard</span>
-        </a>
-
-        <!-- Karyawan -->
-        <a href="#karyawan" class="flex items-center gap-3.5 px-4 py-3 rounded-[10px] text-tosca-light hover:text-white-light hover:bg-white-light/10 font-medium transition-all group">
-          <svg class="w-5 h-5 shrink-0 text-tosca-light group-hover:text-white-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-          </svg>
-          <span class="text-sm tracking-wide">Karyawan</span>
-        </a>
-
-        <!-- Antrean (Aktif - Orange) -->
-        <a href="antrean_admin.php" class="flex items-center gap-3.5 px-4 py-3 rounded-[10px] bg-orange text-white-light font-semibold shadow-md transition-all">
-          <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-          </svg>
-          <span class="text-sm font-medium tracking-wide">Antrean</span>
-        </a>
-
-        <!-- Pelanggan -->
-        <a href="#pelanggan" class="flex items-center gap-3.5 px-4 py-3 rounded-[10px] text-tosca-light hover:text-white-light hover:bg-white-light/10 font-medium transition-all group">
-          <svg class="w-5 h-5 shrink-0 text-tosca-light group-hover:text-white-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-          </svg>
-          <span class="text-sm tracking-wide">Pelanggan</span>
-        </a>
-
-        <!-- Sparepart -->
-        <a href="#sparepart" class="flex items-center gap-3.5 px-4 py-3 rounded-[10px] text-tosca-light hover:text-white-light hover:bg-white-light/10 font-medium transition-all group">
-          <svg class="w-5 h-5 shrink-0 text-tosca-light group-hover:text-white-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          <span class="text-sm tracking-wide">Sparepart</span>
-        </a>
-      </nav>
-    </div>
-
-    <!-- Copyright -->
-    <div class="pt-6 border-t border-tosca-dark-hover text-center text-[11px] text-tosca-light/60 leading-relaxed">
-      Copyright 2026<br>&copy; Singhasari Computer
-    </div>
-  </aside>
-
-  <!-- ==============================================================================
-       AREA KONTEN UTAMA
-       ============================================================================== -->
-  <main class="ml-60 lg:ml-64 flex-1 p-7 lg:p-10 overflow-x-hidden min-h-screen">
-    
-    <!-- HEADER ATAS (TANGGAL, JUDUL DETAIL ANTREAN, PROFIL ADMIN) -->
-    <header class="flex items-center justify-between gap-5 mb-8">
-      <div>
-        <p class="text-sm font-semibold text-white-dark-hover uppercase tracking-wider mb-1.5">Sabtu, 3 Oktober 2026</p>
-        <h1 class="text-4xl lg:text-5xl font-extrabold text-blue-darker tracking-tight">Detail Antrean</h1>
-      </div>
-
-      <!-- Profil Admin -->
-      <div class="flex items-center gap-3 bg-tosca-dark text-white-light pl-1.5 pr-4 py-1.5 rounded-full shadow-sm">
-        <div class="w-8 h-8 rounded-full bg-orange flex items-center justify-center text-xs font-extrabold text-white-light">
-          AD
-        </div>
-        <span class="text-sm font-bold tracking-wide">Admin</span>
-      </div>
-    </header>
-
+// Panggil header pelanggan
+require_once __DIR__ . '/../includes/header.php';
+require_once __DIR__ . '/../includes/helpers.php';
+?>
     <!-- FORM 3 KOLOM DETAIL ANTREAN (SESUAI DESAIN FIGMA DENGAN DATA PRE-FILLED) -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-7 items-stretch">
 
@@ -365,10 +268,7 @@
           </a>
         </div>
       </div>
-
     </div>
-
-  </main>
 
   <!-- JAVASCRIPT: Toggle Lihat Password -->
   <script>
@@ -384,6 +284,7 @@
     });
   </script>
 
-</body>
-</html>
+<?php
+require_once __DIR__ . '/../includes/footer.php';
+?>
 

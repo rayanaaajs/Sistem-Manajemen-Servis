@@ -2,10 +2,6 @@
 // ==============================================================================
 // 1. INISIALISASI SESSION, HELPER, DAN KEAMANAN
 // ==============================================================================
-if (session_status() === PHP_SESSION_NONE) {
-    @session_start();
-}
-
 require_once __DIR__ . '/../includes/helpers.php';
 
 /**
@@ -305,8 +301,6 @@ require_once __DIR__ . '/../includes/header.php';
         </div>
       </div>
 
-    </div> <!-- Penutup <div class="space-y-6"> dari header.php -->
-  </main> <!-- Penutup <main> dari header.php -->
 
   <!-- ==============================================================================
       BAGIAN 5: SCRIPT JAVASCRIPT (FILTER REAL-TIME & PENCARIAN NOTA)
@@ -366,5 +360,6 @@ require_once __DIR__ . '/../includes/header.php';
     });
   </script>
 
-</body>
-</html>
+<?php
+require_once __DIR__ . '/../includes/footer.php';
+?>
