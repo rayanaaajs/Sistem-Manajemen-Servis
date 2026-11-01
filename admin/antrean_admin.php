@@ -177,7 +177,7 @@ require_once __DIR__ . '/../includes/header.php';
         </div>
 
         <!-- Tombol + Antrean Baru (Orange) -->
-        <a href="#tambah-antrean" class="inline-flex items-center justify-center gap-1.5 px-5 py-2 rounded-full bg-orange hover:bg-orange-hover text-white-light text-xs font-semibold shadow-xs transition-all whitespace-nowrap self-start sm:self-auto cursor-pointer">
+        <a href="Tambah_Antrean.html" class="inline-flex items-center justify-center gap-1.5 px-5 py-2 rounded-full bg-orange hover:bg-orange-hover text-white-light text-xs font-semibold shadow-xs transition-all whitespace-nowrap self-start sm:self-auto cursor-pointer">
           <span class="text-sm font-bold">+</span>
           <span>Antrean Baru</span>
         </a>
@@ -220,7 +220,7 @@ require_once __DIR__ . '/../includes/header.php';
                   <td class="py-4 px-5 font-bold text-blue-darker"><?= e($item['nota']) ?></td>
                   
                   <!-- Pelanggan -->
-                  <td class="py-4 px-5 font-semibold text-gray-800"><?= e($item['pelanggan']) ?></td>
+                  <td class="py-4 px-5 font-semibold text-blue-darker"><?= e($item['pelanggan']) ?></td>
                   
                   <!-- Perangkat -->
                   <td class="py-4 px-5 text-white-dark-active"><?= e($item['perangkat']) ?></td>
@@ -254,11 +254,11 @@ require_once __DIR__ . '/../includes/header.php';
                   <td class="py-4 px-5 text-center">
                     <div class="inline-flex items-center gap-2">
                       <!-- Tombol Edit (Outline) -->
-                      <a href="#edit" class="px-3.5 py-1.5 rounded-full border border-blue-darker text-blue-darker hover:bg-blue-light text-xs font-semibold transition">
+                      <a href="edit_antrean_admin.html" class="px-3.5 py-1.5 rounded-full border border-blue-darker text-blue-darker hover:bg-blue-light text-xs font-semibold transition">
                         Edit
                       </a>
                       <!-- Tombol Detail (Solid Tosca) -->
-                      <a href="#detail" class="px-3.5 py-1.5 rounded-full bg-tosca-dark hover:bg-tosca-dark-hover text-white-light text-xs font-semibold transition">
+                      <a href="detail_antrean_admin.html" class="px-3.5 py-1.5 rounded-full bg-tosca-dark hover:bg-tosca-dark-hover text-white-light text-xs font-semibold transition">
                         Detail
                       </a>
                       <!-- Tombol Hapus (Outline Danger) -->
