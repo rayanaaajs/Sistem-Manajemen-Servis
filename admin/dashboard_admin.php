@@ -217,42 +217,42 @@ require_once __DIR__ . '/../includes/header.php';
       </div>
 
       <!-- KOLOM KANAN -->
-      <div class="space-y-6">
-        <div class="bg-white-light rounded-2xl p-6 shadow-sm border border-white-hover/60">
-          <h3 class="text-sm font-bold text-blue-darker tracking-tight mb-3">Hasil Pekerjaan</h3>
-          <div class="space-y-2 text-xs">
-            <div class="flex justify-between items-center text-white-darker"><span class="font-medium">Selesai :</span><span class="font-bold text-blue-darker"><?= e($hasil_pekerjaan['selesai']) ?></span></div>
-            <div class="flex justify-between items-center text-white-darker"><span class="font-medium">Cancel :</span><span class="font-bold text-blue-darker"><?= e($hasil_pekerjaan['cancel']) ?></span></div>
-            <div class="flex justify-between items-center text-white-darker"><span class="font-medium">Can't Repair :</span><span class="font-bold text-blue-darker"><?= e($hasil_pekerjaan['cant_repair']) ?></span></div>
+      <div class="space-y-6 lg:space-y-7">
+        <div class="bg-white-light rounded-3xl p-7 lg:p-8 shadow-sm border border-white-hover/60">
+          <h3 class="text-base font-bold text-blue-darker tracking-tight mb-4">Hasil Pekerjaan</h3>
+          <div class="space-y-3.5 text-sm">
+            <div class="flex justify-between items-center text-white-darker"><span class="font-medium">Selesai :</span><span class="font-extrabold text-blue-darker"><?= e($hasil_pekerjaan['selesai']) ?></span></div>
+            <div class="flex justify-between items-center text-white-darker"><span class="font-medium">Cancel :</span><span class="font-extrabold text-blue-darker"><?= e($hasil_pekerjaan['cancel']) ?></span></div>
+            <div class="flex justify-between items-center text-white-darker"><span class="font-medium">Can't Repair :</span><span class="font-extrabold text-blue-darker"><?= e($hasil_pekerjaan['cant_repair']) ?></span></div>
           </div>
-          <div class="my-5 border-t border-white-hover"></div>
-          <h3 class="text-sm font-bold text-blue-darker tracking-tight mb-3">Jumlah Pekerjaan Teknisi</h3>
-          <div class="space-y-2 text-xs">
+          <div class="my-6 border-t border-white-hover"></div>
+          <h3 class="text-base font-bold text-blue-darker tracking-tight mb-4">Jumlah Pekerjaan Teknisi</h3>
+          <div class="space-y-3.5 text-sm">
             <?php foreach ($pekerjaan_teknisi as $nama_tek => $jml): ?>
-              <div class="flex justify-between items-center text-white-darker"><span class="font-medium"><?= e($nama_tek) ?> :</span><span class="font-bold text-blue-darker"><?= e($jml) ?></span></div>
+              <div class="flex justify-between items-center text-white-darker"><span class="font-medium"><?= e($nama_tek) ?> :</span><span class="font-extrabold text-blue-darker"><?= e($jml) ?></span></div>
             <?php endforeach; ?>
           </div>
-          <div class="my-5 border-t border-white-hover"></div>
-          <h3 class="text-sm font-bold text-blue-darker tracking-tight mb-3">Status</h3>
-          <div class="space-y-2 text-xs">
-            <div class="flex justify-between items-center text-white-darker"><span class="font-medium">Di Ambil User :</span><span class="font-bold text-blue-darker"><?= e($status_barang['di_ambil_user']) ?></span></div>
-            <div class="flex justify-between items-center text-white-darker"><span class="font-medium">Barang Di Toko :</span><span class="font-bold text-blue-darker"><?= e($status_barang['barang_di_toko']) ?></span></div>
+          <div class="my-6 border-t border-white-hover"></div>
+          <h3 class="text-base font-bold text-blue-darker tracking-tight mb-4">Status</h3>
+          <div class="space-y-3.5 text-sm">
+            <div class="flex justify-between items-center text-white-darker"><span class="font-medium">Di Ambil User :</span><span class="font-extrabold text-blue-darker"><?= e($status_barang['di_ambil_user']) ?></span></div>
+            <div class="flex justify-between items-center text-white-darker"><span class="font-medium">Barang Di Toko :</span><span class="font-extrabold text-blue-darker"><?= e($status_barang['barang_di_toko']) ?></span></div>
           </div>
         </div>
 
         <!-- LAPORAN BULANAN (DINAMIS & OTOMATIS) -->
-        <div class="bg-white-light rounded-2xl p-6 shadow-sm border border-white-hover/60">
-          <h3 class="text-sm font-bold text-blue-darker tracking-tight">Laporan Bulanan</h3>
-          <p class="text-[11px] text-white-dark-hover font-medium mb-4"><?= e($bulan_laporan) ?></p>
+        <div class="bg-white-light rounded-3xl p-7 lg:p-8 shadow-sm border border-white-hover/60">
+          <h3 class="text-base font-bold text-blue-darker tracking-tight">Laporan Bulanan</h3>
+          <p class="text-xs text-white-dark-hover font-medium mb-5"><?= e($bulan_laporan) ?></p>
           
-          <div class="space-y-4">
+          <div class="space-y-5">
             <!-- Progress Selesai (Otomatis mengambil nilai metrik atas) -->
             <div>
-              <div class="flex justify-between items-center text-xs font-semibold mb-1.5">
+              <div class="flex justify-between items-center text-sm font-semibold mb-2">
                 <span class="text-white-dark-active">Selesai</span>
-                <span class="text-blue-darker font-bold"><?= e($selesai_text) ?></span>
+                <span class="text-blue-darker font-extrabold"><?= e($selesai_text) ?></span>
               </div>
-              <div class="w-full h-2.5 bg-orange-light rounded-full overflow-hidden">
+              <div class="w-full h-3.5 bg-orange-light rounded-full overflow-hidden">
                 <div class="h-full bg-orange rounded-full transition-all duration-500" 
                     style="width: <?= $persen_selesai ?>%;"></div>
               </div>
@@ -260,11 +260,11 @@ require_once __DIR__ . '/../includes/header.php';
 
             <!-- Progress Sparepart (Sistem warna otomatis: Merah jika >= 50) -->
             <div>
-              <div class="flex justify-between items-center text-xs font-semibold mb-1.5">
+              <div class="flex justify-between items-center text-sm font-semibold mb-2">
                 <span class="text-white-dark-active">Sparepart</span>
-                <span class="text-blue-darker font-bold"><?= e($total_sparepart) ?> item</span>
+                <span class="text-blue-darker font-extrabold"><?= e($total_sparepart) ?> item</span>
               </div>
-              <div class="w-full h-2.5 bg-warning-light rounded-full overflow-hidden">
+              <div class="w-full h-3.5 bg-warning-light rounded-full overflow-hidden">
                 <div class="h-full <?= $warna_sparepart_class ?> rounded-full transition-all duration-500" 
                     style="width: <?= $persen_sparepart ?>%;"></div>
               </div>

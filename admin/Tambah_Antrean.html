@@ -332,16 +332,22 @@
             <input type="hidden" name="jenis_layanan" id="inputJenisLayanan" value="Reguler">
           </div>
 
-          <!-- Persetujuan Bongkar (Checkbox Style) -->
+          <!-- Persetujuan Bongkar (Checkbox Style Centang Persegi Konsisten dengan Detail) -->
           <div>
             <label class="block text-sm font-bold text-blue-darker mb-2">Persetujuan Bongkar</label>
             <div class="grid grid-cols-2 gap-3" id="groupPersetujuan">
-              <label class="persetujuan-card flex items-center gap-2.5 px-4 py-3 rounded-2xl border border-blue-darker/60 bg-white-light cursor-pointer transition">
-                <input type="radio" name="persetujuan_bongkar" value="setuju" checked class="w-4 h-4 text-tosca-dark accent-tosca-dark cursor-pointer">
+              <label class="persetujuan-card flex items-center gap-2.5 px-4 py-3 rounded-2xl border border-blue-darker/60 bg-white-light cursor-pointer transition select-none">
+                <input type="radio" name="persetujuan_bongkar" value="setuju" checked class="sr-only">
+                <div class="check-box-icon w-5 h-5 rounded-md bg-tosca-dark text-white-light flex items-center justify-center text-xs font-bold transition">
+                  ✓
+                </div>
                 <span class="text-sm font-semibold text-blue-darker">Setuju Dibongkar</span>
               </label>
-              <label class="persetujuan-card flex items-center gap-2.5 px-4 py-3 rounded-2xl border border-white-active bg-white-light cursor-pointer hover:bg-white-hover transition">
-                <input type="radio" name="persetujuan_bongkar" value="tidak_setuju" class="w-4 h-4 text-tosca-dark accent-tosca-dark cursor-pointer">
+              <label class="persetujuan-card flex items-center gap-2.5 px-4 py-3 rounded-2xl border border-white-active bg-white-light cursor-pointer hover:bg-white-hover transition select-none">
+                <input type="radio" name="persetujuan_bongkar" value="tidak_setuju" class="sr-only">
+                <div class="check-box-icon w-5 h-5 rounded-md border border-white-active bg-white-light flex items-center justify-center text-xs font-bold text-transparent transition">
+                  ✓
+                </div>
                 <span class="text-sm font-medium text-blue-darker">Tidak Setuju</span>
               </label>
             </div>
@@ -431,29 +437,35 @@
         });
       });
 
-      // 4. Update Style Persetujuan Bongkar saat Radio berubah
-      const persetujuanRadios = document.querySelectorAll('input[name="persetujuan_bongkar"]');
-      persetujuanRadios.forEach(radio => {
-        radio.addEventListener('change', function() {
-          document.querySelectorAll('.persetujuan-card').forEach(card => {
-            card.classList.remove('border-blue-darker/60');
-            card.classList.add('border-white-active');
-            const span = card.querySelector('span');
-            if (span) {
-              span.classList.remove('font-semibold');
-              span.classList.add('font-medium');
+      // 4. Update Style Persetujuan Bongkar saat Radio berubah (Tampilan Centang Persegi)
+      const persetujuanCards = document.querySelectorAll('#groupPersetujuan .persetujuan-card');
+      persetujuanCards.forEach(card => {
+        card.addEventListener('click', function() {
+          persetujuanCards.forEach(c => {
+            c.className = 'persetujuan-card flex items-center gap-2.5 px-4 py-3 rounded-2xl border border-white-active bg-white-light cursor-pointer hover:bg-white-hover transition select-none';
+            const icon = c.querySelector('.check-box-icon');
+            if (icon) {
+              icon.className = 'check-box-icon w-5 h-5 rounded-md border border-white-active bg-white-light flex items-center justify-center text-xs font-bold text-transparent transition';
             }
+            const span = c.querySelector('span');
+            if (span) {
+              span.className = 'text-sm font-medium text-blue-darker';
+            }
+            const radio = c.querySelector('input[type="radio"]');
+            if (radio) radio.checked = false;
           });
-          const parentCard = this.closest('.persetujuan-card');
-          if (parentCard) {
-            parentCard.classList.remove('border-white-active');
-            parentCard.classList.add('border-blue-darker/60');
-            const span = parentCard.querySelector('span');
-            if (span) {
-              span.classList.remove('font-medium');
-              span.classList.add('font-semibold');
-            }
+
+          this.className = 'persetujuan-card flex items-center gap-2.5 px-4 py-3 rounded-2xl border border-blue-darker/60 bg-white-light cursor-pointer transition select-none';
+          const activeIcon = this.querySelector('.check-box-icon');
+          if (activeIcon) {
+            activeIcon.className = 'check-box-icon w-5 h-5 rounded-md bg-tosca-dark text-white-light flex items-center justify-center text-xs font-bold transition';
           }
+          const activeSpan = this.querySelector('span');
+          if (activeSpan) {
+            activeSpan.className = 'text-sm font-semibold text-blue-darker';
+          }
+          const currentRadio = this.querySelector('input[type="radio"]');
+          if (currentRadio) currentRadio.checked = true;
         });
       });
     });
