@@ -1,4 +1,22 @@
 <?php
+// ==============================================================================
+// 1. INISIALISASI SESSION, HELPER, DAN KEAMANAN
+// ==============================================================================
+if (session_status() === PHP_SESSION_NONE) {
+    @session_start();
+}
+
+require_once __DIR__ . '/../includes/helpers.php';
+
+if (!isset($_SESSION['user'])) {
+    $_SESSION['user'] = [
+        'id'       => 1,
+        'username' => 'admin',
+        'nama'     => 'Admin',
+        'role'     => 'admin',
+        'inisial'  => 'AD'
+    ];
+}
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/helpers.php';
 
@@ -60,6 +78,13 @@ $daftar_servis_selesai = [
     ['nota' => '#5145', 'pelanggan' => 'Sari', 'perangkat' => 'Laptop HP', 'teknisi' => 'Ilham', 'status' => 'Selesai', 'layanan' => 'Reguler', 'status_pembayaran' => 'Belum Bayar', 'whatsapp' => '6281234567890'],
 ];
 ?>
+<?php
+$page_title = 'Halo, ' . htmlspecialchars((string)($_SESSION['user']['nama'] ?? 'Admin'), ENT_QUOTES, 'UTF-8');
+$active_menu = 'dashboard';
+require_once __DIR__ . '/../includes/header.php';
+?>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -222,6 +247,26 @@ $daftar_servis_selesai = [
       </div>
 
       <!-- KOLOM KANAN -->
+      <div class="space-y-6 lg:space-y-7">
+        <div class="bg-white-light rounded-3xl p-7 lg:p-8 shadow-sm border border-white-hover/60">
+          <h3 class="text-base font-bold text-blue-darker tracking-tight mb-4">Hasil Pekerjaan</h3>
+          <div class="space-y-3.5 text-sm">
+            <div class="flex justify-between items-center text-white-darker"><span class="font-medium">Selesai :</span><span class="font-extrabold text-blue-darker"><?= e($hasil_pekerjaan['selesai']) ?></span></div>
+            <div class="flex justify-between items-center text-white-darker"><span class="font-medium">Cancel :</span><span class="font-extrabold text-blue-darker"><?= e($hasil_pekerjaan['cancel']) ?></span></div>
+            <div class="flex justify-between items-center text-white-darker"><span class="font-medium">Can't Repair :</span><span class="font-extrabold text-blue-darker"><?= e($hasil_pekerjaan['cant_repair']) ?></span></div>
+          </div>
+          <div class="my-6 border-t border-white-hover"></div>
+          <h3 class="text-base font-bold text-blue-darker tracking-tight mb-4">Jumlah Pekerjaan Teknisi</h3>
+          <div class="space-y-3.5 text-sm">
+            <?php foreach ($pekerjaan_teknisi as $nama_tek => $jml): ?>
+              <div class="flex justify-between items-center text-white-darker"><span class="font-medium"><?= e($nama_tek) ?> :</span><span class="font-extrabold text-blue-darker"><?= e($jml) ?></span></div>
+            <?php endforeach; ?>
+          </div>
+          <div class="my-6 border-t border-white-hover"></div>
+          <h3 class="text-base font-bold text-blue-darker tracking-tight mb-4">Status</h3>
+          <div class="space-y-3.5 text-sm">
+            <div class="flex justify-between items-center text-white-darker"><span class="font-medium">Di Ambil User :</span><span class="font-extrabold text-blue-darker"><?= e($status_barang['di_ambil_user']) ?></span></div>
+            <div class="flex justify-between items-center text-white-darker"><span class="font-medium">Barang Di Toko :</span><span class="font-extrabold text-blue-darker"><?= e($status_barang['barang_di_toko']) ?></span></div>
       <div class="space-y-6">
         <div class="bg-white-light rounded-2xl p-6 shadow-sm border border-white-hover/60">
           <h3 class="text-sm font-bold text-blue-darker tracking-tight mb-3">Hasil Pekerjaan</h3>
@@ -246,6 +291,18 @@ $daftar_servis_selesai = [
         </div>
 
         <!-- LAPORAN BULANAN (DINAMIS & OTOMATIS) -->
+        <div class="bg-white-light rounded-3xl p-7 lg:p-8 shadow-sm border border-white-hover/60">
+          <h3 class="text-base font-bold text-blue-darker tracking-tight">Laporan Bulanan</h3>
+          <p class="text-xs text-white-dark-hover font-medium mb-5"><?= e($bulan_laporan) ?></p>
+          
+          <div class="space-y-5">
+            <!-- Progress Selesai (Otomatis mengambil nilai metrik atas) -->
+            <div>
+              <div class="flex justify-between items-center text-sm font-semibold mb-2">
+                <span class="text-white-dark-active">Selesai</span>
+                <span class="text-blue-darker font-extrabold"><?= e($selesai_text) ?></span>
+              </div>
+              <div class="w-full h-3.5 bg-orange-light rounded-full overflow-hidden">
         <div class="bg-white-light rounded-2xl p-6 shadow-sm border border-white-hover/60">
           <h3 class="text-sm font-bold text-blue-darker tracking-tight">Laporan Bulanan</h3>
           <p class="text-[11px] text-white-dark-hover font-medium mb-4"><?= e($bulan_laporan) ?></p>
@@ -265,6 +322,11 @@ $daftar_servis_selesai = [
 
             <!-- Progress Sparepart (Sistem warna otomatis: Merah jika >= 50) -->
             <div>
+              <div class="flex justify-between items-center text-sm font-semibold mb-2">
+                <span class="text-white-dark-active">Sparepart</span>
+                <span class="text-blue-darker font-extrabold"><?= e($total_sparepart) ?> item</span>
+              </div>
+              <div class="w-full h-3.5 bg-warning-light rounded-full overflow-hidden">
               <div class="flex justify-between items-center text-xs font-semibold mb-1.5">
                 <span class="text-white-dark-active">Sparepart</span>
                 <span class="text-blue-darker font-bold"><?= e($total_sparepart) ?> item</span>
@@ -278,6 +340,18 @@ $daftar_servis_selesai = [
         </div>
       </div>
 
+    </div>
+  </div> <!-- Penutup <div class="space-y-6"> dari header.php -->
+</main> <!-- Penutup <main> dari header.php -->
+
+<!-- JS Data Passing -->
+<script>
+  window.grafikServisData = <?= json_encode($data_grafik_servis) ?>;
+</script>
+<script src="../assets/js/dashboard_admin.js"></script>
+
+</body>
+</html>
 <?php
 // Kasih ../ biar dia nyari di luar folder admin
 require_once __DIR__ . '/../includes/footer.php';
