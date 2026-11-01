@@ -17,6 +17,13 @@ if (!isset($_SESSION['user'])) {
         'inisial'  => 'AD'
     ];
 }
+require_once __DIR__ . '/../includes/header.php';
+require_once __DIR__ . '/../includes/helpers.php';
+
+$__jobsheetRoot = dirname(__DIR__);
+$__scriptDir = dirname($_SERVER['SCRIPT_FILENAME']);
+$__rel = ltrim(str_replace('\\', '/', substr($__scriptDir, strlen($__jobsheetRoot))), '/');
+$base = $__rel === '' ? '' : str_repeat('../', substr_count($__rel, '/') + 1);
 
 // ==============================================================================
 // 2. DATA DUMMY / DEMO
@@ -78,6 +85,29 @@ require_once __DIR__ . '/../includes/header.php';
 ?>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Admin — PASTI Singhasari Computer</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../assets/css/tailwind.css">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- CDN Chart.js untuk grafik -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="bg-white font-sans text-white-darker antialiased min-h-screen flex">
+
+
+
+  <!-- ================= KONTEN UTAMA ================= -->
     <div class="flex items-center gap-2.5 mb-6" id="filterWaktuGroup">
       <button type="button" class="filter-btn px-5 py-1.5 rounded-full bg-tosca-dark text-white-light text-xs font-semibold shadow-xs transition cursor-pointer">Hari ini</button>
       <button type="button" class="filter-btn px-5 py-1.5 rounded-full bg-white-light text-white-darker border border-white-active text-xs font-medium shadow-2xs hover:bg-white-light-hover transition cursor-pointer">7 Hari</button>
@@ -237,6 +267,26 @@ require_once __DIR__ . '/../includes/header.php';
           <div class="space-y-3.5 text-sm">
             <div class="flex justify-between items-center text-white-darker"><span class="font-medium">Di Ambil User :</span><span class="font-extrabold text-blue-darker"><?= e($status_barang['di_ambil_user']) ?></span></div>
             <div class="flex justify-between items-center text-white-darker"><span class="font-medium">Barang Di Toko :</span><span class="font-extrabold text-blue-darker"><?= e($status_barang['barang_di_toko']) ?></span></div>
+      <div class="space-y-6">
+        <div class="bg-white-light rounded-2xl p-6 shadow-sm border border-white-hover/60">
+          <h3 class="text-sm font-bold text-blue-darker tracking-tight mb-3">Hasil Pekerjaan</h3>
+          <div class="space-y-2 text-xs">
+            <div class="flex justify-between items-center text-white-darker"><span class="font-medium">Selesai :</span><span class="font-bold text-blue-darker"><?= e($hasil_pekerjaan['selesai']) ?></span></div>
+            <div class="flex justify-between items-center text-white-darker"><span class="font-medium">Cancel :</span><span class="font-bold text-blue-darker"><?= e($hasil_pekerjaan['cancel']) ?></span></div>
+            <div class="flex justify-between items-center text-white-darker"><span class="font-medium">Can't Repair :</span><span class="font-bold text-blue-darker"><?= e($hasil_pekerjaan['cant_repair']) ?></span></div>
+          </div>
+          <div class="my-5 border-t border-white-hover"></div>
+          <h3 class="text-sm font-bold text-blue-darker tracking-tight mb-3">Jumlah Pekerjaan Teknisi</h3>
+          <div class="space-y-2 text-xs">
+            <?php foreach ($pekerjaan_teknisi as $nama_tek => $jml): ?>
+              <div class="flex justify-between items-center text-white-darker"><span class="font-medium"><?= e($nama_tek) ?> :</span><span class="font-bold text-blue-darker"><?= e($jml) ?></span></div>
+            <?php endforeach; ?>
+          </div>
+          <div class="my-5 border-t border-white-hover"></div>
+          <h3 class="text-sm font-bold text-blue-darker tracking-tight mb-3">Status</h3>
+          <div class="space-y-2 text-xs">
+            <div class="flex justify-between items-center text-white-darker"><span class="font-medium">Di Ambil User :</span><span class="font-bold text-blue-darker"><?= e($status_barang['di_ambil_user']) ?></span></div>
+            <div class="flex justify-between items-center text-white-darker"><span class="font-medium">Barang Di Toko :</span><span class="font-bold text-blue-darker"><?= e($status_barang['barang_di_toko']) ?></span></div>
           </div>
         </div>
 
@@ -253,6 +303,18 @@ require_once __DIR__ . '/../includes/header.php';
                 <span class="text-blue-darker font-extrabold"><?= e($selesai_text) ?></span>
               </div>
               <div class="w-full h-3.5 bg-orange-light rounded-full overflow-hidden">
+        <div class="bg-white-light rounded-2xl p-6 shadow-sm border border-white-hover/60">
+          <h3 class="text-sm font-bold text-blue-darker tracking-tight">Laporan Bulanan</h3>
+          <p class="text-[11px] text-white-dark-hover font-medium mb-4"><?= e($bulan_laporan) ?></p>
+          
+          <div class="space-y-4">
+            <!-- Progress Selesai (Otomatis mengambil nilai metrik atas) -->
+            <div>
+              <div class="flex justify-between items-center text-xs font-semibold mb-1.5">
+                <span class="text-white-dark-active">Selesai</span>
+                <span class="text-blue-darker font-bold"><?= e($selesai_text) ?></span>
+              </div>
+              <div class="w-full h-2.5 bg-orange-light rounded-full overflow-hidden">
                 <div class="h-full bg-orange rounded-full transition-all duration-500" 
                     style="width: <?= $persen_selesai ?>%;"></div>
               </div>
@@ -265,6 +327,11 @@ require_once __DIR__ . '/../includes/header.php';
                 <span class="text-blue-darker font-extrabold"><?= e($total_sparepart) ?> item</span>
               </div>
               <div class="w-full h-3.5 bg-warning-light rounded-full overflow-hidden">
+              <div class="flex justify-between items-center text-xs font-semibold mb-1.5">
+                <span class="text-white-dark-active">Sparepart</span>
+                <span class="text-blue-darker font-bold"><?= e($total_sparepart) ?> item</span>
+              </div>
+              <div class="w-full h-2.5 bg-warning-light rounded-full overflow-hidden">
                 <div class="h-full <?= $warna_sparepart_class ?> rounded-full transition-all duration-500" 
                     style="width: <?= $persen_sparepart ?>%;"></div>
               </div>
@@ -285,3 +352,7 @@ require_once __DIR__ . '/../includes/header.php';
 
 </body>
 </html>
+<?php
+// Kasih ../ biar dia nyari di luar folder admin
+require_once __DIR__ . '/../includes/footer.php';
+?>
