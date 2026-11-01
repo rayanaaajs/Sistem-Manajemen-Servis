@@ -27,7 +27,7 @@ $base = $__rel === '' ? '' : str_repeat('../', substr_count($__rel, '/') + 1);
     <!-- ================= SIDEBAR ================= -->
     <!-- Overlay Mobile -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden transition-opacity"></div>
-    <aside id="sidebar" class="fixed inset-y-0 left-0 w-60 bg-tosca-active text-white flex flex-col z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
+    <aside id="sidebar" class="fixed inset-y-0 left-0 w-58 bg-tosca-active text-white flex flex-col z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
         <!-- Logo Area -->
         <div class="flex flex-col items-center justify-center pt-10 pb-8">
             <!-- Sisipin $base biar path gambar gak error -->
@@ -135,4 +135,4 @@ $base = $__rel === '' ? '' : str_repeat('../', substr_count($__rel, '/') + 1);
         </header>
 
         <!-- AREA KONTEN HALAMAN -->
-        <div class="px-6 md:px-8 pb-10">
+        <div class="px-6 md:px-8 pb-10 pt-4 w-full overflow-x-hidden">

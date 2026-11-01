@@ -1,0 +1,57 @@
+<?php
+// Logika base path biar CSS dan gambar selalu ke-load
+$__jobsheetRoot = dirname(__DIR__);
+$__scriptDir = dirname($_SERVER['SCRIPT_FILENAME']);
+$__rel = ltrim(str_replace('\\', '/', substr($__scriptDir, strlen($__jobsheetRoot))), '/');
+$base = $__rel === '' ? '' : str_repeat('../', substr_count($__rel, '/') + 1);
+?>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lacak Servis - Singhasari Computer</title>
+    
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind & Custom CSS -->
+    <link rel="stylesheet" href="<?= $base ?>assets/css/tailwind.css">
+    <link rel="stylesheet" href="<?= $base ?>assets/css/style.css">
+</head>
+<body class="font-sans text-gray-800 min-h-screen flex flex-col">
+
+    <!-- ================= NAVBAR PELANGGAN ================= -->
+    <header class="w-full flex items-center justify-between px-8 md:px-16 py-6">
+        
+        <!-- Logo Kiri -->
+        <div class="flex items-center">
+            <!-- Asumsikan nama file logo tamengnya logo.png, ubah kalau beda -->
+            <img src="<?= $base ?>assets/img/logo-polos.png" alt="Logo Singhasari Computer" class="h-18 w-auto">
+        </div>
+
+        <!-- Tombol Chat WA Kanan -->
+        <a href="https://wa.me/6282290538991" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 bg-tosca-hover hover:bg-tosca-dark text-white-light px-5 py-3.5 rounded-full font-semibold text-sm transition-all">
+            <!-- Icon WhatsApp -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="1.3em" height="1.3em" viewBox="0 0 24 24">
+                <path d="M0 0h24v24H0z" fill="none" />
+                <g fill="none">
+                    <g clip-path="url(#SVGXv8lpc2Y)">
+                        <path fill="currentColor" fill-rule="evenodd" d="M17.415 14.382c-.298-.149-1.759-.867-2.031-.967s-.47-.148-.669.15c-.198.297-.767.966-.94 1.164c-.174.199-.347.223-.644.075c-.297-.15-1.255-.463-2.39-1.475c-.883-.788-1.48-1.761-1.653-2.059c-.173-.297-.019-.458.13-.606c.134-.133.297-.347.446-.52s.198-.298.297-.497c.1-.198.05-.371-.025-.52c-.074-.149-.668-1.612-.916-2.207c-.241-.579-.486-.5-.668-.51c-.174-.008-.372-.01-.57-.01s-.52.074-.792.372c-.273.297-1.04 1.016-1.04 2.479c0 1.462 1.064 2.875 1.213 3.074s2.095 3.2 5.076 4.487c.71.306 1.263.489 1.694.625c.712.227 1.36.195 1.872.118c.57-.085 1.758-.719 2.006-1.413s.247-1.289.173-1.413s-.272-.198-.57-.347m-5.422 7.403h-.004a9.87 9.87 0 0 1-5.032-1.378l-.36-.214l-3.742.982l.999-3.648l-.235-.374a9.86 9.86 0 0 1-1.511-5.26c.002-5.45 4.436-9.884 9.889-9.884a9.8 9.8 0 0 1 6.988 2.899a9.82 9.82 0 0 1 2.892 6.992c-.002 5.45-4.436 9.885-9.884 9.885m8.412-18.297A11.82 11.82 0 0 0 11.992 0C5.438 0 .102 5.335.1 11.892a11.86 11.86 0 0 0 1.587 5.945L0 24l6.304-1.654a11.9 11.9 0 0 0 5.684 1.448h.005c6.554 0 11.89-5.335 11.892-11.893a11.82 11.82 0 0 0-3.48-8.413" clip-rule="evenodd" />
+                    </g>
+                    <defs>
+                        <clipPath id="SVGXv8lpc2Y">
+                            <path fill="#fff" d="M0 0h24v24H0z" />
+                        </clipPath>
+                    </defs>
+                </g>
+            </svg>
+            Chat WhatsApp
+        </a>
+    </header>
+
+    <!-- ================= KONTEN UTAMA ================= -->
+    <!-- flex-1 biar footernya otomatis kedorong ke paling bawah -->
+    <main class="flex-1 w-full max-w-6xl mx-auto py-4 px-10 md:px-0 flex flex-col">
