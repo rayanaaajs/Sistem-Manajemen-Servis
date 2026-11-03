@@ -19,30 +19,30 @@ require_once __DIR__ . '/../includes/helpers.php';
           <div>
             <label class="block text-sm font-bold text-blue-darker mb-2">Pelanggan</label>
             <input type="text"
-                   name="pelanggan"
-                   value="Varell"
-                   placeholder="Pilih atau cari pelanggan"
-                   class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition">
+                  name="pelanggan"
+                  value="Varell"
+                  placeholder="Pilih atau cari pelanggan"
+                  class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition">
           </div>
 
           <!-- Nomor Whatsapp -->
           <div>
             <label class="block text-sm font-bold text-blue-darker mb-2">Nomor</label>
             <input type="tel"
-                   name="nomor"
-                   value="087812341234"
-                   placeholder="Masukkan Nomor Whatsapp"
-                   class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition">
+                  name="nomor"
+                  value="087812341234"
+                  placeholder="Masukkan Nomor Whatsapp"
+                  class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition">
           </div>
 
           <!-- Alamat -->
           <div>
             <label class="block text-sm font-bold text-blue-darker mb-2">Alamat</label>
             <input type="text"
-                   name="alamat"
-                   value="JL.Soekarno Hatta no 112 Blk 20"
-                   placeholder="Masukkan Alamat Pelanggan"
-                   class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition">
+                  name="alamat"
+                  value="JL.Soekarno Hatta no 112 Blk 20"
+                  placeholder="Masukkan Alamat Pelanggan"
+                  class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition">
           </div>
         </div>
       </div>
@@ -79,20 +79,20 @@ require_once __DIR__ . '/../includes/helpers.php';
             <div>
               <label class="block text-sm font-bold text-blue-darker mb-2">Merek dan Spesifikasi</label>
               <input type="text"
-                     name="merek_spesifikasi"
-                     value="ROG - i9 - RAM 64 GB"
-                     placeholder="ROG - i9 - RAM 64 GB"
-                     class="w-full px-4 py-3.5 rounded-2xl border border-blue-darker/60 bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition">
+                    name="merek_spesifikasi"
+                    value="ROG - i9 - RAM 64 GB"
+                    placeholder="ROG - i9 - RAM 64 GB"
+                    class="w-full px-4 py-3.5 rounded-2xl border border-blue-darker/60 bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition">
             </div>
 
             <!-- Kelengkapan -->
             <div>
               <label class="block text-sm font-bold text-blue-darker mb-2">Kelengkapan</label>
               <input type="text"
-                     name="kelengkapan"
-                     value="Charger, tas"
-                     placeholder="Charger, tas"
-                     class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition">
+                    name="kelengkapan"
+                    value="Charger, tas"
+                    placeholder="Charger, tas"
+                    class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition">
             </div>
 
             <!-- Kondisi Awal Unit (Pill Selection: Hidup / Mati / Blank) -->
@@ -123,11 +123,11 @@ require_once __DIR__ . '/../includes/helpers.php';
               <label class="block text-sm font-bold text-blue-darker mb-2">Password Perangkat</label>
               <div class="relative">
                 <input type="password"
-                       id="passwordPerangkat"
-                       name="password_perangkat"
-                       value="12345678"
-                       placeholder="••••••••"
-                       class="w-full pl-4 pr-11 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm text-blue-darker tracking-wider focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition">
+                      id="passwordPerangkat"
+                      name="password_perangkat"
+                      value="12345678"
+                      placeholder="••••••••"
+                      class="w-full pl-4 pr-11 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm text-blue-darker tracking-wider focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition">
                 <button type="button"
                         id="togglePasswordBtn"
                         class="absolute inset-y-0 right-0 pr-4 flex items-center text-white-dark-hover hover:text-blue-darker cursor-pointer">
@@ -154,20 +154,20 @@ require_once __DIR__ . '/../includes/helpers.php';
           <div>
             <label class="block text-sm font-bold text-blue-darker mb-2">Keluhan Kerusakan</label>
             <input type="text"
-                   name="keluhan"
-                   value="pc saya matot"
-                   placeholder="pc saya matot"
-                   class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition">
+                  name="keluhan"
+                  value="pc saya matot"
+                  placeholder="pc saya matot"
+                  class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition">
           </div>
 
           <!-- Catatan Cek Fisik (Sesuai Desain Edit Antrean) -->
           <div>
             <label class="block text-sm font-bold text-blue-darker mb-2">Catatan Cek Fisik</label>
             <input type="text"
-                   name="catatan_cek_fisik"
-                   value="Baret di sudut kiri bawah, engsel kanan agak longgar."
-                   placeholder="Baret di sudut kiri bawah, engsel kanan agak longgar."
-                   class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition">
+                  name="catatan_cek_fisik"
+                  value="Baret di sudut kiri bawah, engsel kanan agak longgar."
+                  placeholder="Baret di sudut kiri bawah, engsel kanan agak longgar."
+                  class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition">
           </div>
 
           <!-- Row: Pilih Teknisi Aktif & Servis Masuk -->
@@ -286,8 +286,8 @@ require_once __DIR__ . '/../includes/helpers.php';
     </form>
 
   <!-- ==============================================================================
-       JAVASCRIPT INTERAKTIF
-       ============================================================================== -->
+      JAVASCRIPT INTERAKTIF
+      ============================================================================== -->
   <script>
     document.addEventListener("DOMContentLoaded", function() {
       // 1. Toggle Lihat Password Perangkat
