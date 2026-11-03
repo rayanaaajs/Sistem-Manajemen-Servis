@@ -6,12 +6,12 @@ require_once __DIR__ . '/../includes/helpers.php';
 ?>
 
     <!-- FORM 3 KOLOM SESUAI DESAIN FIGMA (EDIT ANTREAN DENGAN DATA PRE-FILLED) -->
-    <form action="antrean_admin.php" method="GET" class="grid grid-cols-1 lg:grid-cols-3 gap-7 items-stretch">
+    <form action="antrean_admin.php" method="GET" class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch">
 
       <!-- ==========================================
-          KOLOM 1: DATA PELANGGAN
-          ========================================== -->
-      <div class="bg-white-light rounded-3xl p-7 lg:p-8 shadow-sm border border-white-hover/60">
+           KOLOM 1: DATA PELANGGAN
+           ========================================== -->
+      <div class="bg-white-light rounded-3xl p-6 border border-white-hover/60">
         <h2 class="text-lg lg:text-xl font-bold text-blue-darker tracking-tight mb-6">Data Pelanggan</h2>
 
         <div class="space-y-5 lg:space-y-6">
@@ -48,21 +48,13 @@ require_once __DIR__ . '/../includes/helpers.php';
       </div>
 
       <!-- ==========================================
-          KOLOM 2: DATA PERANGKAT
-          ========================================== -->
-      <div class="bg-white-light rounded-3xl p-7 lg:p-8 shadow-sm border border-white-hover/60 flex flex-col justify-between">
+           KOLOM 2: DATA PERANGKAT
+           ========================================== -->
+      <div class="bg-white-light rounded-3xl p-6 border border-white-hover/60 flex flex-col justify-between">
         <div>
           <h2 class="text-lg lg:text-xl font-bold text-blue-darker tracking-tight mb-6">Data Perangkat</h2>
 
           <div class="space-y-5 lg:space-y-6">
-            <!-- Pelanggan / Unit -->
-            <div>
-              <label class="block text-sm font-bold text-blue-darker mb-2">Pelanggan</label>
-              <input type="text"
-                    value="Varell"
-                    placeholder="Pilih atau cari pelanggan"
-                    class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition">
-            </div>
 
             <!-- Jenis Barang (Dropdown Select dengan Panah) -->
             <div>
@@ -109,7 +101,7 @@ require_once __DIR__ . '/../includes/helpers.php';
               <div class="grid grid-cols-3 gap-2.5" id="groupKondisiUnit">
                 <button type="button"
                         data-val="Hidup"
-                        class="kondisi-btn py-3 px-4 rounded-2xl bg-tosca-dark text-white-light text-sm font-semibold shadow-xs transition text-center cursor-pointer">
+                        class="kondisi-btn py-3 px-4 rounded-2xl bg-tosca-dark text-white-light text-sm font-semibold transition text-center cursor-pointer">
                   Hidup
                 </button>
                 <button type="button"
@@ -152,9 +144,9 @@ require_once __DIR__ . '/../includes/helpers.php';
       </div>
 
       <!-- ==========================================
-          KOLOM 3: KELUHAN DAN PENANGANAN
-          ========================================== -->
-      <div class="bg-white-light rounded-3xl p-7 lg:p-8 shadow-sm border border-white-hover/60 flex flex-col justify-between">
+           KOLOM 3: KELUHAN DAN PENANGANAN
+           ========================================== -->
+      <div class="bg-white-light rounded-3xl p-6 border border-white-hover/60 flex flex-col justify-between">
         <div class="space-y-5 lg:space-y-6">
           <h2 class="text-lg lg:text-xl font-bold text-blue-darker tracking-tight mb-6">Keluhan dan Penanganan</h2>
 
@@ -206,15 +198,10 @@ require_once __DIR__ . '/../includes/helpers.php';
             <div>
               <label class="block text-sm font-bold text-blue-darker mb-2">Servis Masuk</label>
               <div class="relative">
-                <input type="text"
-                      name="tgl_masuk"
-                      value="6 Okt 2026"
-                      class="w-full pl-4 pr-9 py-3 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition">
-                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-white-dark-hover">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </div>
+                <input type="date"
+                       name="tgl_masuk"
+                       value="2026-10-06"
+                       class="w-full px-4 py-3 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition cursor-pointer">
               </div>
             </div>
           </div>
@@ -225,7 +212,7 @@ require_once __DIR__ . '/../includes/helpers.php';
             <div class="grid grid-cols-2 gap-3" id="groupLayanan">
               <button type="button"
                       data-val="Reguler"
-                      class="layanan-btn py-3 px-4 rounded-2xl bg-tosca-dark text-white-light text-sm font-semibold shadow-xs transition text-center cursor-pointer">
+                      class="layanan-btn py-3 px-4 rounded-2xl bg-tosca-dark text-white-light text-sm font-semibold transition text-center cursor-pointer">
                 Reguler
               </button>
               <button type="button"
@@ -286,12 +273,12 @@ require_once __DIR__ . '/../includes/helpers.php';
 
         <!-- Tombol Aksi Bawah: Batal & Simpan Perubahan -->
         <div class="mt-10 pt-4 flex items-center justify-end gap-3.5">
-          <a href="antrean_admin.php"
-            class="px-8 py-3 rounded-full border border-blue-darker/40 hover:bg-white-hover text-blue-darker text-sm font-bold transition text-center cursor-pointer">
+          <a href="antrean.php"
+             class="px-8 py-3 rounded-full border border-tosca-dark hover:bg-tosca-dark-hover text-tosca-dark hover:text-white-light text-sm font-semibold transition text-center cursor-pointer">
             Batal
           </a>
           <button type="submit"
-                  class="px-8 py-3 rounded-full bg-orange hover:bg-orange-hover text-white-light text-sm font-bold shadow-sm transition cursor-pointer">
+                  class="px-8 py-3 rounded-full bg-orange hover:bg-orange-hover text-white-light text-sm font-semibold transition cursor-pointer">
             Simpan Perubahan
           </button>
         </div>
@@ -321,7 +308,7 @@ require_once __DIR__ . '/../includes/helpers.php';
           kondisiBtns.forEach(b => {
             b.className = 'kondisi-btn py-3 px-4 rounded-2xl border border-white-active bg-white-light text-blue-darker hover:bg-white-hover text-sm font-medium transition text-center cursor-pointer';
           });
-          this.className = 'kondisi-btn py-3 px-4 rounded-2xl bg-tosca-dark text-white-light text-sm font-semibold shadow-xs transition text-center cursor-pointer';
+          this.className = 'kondisi-btn py-3 px-4 rounded-2xl bg-tosca-dark text-white-light text-sm font-semibold transition text-center cursor-pointer';
           if (inputKondisi) inputKondisi.value = this.getAttribute('data-val');
         });
       });
@@ -334,7 +321,7 @@ require_once __DIR__ . '/../includes/helpers.php';
           layananBtns.forEach(b => {
             b.className = 'layanan-btn py-3 px-4 rounded-2xl border border-white-active bg-white-light text-blue-darker hover:bg-white-hover text-sm font-medium transition text-center cursor-pointer';
           });
-          this.className = 'layanan-btn py-3 px-4 rounded-2xl bg-tosca-dark text-white-light text-sm font-semibold shadow-xs transition text-center cursor-pointer';
+          this.className = 'layanan-btn py-3 px-4 rounded-2xl bg-tosca-dark text-white-light text-sm font-semibold transition text-center cursor-pointer';
           if (inputLayanan) inputLayanan.value = this.getAttribute('data-val');
         });
       });
