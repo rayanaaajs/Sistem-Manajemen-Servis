@@ -1,3 +1,23 @@
+<?php
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Jika sudah login, arahkan ke dashboard.
+if (isset($_SESSION['user_id'])) {
+    header('Location: ../index.php');
+    exit;
+}
+
+// Ambil pesan dari proses login atau registrasi.
+$error = $_SESSION['auth_error'] ?? '';
+$success = $_SESSION['auth_success'] ?? '';
+
+unset($_SESSION['auth_error'], $_SESSION['auth_success']);
+
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -12,8 +32,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS & Custom Style CSS -->
-  <link rel="stylesheet" href="assets/css/tailwind.css">
-  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/tailwind.css">
+  <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body class="bg-brand-cream min-h-screen relative flex flex-col justify-between overflow-x-hidden selection:bg-brand-orange selection:text-white">
 
@@ -42,22 +62,22 @@
           
           <!-- Circle 1: Wrench & Screwdriver (Atas Kanan) -->
           <div class="floating-circle circle-wrench" title="Manajemen Perbaikan Unit" aria-hidden="true">
-            <img src="assets/img/screw-icon.png" alt="Ikon Servis Teknisi">
+            <img src="../assets/img/screw-icon.png" alt="Ikon Servis Teknisi">
           </div>
 
           <!-- Circle 2: Handshake (Sisi Kiri) -->
           <div class="floating-circle circle-handshake" title="Kepercayaan & Kerja Sama" aria-hidden="true">
-            <img src="assets/img/tangan-icon.png" alt="Ikon Kerja Sama">
+            <img src="../assets/img/tangan-icon.png" alt="Ikon Kerja Sama">
           </div>
 
           <!-- Circle 3: Headset Customer Support (Bawah Kanan) -->
           <div class="floating-circle circle-headset" title="Layanan Pelanggan Responsif" aria-hidden="true">
-            <img src="assets/img/headset-icon.png" alt="Ikon Layanan Bantuan">
+            <img src="../assets/img/headset-icon.png" alt="Ikon Layanan Bantuan">
           </div>
 
           <!-- Technician Character Illustration -->
           <img
-            src="assets/img/teknisi.png" 
+            src="../assets/img/teknisi.png" 
             alt="Ilustrasi Teknisi Singosari Computer" 
             class="mask-fade-bottom w-full max-w-100 sm:max-w-107.5 h-auto object-contain select-none pointer-events-none drop-shadow-sm transition-transform duration-500 hover:scale-[1.02]"
             loading="eager"
@@ -74,7 +94,7 @@
           
           <!-- Card Header: Logo & Titles -->
           <div class="text-center flex flex-col items-center">
-            <img src="assets/img/logo-polos.png" alt="Logo Singosari Computer" class="w-20 h-20 object-contain">
+            <img src="../assets/img/logo-polos.png" alt="Logo Singosari Computer" class="w-20 h-20 object-contain">
             <span class="mt-2 font-semibold text-lg text-orange-hover">
               Singhasari Computer
             </span>

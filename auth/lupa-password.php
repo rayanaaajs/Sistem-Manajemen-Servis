@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Buat Sandi Baru - Singhasari Computer</title>
+    <title>Lupa Sandi - Singhasari Computer</title>
     <!-- Google Fonts: Full Poppins (Weights: 300, 400, 500, 600, 700, 800, 900) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -13,13 +13,14 @@
     />
 
     <!-- Tailwind CSS & Custom Style CSS -->
-    <link rel="stylesheet" href="assets/css/tailwind.css" />
-    <link rel="stylesheet" href="assets/css/style.css" />
+    <link rel="stylesheet" href="./assets/css/tailwind.css" />
+    <link rel="stylesheet" href="./assets/css/style.css" />
   </head>
-  <body class="bg-orange-50 min-h-screen flex items-center justify-center p-4">
+  <body class="min-h-screen flex items-center justify-center p-4">
     <div
-      class="bg-white-light max-w-md w-full rounded-2xl shadow-sm p-8 text-center"
+      class="bg-white-light max-w-md w-full rounded-4xl shadow-sm p-8 text-center"
     >
+      <!-- Logo Dummy -->
       <div
         class="mx-auto w-16 h-16 bg-orange-light-active rounded-full flex items-center justify-center mb-6"
       >
@@ -37,54 +38,43 @@
           />
         </svg>
       </div>
-      <h2 class="text-2xl font-bold text-gray-800 mb-2">Buat Sandi Baru</h2>
+
+      <h2 class="text-2xl font-bold text-gray-800 mb-2">Lupa Kata Sandi?</h2>
       <p class="text-gray-500 text-sm mb-6">
-        Pastikan kata sandi baru kamu kuat dan mudah diingat.
+        Masukkan email yang terdaftar, dan kami akan kirimkan link untuk
+        mengatur ulang kata sandi kamu.
       </p>
 
-      <form action="#" method="POST" class="space-y-4 text-left">
-        <!-- Input Token Tersembunyi (Biasanya diambil dari URL via JS/Backend) -->
-        <input type="hidden" name="token" value="abc123token_dari_url" />
-
-        <div>
+      <form action="#" method="POST" class="space-y-4">
+        <div class="text-left">
           <label
-            for="new_password"
+            for="email"
             class="block text-sm font-medium text-gray-700 mb-1"
-            >Kata Sandi Baru *</label
+            >Email Anda</label
           >
           <input
-            type="password"
-            id="new_password"
-            name="new_password"
+            type="email"
+            id="email"
+            name="email"
             required
-            placeholder="Minimal 8 karakter"
-            class="w-full px-4 py-3 rounded-lg border border-gray-300 transition-all custom-input"
+            placeholder="admin@singhasari.com"
+            class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:border-transparent transition-all custom-input"
           />
         </div>
 
-        <div>
-          <label
-            for="confirm_password"
-            class="block text-sm font-medium text-gray-700 mb-1"
-            >Konfirmasi Sandi Baru *</label
-          >
-          <input
-            type="password"
-            id="confirm_password"
-            name="confirm_password"
-            required
-            placeholder="Ulangi kata sandi"
-            class="w-full px-4 py-3 rounded-lg border border-gray-300 transition-all custom-input"
-          />
-        </div>
-
-        <button
-          type="submit"
-          class="w-full mt-5 btn-submit text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 mt-2"
-        >
-          Simpan Kata Sandi
+        <button type="submit" class="w-full mt-5 btn-submit">
+          Kirim Link Reset
         </button>
       </form>
+
+      <div class="mt-6">
+        <a
+          href="login.html"
+          class="text-sm text-orange hover:text-orange-hover font-medium"
+        >
+          &larr; Kembali ke halaman Login
+        </a>
+      </div>
     </div>
   </body>
 </html>

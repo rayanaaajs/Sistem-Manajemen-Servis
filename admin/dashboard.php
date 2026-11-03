@@ -54,7 +54,7 @@ $daftar_servis_selesai = [
 
   <!-- ================= KONTEN UTAMA ================= -->
     <div class="flex items-center gap-2.5 mb-6" id="filterWaktuGroup">
-      <button type="button" class="px-6 py-2.5 rounded-full bg-tosca-active text-white-light text-xs font-semibold shadow-sm transition">Hari ini</button>
+      <button type="button" class="px-6 py-2.5 rounded-full bg-tosca-active text-white-light text-xs font-semibold transition">Hari ini</button>
       <button type="button" class="px-6 py-2.5 rounded-full bg-white-light text-gray-600 border border-gray-200 text-xs font-medium hover:bg-gray-50 transition">7 Hari</button>
       <button type="button" class="px-6 py-2.5 rounded-full bg-white-light text-gray-600 border border-gray-200 text-xs font-medium hover:bg-gray-50 transition">30 Hari</button>
     </div>
@@ -160,7 +160,7 @@ $daftar_servis_selesai = [
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse text-xs">
               <thead>
-                <tr class="border-b border-gray-100 text-white-darker font-normal text-[12px]">
+                <tr class="border-b border-gray-100 text-white-darker font-normal text-[13px]">
                   <th class="py-4 px-3">Nota</th>
                   <th class="py-4 px-3">Pelanggan</th>
                   <th class="py-4 px-3">Perangkat</th>

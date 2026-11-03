@@ -97,7 +97,7 @@ $base = $__rel === '' ? '' : str_repeat('../', substr_count($__rel, '/') + 1);
     </aside>
 
     <!-- ================= MAIN CONTENT WRAPPER ================= -->
-    <main class="flex-1 ml-0 md:ml-60 flex flex-col transition-all duration-300">
+        <main class="flex-1 min-w-0 ml-0 md:ml-56 flex flex-col transition-all duration-300">
         
         <!-- TOP NAVBAR -->
         <header class="w-full flex flex-col md:flex-row md:items-center justify-between px-6 md:px-8 py-4 md:py-6 gap-4 md:gap-0">

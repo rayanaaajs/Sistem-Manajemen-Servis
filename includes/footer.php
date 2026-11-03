@@ -3,5 +3,6 @@
     
     <!-- Panggil File JavaScript Custom -->
     <script src="<?= $base ?>assets/js/app.js"></script>
+    <script src="<?= $base ?>assets/js/admin.js"></script>
 </body>
 </html>

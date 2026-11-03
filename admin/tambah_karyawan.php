@@ -9,13 +9,13 @@ require_once __DIR__ . '/../includes/helpers.php';
       <form
         action="karyawan_admin.html"
         method="GET"
-        class="grid grid-cols-1 lg:grid-cols-3 gap-7 items-stretch"
+        class="grid grid-cols-1 lg:grid-cols-3 gap-5 items-stretch"
       >
         <!-- ==========================================
            KARTU KIRI: DATA TEKNISI (2 KOLOM GRID)
            ========================================== -->
         <div
-          class="lg:col-span-2 bg-white-light rounded-3xl p-7 lg:p-8 shadow-sm border border-white-hover/60 flex flex-col justify-between"
+          class="lg:col-span-2 bg-white-light rounded-3xl p-7 lg:p-8 border border-gray-200 flex flex-col justify-between"
         >
           <div>
             <h2 class="text-xl font-bold text-blue-darker tracking-tight mb-6">
@@ -171,14 +171,14 @@ require_once __DIR__ . '/../includes/helpers.php';
           <!-- Tombol Aksi Bawah: Batal & Tambah Karyawan -->
           <div class="mt-12 pt-6 flex items-center justify-end gap-3.5">
             <a
-              href="karyawan_admin.html"
-              class="px-8 py-3 rounded-full border border-blue-darker/40 hover:bg-white-hover text-blue-darker text-sm font-bold transition text-center cursor-pointer"
+              href="karyawan.php"
+              class="px-8 py-3 rounded-full border border-tosca-dark hover:bg-tosca-dark-hover text-tosca-dark hover:text-white-light text-sm font-semibold transition text-center cursor-pointer"
             >
               Batal
             </a>
             <button
               type="submit"
-              class="px-8 py-3 rounded-full bg-orange hover:bg-orange-hover text-white-light text-sm font-bold shadow-sm transition cursor-pointer"
+              class="px-8 py-3 rounded-full bg-orange hover:bg-orange-hover text-white-light text-sm font-semibold transition cursor-pointer"
             >
               Tambah Karyawan
             </button>
@@ -189,7 +189,7 @@ require_once __DIR__ . '/../includes/helpers.php';
            KARTU KANAN: RINGKASAN TEKNISI
            ========================================== -->
         <div
-          class="bg-white-light rounded-3xl p-7 lg:p-8 shadow-sm border border-white-hover/60 flex flex-col justify-between"
+          class="bg-white-light rounded-3xl p-7 lg:p-8 border border-gray-200 flex flex-col justify-between"
         >
           <div>
             <h2 class="text-xl font-bold text-blue-darker tracking-tight mb-6">
