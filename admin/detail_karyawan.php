@@ -6,12 +6,14 @@ require_once __DIR__ . '/../includes/helpers.php';
 ?>
 
       <!-- GRID 2 KOLOM (KIRI: DATA TEKNISI, KANAN: RINGKASAN TEKNISI) -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-7 items-stretch">
+      <!-- Ubah gap-7 jadi gap-5 agar sama dengan halaman Edit -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 items-stretch">
 
         <!-- ==========================================
              KARTU KIRI: DATA TEKNISI (READ-ONLY)
              ========================================== -->
-        <div class="lg:col-span-2 bg-white-light rounded-3xl p-7 lg:p-8 shadow-sm border border-white-hover/60 flex flex-col justify-between">
+        <!-- Hapus shadow-sm dan ubah border jadi border-gray-200 -->
+        <div class="lg:col-span-2 bg-white-light rounded-3xl p-7 lg:p-8 border border-gray-200 flex flex-col justify-between">
           <div>
             <h2 class="text-xl font-bold text-blue-darker tracking-tight mb-6">
               <span class="border-b-[2.5px] border-orange pb-0.5">Data</span> Teknisi
@@ -67,7 +69,7 @@ require_once __DIR__ . '/../includes/helpers.php';
                        name="nomor"
                        placeholder="Masukkan Nomor Whatsapp"
                        readonly
-                       class="w-full px-4 py-3.5 rounded-2xl border border-blue-darker bg-white-light text-sm font-medium text-blue-darker placeholder-white-dark-hover focus:outline-none cursor-default transition">
+                       class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker placeholder-white-dark-hover focus:outline-none cursor-default transition">
               </div>
 
               <!-- Pilih Status Teknisi -->
@@ -96,10 +98,10 @@ require_once __DIR__ . '/../includes/helpers.php';
             </div>
           </div>
 
-          <!-- Tombol Aksi Bawah: Batal / Kembali Sesuai Desain Figma -->
-          <div class="mt-16 pt-6 flex items-center justify-end">
+          <!-- Tombol Aksi Bawah: Batal / Kembali (Styling disamakan dengan Edit) -->
+          <div class="mt-8 pt-6 flex items-center justify-end">
             <a href="karyawan.php"
-               class="px-9 py-2.5 rounded-full border border-blue-darker text-blue-darker hover:bg-white-hover text-sm font-bold transition text-center cursor-pointer">
+               class="px-8 py-3 rounded-full border border-tosca-dark text-tosca-dark hover:bg-tosca-dark-hover hover:text-white-light text-sm font-bold transition text-center cursor-pointer">
               Batal
             </a>
           </div>
@@ -108,7 +110,8 @@ require_once __DIR__ . '/../includes/helpers.php';
         <!-- ==========================================
              KARTU KANAN: RINGKASAN TEKNISI
              ========================================== -->
-        <div class="bg-white-light rounded-3xl p-7 lg:p-8 shadow-sm border border-white-hover/60 flex flex-col justify-between">
+        <!-- Hapus shadow-sm dan ubah border jadi border-gray-200 -->
+        <div class="bg-white-light rounded-3xl p-7 lg:p-8 border border-gray-200 flex flex-col justify-between">
           <div>
             <h2 class="text-xl font-bold text-blue-darker tracking-tight mb-6">Ringkasan Teknisi</h2>
 
@@ -121,11 +124,6 @@ require_once __DIR__ . '/../includes/helpers.php';
 
             <!-- Daftar Informasi Ringkasan -->
             <div class="text-xs font-medium text-blue-darker">
-              <div class="flex justify-between items-center py-3.5 border-b border-white-hover/60">
-                <span class="text-blue-darker/70">Tanggal Akun Dibuat</span>
-                <span class="font-bold text-blue-darker text-sm">3 Okt 2026</span>
-              </div>
-
               <div class="flex justify-between items-center py-3.5 border-b border-white-hover/60">
                 <span class="text-blue-darker/70">Status awal</span>
                 <span class="inline-block px-6 py-1 rounded-full text-xs font-semibold bg-success-light text-success-dark">
@@ -160,4 +158,3 @@ require_once __DIR__ . '/../includes/helpers.php';
 <?php
 require_once __DIR__ . '/../includes/footer.php';
 ?>
-

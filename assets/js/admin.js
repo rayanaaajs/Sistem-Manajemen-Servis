@@ -172,38 +172,35 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 //script pop up hapus
-const modalHapus = document.getElementById("modalHapus");
-const modalBackdrop = document.getElementById("modalBackdrop");
-const modalBox = document.getElementById("modalBox");
-const textNotaHapus = document.getElementById("textNotaHapus");
-const btnConfirmHapus = document.getElementById("btnConfirmHapus");
+  const modalHapus = document.getElementById('modalHapus');
+  const modalBackdrop = document.getElementById('modalBackdrop');
+  const modalBox = document.getElementById('modalBox');
+  const textDataHapus = document.getElementById('textDataHapus');
+  const btnConfirmHapus = document.getElementById('btnConfirmHapus');
 
-function bukaModalHapus(nota, linkHapus) {
-  textNotaHapus.textContent = nota;
-  btnConfirmHapus.href = linkHapus;
+  // Fungsi buka modal dinamis menerima nama data/nota
+  function bukaModalHapus(namaData, linkHapus) {
+    textDataHapus.textContent = namaData;
+    btnConfirmHapus.href = linkHapus;
+    
+    modalHapus.classList.remove('hidden');
+    setTimeout(() => {
+      modalBackdrop.classList.remove('opacity-0');
+      modalBox.classList.remove('opacity-0', 'scale-95');
+      modalBox.classList.add('opacity-100', 'scale-100');
+    }, 10);
+  }
 
-  // Munculin pembungkus utamanya dulu
-  modalHapus.classList.remove("hidden");
+  // Fungsi tutup modal
+  function tutupModalHapus() {
+    modalBackdrop.classList.add('opacity-0');
+    modalBox.classList.remove('opacity-100', 'scale-100');
+    modalBox.classList.add('opacity-0', 'scale-95');
+    setTimeout(() => {
+      modalHapus.classList.add('hidden');
+    }, 300);
+  }
 
-  // Kasih jeda 10ms biar browser nafas, baru jalanin animasinya barengan
-  setTimeout(() => {
-    modalBackdrop.classList.remove("opacity-0");
-    modalBox.classList.remove("opacity-0", "scale-95");
-    modalBox.classList.add("opacity-100", "scale-100");
-  }, 10);
-}
-
-function tutupModalHapus() {
-  // Balikin efek pudarnya barengan
-  modalBackdrop.classList.add("opacity-0");
-  modalBox.classList.remove("opacity-100", "scale-100");
-  modalBox.classList.add("opacity-0", "scale-95");
-
-  // Tunggu transisi beres (300ms), baru div utama di-hidden total
-  setTimeout(() => {
-    modalHapus.classList.add("hidden");
-  }, 300);
-}
 
 // <!-- ==============================================================================
 //    BAGIAN 3: JAVASCRIPT INTERAKTIF
@@ -345,3 +342,12 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       });
     });
+
+
+
+
+
+
+
+
+
