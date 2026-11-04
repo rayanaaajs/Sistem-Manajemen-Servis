@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Halo Ilham - Singhasari Computer</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/global.css">
+<link rel="stylesheet" href="assets/css/dashboard.css">
+</head>
+<body data-title="Halo Ilham" data-active="dashboard" data-search="Cari Antrean" data-page="dashboard" data-mode="">
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main">
+    <header class="page-head" id="page-head"></header>
+    <section class="stats">
+      <div class="stat stat-orange">
+        <span class="stat-label">Selesai</span>
+        <strong id="st-selesai">0</strong>
+        <div class="stat-foot"><small id="st-prev"></small><span class="pill" id="st-delta"></span></div>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Antrean Saya</span>
+        <strong id="st-antrean">0</strong>
+        <div class="stat-foot"><small id="st-menunggu"></small></div>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Sedang Dikerjakan</span>
+        <strong id="st-kerja">0</strong>
+        <div class="stat-foot"><small id="st-unit"></small></div>
+      </div>
+    </section>
+
+    <div class="chips" id="chips">
+      <button class="chip active" data-filter="Semua" id="chip-all">Semua</button>
+      <button class="chip" data-filter="Selesai">Selesai</button>
+      <button class="chip" data-filter="Dikerjakan">Dikerjakan</button>
+      <button class="chip" data-filter="Express">Express</button>
+      <button class="chip" data-filter="Reguler">Reguler</button>
+    </div>
+
+    <div class="list-head">
+      <h2>Daftar Servis Saat Ini</h2>
+    </div>
+    <div class="svc-grid" id="svc-grid"></div>
+    <div class="list-foot"><span class="info" id="info"></span><div class="pager" id="pager"></div></div>
+
+  </main>
+</div>
+<div id="toasts" class="toasts" aria-live="polite"></div>
+<script src="assets/js/global.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/dashboard.js"></script>
+</body>
+</html>
