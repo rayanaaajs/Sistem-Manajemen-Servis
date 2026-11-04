@@ -182,7 +182,7 @@ require_once __DIR__ . '/../includes/header.php';
 
         <!-- Tabel Responsif (geser horizontal di HP) -->
         <div class="overflow-x-auto">
-          <table class="w-full min-w-[640px] whitespace-nowrap text-left border-collapse text-sm" id="tableAntrean">
+          <table class="w-full min-w-160 whitespace-nowrap text-left border-collapse text-sm" id="tableAntrean">
             <thead>
               <tr class="border-b border-white-hover text-white-darker font-bold text-[13px] tracking-wider">
                 <th class="py-4 px-5">Nota</th>

@@ -8,7 +8,6 @@ require_once __DIR__ . '/../includes/helpers.php';
 <!-- Lingkaran krem/peach pudar di pojok kanan atas[cite: 9] -->
 <div class="fixed top-0 right-0 w-100 h-100 lg:w-150 lg:h-150 bg-[#feeade] rounded-full translate-x-1/4 -translate-y-1/3 opacity-70 z-[-1] pointer-events-none"></div>
 
-<main class="flex-1 w-full max-w-4xl mx-auto py-6 px-6 md:px-0 flex flex-col mb-20">
     
     <!-- Tombol Kembali[cite: 9] -->
     <a href="lacak.php" class="inline-flex items-center gap-2 text-tosca font-bold text-sm hover:text-tosca-hover transition-opacity mb-6 w-fit">
@@ -17,7 +16,7 @@ require_once __DIR__ . '/../includes/helpers.php';
     </a>
 
     <!-- ================= KARTU HASIL PENCARIAN ================= -->
-    <div class="bg-white-light rounded-4xl p-6 md:p-10 lg:p-12 border border-gray-100">
+    <div class="bg-white-light rounded-4xl p-8 sm:p-10 md:p-10 lg:p-12 border border-gray-100">
         
         <!-- Header Nota & Badge -->
         <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-gray-100 pb-8">
@@ -52,7 +51,7 @@ require_once __DIR__ . '/../includes/helpers.php';
         </div>
 
         <!-- Box Estimasi[cite: 9] -->
-        <div class="bg-[#FFE4D2] rounded-[20px] p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
+        <div class="bg-[#FFE4D2] rounded-[20px] p-5 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
             <div>
                 <p class="text-[12px] text-gray-500 font-normal mb-1 opacity-90">Estimasi Pengambilan</p>
                 <h3 class="text-2xl font-extrabold text-orange-hover">6 Okt 2026</h3>
@@ -66,7 +65,7 @@ require_once __DIR__ . '/../includes/helpers.php';
         <div>
             <h3 class="text-lg font-semibold text-blue-darker mb-8">Riwayat Servis</h3>
             
-            <div class="pl-2">
+            <div class="pl-0 sm:pl-2">
                 <!-- ITEM 1: Diterima (Selesai) -->
                 <div class="relative flex gap-5 pb-10">
                     <!-- Garis penyambung ke bawah (Tosca) -->
@@ -153,7 +152,6 @@ require_once __DIR__ . '/../includes/helpers.php';
         </div>
 
     </div>
-</main>
 
 <?php
 require_once __DIR__ . '/../includes/footer_pelanggan.php';

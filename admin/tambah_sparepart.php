@@ -26,7 +26,7 @@ require_once __DIR__ . '/../includes/helpers.php';
               <input type="text"
                      name="stok"
                      placeholder="Masukkan Stok"
-                     class="w-full px-4 py-3.5 rounded-2xl border border-blue-darker bg-white-light text-sm font-medium text-blue-darker placeholder-white-dark-hover focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition">
+                     class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker placeholder-white-dark-hover focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition">
             </div>
 
             <!-- Harga -->
@@ -59,7 +59,7 @@ require_once __DIR__ . '/../includes/helpers.php';
               Batal
             </a>
             <button type="submit"
-                    class="px-8 py-2.5 rounded-full bg-orange hover:bg-orange-hover text-white-light text-sm font-bold shadow-sm transition cursor-pointer">
+                    class="px-8 py-2.5 rounded-full bg-orange hover:bg-orange-hover text-white-light text-sm font-bold transition cursor-pointer">
               Tambah Sparepart
             </button>
           </div>

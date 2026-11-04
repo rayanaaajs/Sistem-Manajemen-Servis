@@ -24,7 +24,7 @@ $base = $__rel === '' ? '' : str_repeat('../', substr_count($__rel, '/') + 1);
 <body class="font-sans text-gray-800 min-h-screen flex flex-col">
 
     <!-- ================= NAVBAR PELANGGAN ================= -->
-    <header class="w-full flex items-center justify-between px-8 md:px-16 py-6">
+    <header class="w-full flex items-center justify-between px-6 sm:px-10 md:px-16 py-6">
         
         <!-- Logo Kiri -->
         <div class="flex items-center">
@@ -54,4 +54,4 @@ $base = $__rel === '' ? '' : str_repeat('../', substr_count($__rel, '/') + 1);
 
     <!-- ================= KONTEN UTAMA ================= -->
     <!-- flex-1 biar footernya otomatis kedorong ke paling bawah -->
-    <main class="flex-1 w-full max-w-6xl mx-auto py-4 px-10 md:px-0 flex flex-col">
+    <main class="flex-1 w-full max-w-6xl mx-auto py-4 px-6 sm:px-10 lg:px-8 flex flex-col">
