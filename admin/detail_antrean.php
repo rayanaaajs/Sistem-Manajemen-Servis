@@ -5,12 +5,12 @@ require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/helpers.php';
 ?>
     <!-- FORM 3 KOLOM DETAIL ANTREAN (SESUAI DESAIN FIGMA DENGAN DATA PRE-FILLED) -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-7 items-stretch">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch">
 
       <!-- ==========================================
            KOLOM 1: DATA PELANGGAN
            ========================================== -->
-      <div class="bg-white-light rounded-3xl p-7 lg:p-8 shadow-sm border border-white-hover/60">
+      <div class="bg-white-light rounded-3xl p-7 lg:p-8 border border-white-hover/60">
         <h2 class="text-lg lg:text-xl font-bold text-blue-darker tracking-tight mb-6">Data Pelanggan</h2>
 
         <div class="space-y-5 lg:space-y-6">
@@ -46,19 +46,11 @@ require_once __DIR__ . '/../includes/helpers.php';
       <!-- ==========================================
            KOLOM 2: DATA PERANGKAT
            ========================================== -->
-      <div class="bg-white-light rounded-3xl p-7 lg:p-8 shadow-sm border border-white-hover/60 flex flex-col justify-between">
+      <div class="bg-white-light rounded-3xl p-7 lg:p-8 border border-white-hover/60 flex flex-col justify-between">
         <div>
           <h2 class="text-lg lg:text-xl font-bold text-blue-darker tracking-tight mb-6">Data Perangkat</h2>
 
           <div class="space-y-5 lg:space-y-6">
-            <!-- Pelanggan / Unit -->
-            <div>
-              <label class="block text-sm font-bold text-blue-darker mb-2">Pelanggan</label>
-              <input type="text"
-                     value="Varell"
-                     readonly
-                     class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition cursor-default">
-            </div>
 
             <!-- Jenis Barang (Dropdown Select dengan Panah) -->
             <div>
@@ -101,7 +93,7 @@ require_once __DIR__ . '/../includes/helpers.php';
             <div>
               <label class="block text-sm font-bold text-blue-darker mb-2">Kondisi Awal Unit</label>
               <div class="grid grid-cols-3 gap-2.5" id="groupKondisiUnit">
-                <div class="py-3 px-4 rounded-2xl bg-tosca-dark text-white-light text-sm font-semibold shadow-xs text-center">
+                <div class="py-3 px-4 rounded-2xl bg-tosca-dark text-white-light text-sm font-semibold text-center">
                   Hidup
                 </div>
                 <div class="py-3 px-4 rounded-2xl border border-white-active bg-white-light text-blue-darker text-sm font-medium text-center">
@@ -140,7 +132,7 @@ require_once __DIR__ . '/../includes/helpers.php';
       <!-- ==========================================
            KOLOM 3: KELUHAN DAN PENANGANAN
            ========================================== -->
-      <div class="bg-white-light rounded-3xl p-7 lg:p-8 shadow-sm border border-white-hover/60 flex flex-col justify-between">
+      <div class="bg-white-light rounded-3xl p-7 lg:p-8 -sm border border-white-hover/60 flex flex-col justify-between">
         <div class="space-y-5 lg:space-y-6">
           <h2 class="text-lg lg:text-xl font-bold text-blue-darker tracking-tight mb-6">Keluhan dan Penanganan</h2>
 
@@ -208,7 +200,7 @@ require_once __DIR__ . '/../includes/helpers.php';
           <div>
             <label class="block text-sm font-bold text-blue-darker mb-2">Jenis Layanan</label>
             <div class="grid grid-cols-2 gap-3" id="groupLayanan">
-              <div class="py-3 px-4 rounded-2xl bg-tosca-dark text-white-light text-sm font-semibold shadow-xs text-center">
+              <div class="py-3 px-4 rounded-2xl bg-tosca-dark text-white-light text-sm font-semibold -xs text-center">
                 Reguler
               </div>
               <div class="py-3 px-4 rounded-2xl border border-white-active bg-white-light text-blue-darker text-sm font-medium text-center">
@@ -262,8 +254,8 @@ require_once __DIR__ . '/../includes/helpers.php';
 
         <!-- Tombol Aksi Bawah: Hanya Tombol "Kembali" Sesuai Desain Detail -->
         <div class="mt-10 pt-4 flex items-center justify-end">
-          <a href="antrean_admin.php"
-             class="px-10 py-3 rounded-full border border-blue-darker/40 hover:bg-white-hover text-blue-darker text-sm font-bold transition text-center cursor-pointer">
+          <a href="antrean.php"
+             class="px-10 py-3 rounded-full border border-tosca-dark hover:bg-tosca-dark text-tosca-dark hover:text-white-light text-sm font-semibold transition text-center cursor-pointer">
             Kembali
           </a>
         </div>

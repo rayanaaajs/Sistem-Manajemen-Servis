@@ -4,17 +4,18 @@
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/helpers.php';
 ?>
-      <!-- 2.2 FORM 3 KOLOM SESUAI DESAIN FIGMA (SKALA LEBIH BESAR & LEGA) -->
+   <!-- 2.2 FORM 3 KOLOM SESUAI DESAIN FIGMA (SKALA LEBIH BESAR & LEGA) -->
       <form
         action="antrean_admin.php"
         method="GET"
-        class="grid grid-cols-1 lg:grid-cols-3 gap-7 items-stretch"
+        class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch"
       >
         <!-- ==========================================
            KOLOM 1: DATA PELANGGAN
            ========================================== -->
+        <!-- Hapus shadow-sm di div ini -->
         <div
-          class="bg-white-light rounded-3xl p-7 lg:p-8 shadow-sm border border-white-hover/60 flex flex-col justify-between"
+          class="bg-white-light rounded-3xl p-7 lg:p-8 border border-white-hover/60 flex flex-col justify-between"
         >
           <div>
             <h2
@@ -67,9 +68,10 @@ require_once __DIR__ . '/../includes/helpers.php';
 
           <!-- Tombol Tambah Pelanggan di Bawah Kolom 1 -->
           <div class="mt-10 pt-4 flex justify-center">
+            <!-- Ubah font-bold jadi font-semibold -->
             <button
               type="button"
-              class="w-full sm:w-auto px-10 py-3.5 rounded-full bg-orange hover:bg-orange-hover text-white-light text-sm font-bold shadow-sm transition cursor-pointer"
+              class="w-full sm:w-auto px-10 py-3.5 rounded-full bg-orange hover:bg-orange-hover text-white-light text-sm font-semibold transition cursor-pointer"
             >
               Tambah Pelanggan
             </button>
@@ -79,8 +81,9 @@ require_once __DIR__ . '/../includes/helpers.php';
         <!-- ==========================================
            KOLOM 2: DATA PERANGKAT
            ========================================== -->
+        <!-- Hapus shadow-sm di div ini -->
         <div
-          class="bg-white-light rounded-3xl p-7 lg:p-8 shadow-sm border border-white-hover/60 flex flex-col justify-between"
+          class="bg-white-light rounded-3xl p-7 lg:p-8 border border-white-hover/60 flex flex-col justify-between"
         >
           <div>
             <h2
@@ -90,17 +93,6 @@ require_once __DIR__ . '/../includes/helpers.php';
             </h2>
 
             <div class="space-y-5 lg:space-y-6">
-              <!-- Pelanggan / Unit -->
-              <div>
-                <label class="block text-sm font-bold text-blue-darker mb-2"
-                  >Pelanggan</label
-                >
-                <input
-                  type="text"
-                  placeholder="Pilih atau cari pelanggan"
-                  class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm text-blue-darker placeholder-white-dark-hover focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition"
-                />
-              </div>
 
               <!-- Jenis Barang -->
               <div>
@@ -144,7 +136,7 @@ require_once __DIR__ . '/../includes/helpers.php';
                 />
               </div>
 
-              <!-- Kondisi Awal Unit (Pill Selection: Hidup / Mati / Blank) -->
+              <!-- Kondisi Awal Unit -->
               <div>
                 <label class="block text-sm font-bold text-blue-darker mb-2"
                   >Kondisi Awal Unit</label
@@ -180,7 +172,7 @@ require_once __DIR__ . '/../includes/helpers.php';
                 />
               </div>
 
-              <!-- Password Perangkat (Dengan toggle lihat password) -->
+              <!-- Password Perangkat -->
               <div>
                 <label class="block text-sm font-bold text-blue-darker mb-2"
                   >Password Perangkat</label
@@ -199,7 +191,6 @@ require_once __DIR__ . '/../includes/helpers.php';
                     id="togglePasswordBtn"
                     class="absolute inset-y-0 right-0 pr-4 flex items-center text-white-dark-hover hover:text-blue-darker cursor-pointer"
                   >
-                    <!-- Eye Icon -->
                     <svg
                       id="eyeIcon"
                       class="w-4 h-4"
@@ -230,8 +221,9 @@ require_once __DIR__ . '/../includes/helpers.php';
         <!-- ==========================================
            KOLOM 3: KELUHAN DAN PENANGANAN
            ========================================== -->
+        <!-- Hapus shadow-sm di div ini -->
         <div
-          class="bg-white-light rounded-3xl p-7 lg:p-8 shadow-sm border border-white-hover/60 flex flex-col justify-between"
+          class="bg-white-light rounded-3xl p-7 lg:p-8 border border-white-hover/60 flex flex-col justify-between"
         >
           <div class="space-y-5 lg:space-y-6">
             <h2
@@ -284,7 +276,6 @@ require_once __DIR__ . '/../includes/helpers.php';
                     <option value="Bagas">Bagas</option>
                     <option value="Dimas">Dimas</option>
                   </select>
-                  <!-- Avatar Inisial Kecil -->
                   <div
                     class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
                   >
@@ -294,7 +285,6 @@ require_once __DIR__ . '/../includes/helpers.php';
                       IL
                     </div>
                   </div>
-                  <!-- Panah Dropdown -->
                   <div
                     class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-white-dark-hover"
                   >
@@ -315,7 +305,7 @@ require_once __DIR__ . '/../includes/helpers.php';
                 </div>
               </div>
 
-              <!-- Servis Masuk (Tanggal) -->
+              <!-- Servis Masuk -->
               <div>
                 <label class="block text-sm font-bold text-blue-darker mb-2"
                   >Servis Masuk</label
@@ -348,7 +338,7 @@ require_once __DIR__ . '/../includes/helpers.php';
               </div>
             </div>
 
-            <!-- Jenis Layanan (Reguler / Express) -->
+            <!-- Jenis Layanan -->
             <div>
               <label class="block text-sm font-bold text-blue-darker mb-2"
                 >Jenis Layanan</label
@@ -377,7 +367,7 @@ require_once __DIR__ . '/../includes/helpers.php';
               />
             </div>
 
-            <!-- Persetujuan Bongkar (Checkbox Style Centang Persegi Konsisten dengan Detail) -->
+            <!-- Persetujuan Bongkar -->
             <div>
               <label class="block text-sm font-bold text-blue-darker mb-2"
                 >Persetujuan Bongkar</label
@@ -483,115 +473,25 @@ require_once __DIR__ . '/../includes/helpers.php';
             </div>
           </div>
 
-          <!-- Tombol Aksi Bawah: Batal & Tambah Pelanggan -->
+          <!-- Tombol Aksi Bawah: Batal & Tambah Antrean -->
           <div class="mt-10 pt-4 flex items-center justify-end gap-3.5">
+            <!-- Ubah font-bold jadi font-semibold -->
             <a
-              href="antrean_admin.php"
-              class="px-8 py-3 rounded-full border border-blue-darker/40 hover:bg-white-hover text-blue-darker text-sm font-bold transition text-center cursor-pointer"
+              href="antrean.php"
+              class="px-8 py-3 rounded-full border border-tosca-dark hover:bg-tosca-dark-hover text-tosca-dark hover:text-white-light text-sm font-semibold transition text-center cursor-pointer"
             >
               Batal
             </a>
+            <!-- Ubah font-bold jadi font-semibold dan teks jadi Tambah Antrean -->
             <button
               type="submit"
-              class="px-8 py-3 rounded-full bg-orange hover:bg-orange-hover text-white-light text-sm font-bold shadow-sm transition cursor-pointer"
+              class="px-8 py-3 rounded-full bg-orange hover:bg-orange-hover text-white-light text-sm font-semibold transition cursor-pointer"
             >
-              Tambah Pelanggan
+              Tambah Antrean
             </button>
           </div>
         </div>
       </form>
-
-    <!-- ==============================================================================
-       BAGIAN 3: JAVASCRIPT INTERAKTIF
-       ============================================================================== -->
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        // 1. Toggle Lihat Password Perangkat
-        const togglePasswordBtn = document.getElementById("togglePasswordBtn");
-        const passwordInput = document.getElementById("passwordPerangkat");
-        if (togglePasswordBtn && passwordInput) {
-          togglePasswordBtn.addEventListener("click", function () {
-            const isPassword = passwordInput.type === "password";
-            passwordInput.type = isPassword ? "text" : "password";
-          });
-        }
-
-        // 2. Toggle Pilihan Kondisi Awal Unit (Hidup / Mati / Blank)
-        const kondisiBtns = document.querySelectorAll(
-          "#groupKondisiUnit .kondisi-btn",
-        );
-        const inputKondisi = document.getElementById("inputKondisiUnit");
-        kondisiBtns.forEach((btn) => {
-          btn.addEventListener("click", function () {
-            kondisiBtns.forEach((b) => {
-              b.className =
-                "kondisi-btn py-3 px-4 rounded-2xl border border-white-active bg-white-light text-blue-darker hover:bg-white-hover text-sm font-medium transition text-center cursor-pointer";
-            });
-            this.className =
-              "kondisi-btn py-3 px-4 rounded-2xl bg-tosca-dark text-white-light text-sm font-semibold shadow-xs transition text-center cursor-pointer";
-            if (inputKondisi)
-              inputKondisi.value = this.getAttribute("data-val");
-          });
-        });
-
-        // 3. Toggle Pilihan Jenis Layanan (Reguler / Express)
-        const layananBtns = document.querySelectorAll(
-          "#groupLayanan .layanan-btn",
-        );
-        const inputLayanan = document.getElementById("inputJenisLayanan");
-        layananBtns.forEach((btn) => {
-          btn.addEventListener("click", function () {
-            layananBtns.forEach((b) => {
-              b.className =
-                "layanan-btn py-3 px-4 rounded-2xl border border-white-active bg-white-light text-blue-darker hover:bg-white-hover text-sm font-medium transition text-center cursor-pointer";
-            });
-            this.className =
-              "layanan-btn py-3 px-4 rounded-2xl bg-tosca-dark text-white-light text-sm font-semibold shadow-xs transition text-center cursor-pointer";
-            if (inputLayanan)
-              inputLayanan.value = this.getAttribute("data-val");
-          });
-        });
-
-        // 4. Update Style Persetujuan Bongkar saat Radio berubah (Tampilan Centang Persegi)
-        const persetujuanCards = document.querySelectorAll(
-          "#groupPersetujuan .persetujuan-card",
-        );
-        persetujuanCards.forEach((card) => {
-          card.addEventListener("click", function () {
-            persetujuanCards.forEach((c) => {
-              c.className =
-                "persetujuan-card flex items-center gap-2.5 px-4 py-3 rounded-2xl border border-white-active bg-white-light cursor-pointer hover:bg-white-hover transition select-none";
-              const icon = c.querySelector(".check-box-icon");
-              if (icon) {
-                icon.className =
-                  "check-box-icon w-5 h-5 rounded-md border border-white-active bg-white-light flex items-center justify-center text-xs font-bold text-transparent transition";
-              }
-              const span = c.querySelector("span");
-              if (span) {
-                span.className = "text-sm font-medium text-blue-darker";
-              }
-              const radio = c.querySelector('input[type="radio"]');
-              if (radio) radio.checked = false;
-            });
-
-            this.className =
-              "persetujuan-card flex items-center gap-2.5 px-4 py-3 rounded-2xl border border-blue-darker/60 bg-white-light cursor-pointer transition select-none";
-            const activeIcon = this.querySelector(".check-box-icon");
-            if (activeIcon) {
-              activeIcon.className =
-                "check-box-icon w-5 h-5 rounded-md bg-tosca-dark text-white-light flex items-center justify-center text-xs font-bold transition";
-            }
-            const activeSpan = this.querySelector("span");
-            if (activeSpan) {
-              activeSpan.className = "text-sm font-semibold text-blue-darker";
-            }
-            const currentRadio = this.querySelector('input[type="radio"]');
-            if (currentRadio) currentRadio.checked = true;
-          });
-        });
-      });
-    </script>
-
 <?php
 require_once __DIR__ . '/../includes/footer.php';
 ?>
