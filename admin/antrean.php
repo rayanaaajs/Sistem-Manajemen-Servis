@@ -304,67 +304,6 @@ require_once __DIR__ . '/../includes/header.php';
 </div>
 
 
-  <!-- ==============================================================================
-      BAGIAN 5: SCRIPT JAVASCRIPT (FILTER REAL-TIME & PENCARIAN NOTA)
-    ============================================================================== -->
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      const searchNotaInput = document.getElementById('searchNotaInput');
-      const filterTabs = document.querySelectorAll('#filterStatusGroup .filter-tab-btn');
-      const rows = document.querySelectorAll('#tableBodyAntrean .row-item');
-
-      // Class tab aktif & non-aktif (dipisah biar rapi)
-      const TAB_BASE     = 'filter-tab-btn shrink-0 px-6 py-2.5 rounded-full text-xs transition cursor-pointer whitespace-nowrap';
-      const TAB_INACTIVE = TAB_BASE + ' bg-white-light text-white-darker border border-gray-200 font-medium hover:bg-white-light-hover';
-      const TAB_ACTIVE   = TAB_BASE + ' bg-tosca-dark text-white-light font-semibold shadow-xs';
-
-      let currentFilter = 'all';
-
-      // Fungsi menyaring baris tabel
-      function filterTable() {
-        const query = searchNotaInput ? searchNotaInput.value.toLowerCase().trim() : '';
-
-        rows.forEach(row => {
-          const nota = row.getAttribute('data-nota') || '';
-          const status = row.getAttribute('data-status') || '';
-          const layanan = row.getAttribute('data-layanan') || '';
-
-          const matchNota = nota.includes(query) || row.textContent.toLowerCase().includes(query);
-
-          let matchFilter = false;
-          if (currentFilter === 'all') {
-            matchFilter = true;
-          } else if (currentFilter === 'Express' || currentFilter === 'Reguler') {
-            matchFilter = (layanan === currentFilter);
-          } else {
-            matchFilter = status.toLowerCase().includes(currentFilter.toLowerCase());
-          }
-
-          row.style.display = (matchNota && matchFilter) ? '' : 'none';
-        });
-      }
-
-      // Event Listener: Pencarian Real-Time
-      if (searchNotaInput) {
-        searchNotaInput.addEventListener('input', filterTable);
-      }
-
-      // Event Listener: Tab Filter Status
-      filterTabs.forEach(btn => {
-        btn.addEventListener('click', function() {
-          // Reset style semua tab (data-filter tetap aman karena atribut nggak disentuh)
-          filterTabs.forEach(b => { b.className = TAB_INACTIVE; });
-
-          // Set style tab aktif (tosca-dark)
-          this.className = TAB_ACTIVE;
-
-          currentFilter = this.getAttribute('data-filter') || 'all';
-          filterTable();
-        });
-      });
-    });
-  </script>
-
 <?php
 require_once __DIR__ . '/../includes/footer.php';
 ?>

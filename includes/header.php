@@ -110,7 +110,6 @@ $base = $__rel === '' ? '' : str_repeat('../', substr_count($__rel, '/') + 1);
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                     </svg>
                 </button>
-
                 <div>
                     <p class="text-sm md:text-md text-white-dark-active font-light mb-0.5">Sabtu, 3 Oktober 2026</p>
                     <h1 class="text-3xl md:text-5xl font-bold text-blue-darker tracking-tight">Halo, Admin</h1>
