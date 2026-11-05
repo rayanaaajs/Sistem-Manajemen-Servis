@@ -116,7 +116,7 @@ require_once __DIR__ . '/../includes/helpers.php';
                   type="tel"
                   name="nomor"
                   placeholder="Masukkan Nomor Whatsapp"
-                  class="w-full px-4 py-3.5 rounded-2xl border border-blue-darker/60 bg-white-light text-sm font-medium text-blue-darker placeholder-white-dark-hover focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition"
+                  class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker placeholder-white-dark-hover focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition"
                 />
               </div>
 
