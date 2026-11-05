@@ -9,8 +9,8 @@ require_once __DIR__ . '/../includes/helpers.php';
       <form action="karyawan.php" method="GET" class="grid grid-cols-1 lg:grid-cols-3 gap-7 items-stretch">
 
         <!-- ==========================================
-             KARTU KIRI: DATA TEKNISI (2 KOLOM GRID)
-             ========================================== -->
+            KARTU KIRI: DATA TEKNISI (2 KOLOM GRID)
+            ========================================== -->
         <div class="lg:col-span-2 bg-white-light rounded-3xl p-7 lg:p-8 shadow-sm border border-white-hover/60 flex flex-col justify-between">
           <div>
             <h2 class="text-xl font-bold text-blue-darker tracking-tight mb-6">

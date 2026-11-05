@@ -96,10 +96,10 @@ require_once __DIR__ . '/../includes/helpers.php';
               </td>
               <td class="py-4 px-5 text-center">
                 <div class="inline-flex items-center gap-2">
-                  <a href="#edit" class="px-3.5 py-2 rounded-full border border-tosca-darker text-tosca-darker hover:bg-tosca-darker hover:text-white-light text-xs font-semibold transition">
+                  <a href="edit_karyawan.php" class="px-3.5 py-2 rounded-full border border-tosca-darker text-tosca-darker hover:bg-tosca-darker hover:text-white-light text-xs font-semibold transition">
                     Edit
                   </a>
-                  <a href="#detail" class="px-3.5 py-2 rounded-full bg-tosca-dark hover:bg-tosca-dark-hover text-white-light text-xs font-semibold transition">
+                  <a href="detail_karyawan.php" class="px-3.5 py-2 rounded-full bg-tosca-dark hover:bg-tosca-dark-hover text-white-light text-xs font-semibold transition">
                     Detail
                   </a>
                   <button type="button" class="px-3.5 py-2 rounded-full border border-danger text-danger hover:bg-danger hover:text-white-light text-xs font-semibold transition cursor-pointer">
