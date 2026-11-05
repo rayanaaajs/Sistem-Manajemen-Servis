@@ -33,8 +33,8 @@ unset($_SESSION['auth_error'], $_SESSION['auth_success']);
     />
 
     <!-- Tailwind CSS & Custom Style CSS -->
-    <link rel="stylesheet" href="assets/css/tailwind.css" />
-    <link rel="stylesheet" href="assets/css/style.css" />
+    <link rel="../stylesheet" href="assets/css/tailwind.css" />
+    <link rel="../stylesheet" href="assets/css/style.css" />
   </head>
   <body class="bg-orange-50 min-h-screen flex items-center justify-center p-4">
     <div

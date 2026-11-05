@@ -13,8 +13,8 @@
     />
 
     <!-- Tailwind CSS & Custom Style CSS -->
-    <link rel="stylesheet" href="./assets/css/tailwind.css" />
-    <link rel="stylesheet" href="./assets/css/style.css" />
+    <link rel="stylesheet" href="../assets/css/tailwind.css" />
+    <link rel="stylesheet" href="../assets/css/style.css" />
   </head>
   <body class="min-h-screen flex items-center justify-center p-4">
     <div
@@ -69,7 +69,7 @@
 
       <div class="mt-6">
         <a
-          href="login.html"
+          href="login.php"
           class="text-sm text-orange hover:text-orange-hover font-medium"
         >
           &larr; Kembali ke halaman Login
