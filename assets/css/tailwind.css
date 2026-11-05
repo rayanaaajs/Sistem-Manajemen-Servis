@@ -440,6 +440,9 @@
   .inline-flex {
     display: inline-flex;
   }
+  .table {
+    display: table;
+  }
   .h-1\/2 {
     height: calc(1 / 2 * 100%);
   }
@@ -562,6 +565,9 @@
   }
   .w-100 {
     width: calc(var(--spacing) * 100);
+  }
+  .w-120 {
+    width: calc(var(--spacing) * 120);
   }
   .w-150 {
     width: calc(var(--spacing) * 150);
