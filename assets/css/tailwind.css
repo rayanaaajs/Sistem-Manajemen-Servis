@@ -348,6 +348,7 @@
   }
   .z-30 {
     z-index: 30;
+  }
   .bottom-2 {
     bottom: calc(var(--spacing) * 2);
   }
@@ -503,6 +504,7 @@
   }
   .h-1\/3 {
     height: calc(1 / 3 * 100%);
+  }
   .h-2\.5 {
     height: calc(var(--spacing) * 2.5);
   }
@@ -544,6 +546,7 @@
   }
   .h-28 {
     height: calc(var(--spacing) * 28);
+  }
   .h-12 {
     height: calc(var(--spacing) * 12);
   }
@@ -711,6 +714,7 @@
   }
   .flex-grow {
     flex-grow: 1;
+  }
   .max-w-sm {
     max-width: var(--container-sm);
   }
@@ -953,6 +957,7 @@
   .rounded-b-2xl {
     border-bottom-right-radius: var(--radius-2xl);
     border-bottom-left-radius: var(--radius-2xl);
+  }
   .rounded-md {
     border-radius: var(--radius-md);
   }
@@ -971,6 +976,7 @@
   }
   .bg-brand-cream {
     background-color: var(--color-brand-cream);
+  }
   .border-2 {
     border-style: var(--tw-border-style);
     border-width: 2px;
@@ -1182,6 +1188,7 @@
   }
   .bg-orange-600 {
     background-color: var(--color-orange-600);
+  }
   .bg-orange-light {
     background-color: var(--color-orange-light);
   }
@@ -1383,6 +1390,7 @@
   }
   .pl-5 {
     padding-left: calc(var(--spacing) * 5);
+  }
   .pr-3 {
     padding-right: calc(var(--spacing) * 3);
   }
@@ -1463,6 +1471,7 @@
   .text-5xl {
     font-size: var(--text-5xl);
     line-height: var(--tw-leading, var(--text-5xl--line-height));
+  }
   .text-4xl {
     font-size: var(--text-4xl);
     line-height: var(--tw-leading, var(--text-4xl--line-height));
@@ -1548,6 +1557,7 @@
   }
   .text-\[\#1E293B\] {
     color: #1E293B;
+  }
   .tracking-wide {
     --tw-tracking: var(--tracking-wide);
     letter-spacing: var(--tracking-wide);
@@ -1568,8 +1578,6 @@
   .text-\[\#5B6275\] {
     color: #5B6275;
   }
-  .text-\[\#8A9DA601E0A2\] {
-    color: #8A9DA601E0A2;
   .text-\[\#6F6A5B\] {
     color: #6F6A5B;
   }
@@ -1605,6 +1613,7 @@
   }
   .text-brand-orange-hover {
     color: var(--color-brand-orange-hover);
+  }
   .text-\[\#141C43\] {
     color: #141C43;
   }
@@ -1673,6 +1682,7 @@
   }
   .text-orange-600 {
     color: var(--color-orange-600);
+  }
   .text-lightblue-dark {
     color: var(--color-lightblue-dark);
   }
@@ -1732,6 +1742,7 @@
   }
   .shadow-md {
     --tw-shadow: 0 4px 6px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 2px 4px -2px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+  }
   .text-white-dark {
     color: var(--color-white-dark);
   }
@@ -2013,6 +2024,7 @@
   }
   .focus\:ring-orange-500:focus {
     --tw-ring-color: var(--color-orange-500);
+  }
   .focus\:ring-gray-600:focus {
     --tw-ring-color: var(--color-gray-600);
   }
@@ -2047,6 +2059,7 @@
     }
     .sm\:max-w-107 {
       max-width: calc(var(--spacing) * 107);
+    }
     .sm\:w-48 {
       width: calc(var(--spacing) * 48);
     }
@@ -2064,6 +2077,7 @@
     }
     .sm\:p-8 {
       padding: calc(var(--spacing) * 8);
+    }
     .sm\:grid-cols-2 {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -2256,6 +2270,7 @@
     }
     .lg\:p-10 {
       padding: calc(var(--spacing) * 10);
+    }
     .lg\:gap-6 {
       gap: calc(var(--spacing) * 6);
     }
@@ -2318,7 +2333,6 @@
     .lg\:text-\[48px\] {
       font-size: 48px;
     }
-  }
   @media (width >= 80rem) {
     .xl\:col-span-3 {
       grid-column: span 3 / span 3;
@@ -2327,7 +2341,6 @@
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
-}
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 :root {
   --bg-page: #FFF6EA;
@@ -2847,6 +2860,7 @@ body {
   syntax: "*";
   inherits: false;
   initial-value: 1;
+}
 @property --tw-backdrop-blur {
   syntax: "*";
   inherits: false;
