@@ -1,0 +1,287 @@
+.stats {
+    display: flex;
+    gap: 1.05rem;
+    flex-wrap: wrap;
+    margin-bottom: 2.275rem
+}
+
+.stat {
+    width: 14.525rem;
+    height: 9.45rem;
+    border-radius: 1.75rem;
+    background: var(--teal-2);
+    color: #fff;
+    padding: 1.225rem 1.4rem;
+    display: flex;
+    flex-direction: column
+}
+
+.stat-orange {
+    background: var(--orange)
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    font-weight: 700
+}
+
+.stat strong {
+    font-size: 2.625rem;
+    line-height: 1.2;
+    margin-top: 0.35rem
+}
+
+.stat-foot {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center
+}
+
+.stat small {
+    font-size: 0.7rem
+}
+
+.pill {
+    background: #e6f2ea;
+    color: #1f7a45;
+    font-size: 0.787rem;
+    font-weight: 700;
+    border-radius: 87.412rem;
+    padding: 0.438rem 1.575rem
+}
+
+.list-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 76.562rem;
+    margin: 0 0 1.225rem 0.35rem
+}
+
+.list-head h2 {
+    font-size: 1.4rem
+}
+
+.svc-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 1.05rem;
+    padding: 1.05rem 1.4rem 1.05rem;
+    display: flex;
+    flex-direction: column;
+    min-height: 9.8rem
+}
+
+.svc-top {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 3.15rem;
+    font-size: 0.787rem
+}
+
+.svc-nota {
+    font-weight: 700
+}
+
+.svc-type {
+    font-weight: 600
+}
+
+.svc-type.express {
+    color: #b8321f
+}
+
+.svc-type.reguler {
+    color: #13708c
+}
+
+.svc-top .badge {
+    min-width: 6.65rem;
+    height: 1.75rem;
+    font-size: 0.787rem
+}
+
+.svc-card h3 {
+    font-size: 1.225rem;
+    margin-top: 0.525rem
+}
+
+.svc-cust {
+    font-size: 0.787rem;
+    color: #6f7388;
+    margin-top: 0.438rem
+}
+
+.svc-foot {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.525rem
+}
+
+.svc-foot span {
+    font-size: 0.744rem;
+    color: #555a78
+}
+
+.svc-foot div {
+    display: flex;
+    gap: 0.525rem
+}
+
+.empty {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 3.5rem 0.875rem;
+    font-size: 1.137rem;
+    color: var(--muted);
+    background: var(--card);
+    border: 1px dashed var(--line);
+    border-radius: 1.05rem
+}
+
+.list-foot {
+    max-width: 76.562rem
+}
+
+/* skala penuh layar */
+.svc-grid,
+.list-head,
+.list-foot {
+    max-width: none
+}
+
+.stats {
+    gap: 1.125rem
+}
+
+.stat {
+    width: auto;
+    flex: 1 1 15rem;
+    max-width: 23.75rem;
+    height: auto;
+    min-height: 9.375rem
+}
+
+.svc-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem
+}
+
+.svc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+    gap: .9rem
+}
+
+.svc-foot {
+    flex-wrap: wrap
+}
+
+.stat {
+    flex: 1 1 13rem
+}
+
+.pager {
+    flex-wrap: wrap
+}
+
+@media (max-width:560px) {
+    .list-head {
+        flex-wrap: wrap;
+        gap: .6rem
+    }
+
+    .svc-foot {
+        flex-wrap: wrap
+    }
+}
+
+/* grid tetap 3 kolom x 2 baris (6 card per halaman) */
+.svc-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.4rem
+}
+
+.svc-card {
+    min-height: 11.5rem;
+    padding: 1.35rem 1.6rem;
+    border-radius: 1.25rem
+}
+
+.svc-card h3 {
+    font-size: 1.5rem;
+    margin-top: .7rem
+}
+
+.svc-cust {
+    font-size: .95rem;
+    margin-top: .5rem
+}
+
+.svc-top {
+    font-size: .9rem
+}
+
+.svc-foot {
+    flex-wrap: nowrap;
+    align-items: flex-end;
+    gap: .8rem;
+    margin-top: auto;
+    padding-top: 1rem
+}
+
+.svc-foot span {
+    flex: 1;
+    min-width: 0;
+    font-size: .85rem;
+    line-height: 1.4
+}
+
+.svc-foot div {
+    flex: none
+}
+
+.svc-foot .btn {
+    height: 2rem;
+    padding: 0 1.2rem;
+    font-size: .85rem
+}
+
+@media (max-width:1000px) {
+    .svc-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr))
+    }
+}
+
+@media (max-width:640px) {
+    .svc-grid {
+        grid-template-columns: 1fr
+    }
+
+    .svc-card {
+        min-height: 0
+    }
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.4rem
+}
+
+.stat {
+    max-width: none;
+    width: auto
+}
+
+@media (max-width:640px) {
+    .stats {
+        grid-template-columns: 1fr
+    }
+}
