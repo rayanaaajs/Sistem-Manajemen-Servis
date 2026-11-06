@@ -284,6 +284,9 @@
   .relative {
     position: relative;
   }
+  .static {
+    position: static;
+  }
   .inset-0 {
     inset: 0px;
   }
@@ -443,6 +446,9 @@
   .block {
     display: block;
   }
+  .contents {
+    display: contents;
+  }
   .flex {
     display: flex;
   }
@@ -451,6 +457,9 @@
   }
   .hidden {
     display: none;
+  }
+  .inline {
+    display: inline;
   }
   .inline-block {
     display: inline-block;
@@ -1719,6 +1728,9 @@
   .select-none {
     -webkit-user-select: none;
     user-select: none;
+  }
+  .\[hostname\:port\] {
+    hostname: port;
   }
   @media (hover: hover) {
     .group-hover\:text-\[\#1E293B\]:is(:where(.group):hover *) {
