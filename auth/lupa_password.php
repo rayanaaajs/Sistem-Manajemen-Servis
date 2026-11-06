@@ -12,9 +12,9 @@
       rel="stylesheet"
     />
 
-    <!-- Tailwind CSS & Custom Style CSS -->
-    <link rel="stylesheet" href="../assets/css/tailwind.css" />
-    <link rel="stylesheet" href="../assets/css/style.css" />
+  <!-- Tailwind CSS & Custom Style CSS -->
+  <link rel="stylesheet" href="../assets/css/tailwind.css">
+  <link rel="stylesheet" href="../assets/css/style.css">
   </head>
   <body class="min-h-screen flex items-center justify-center p-4">
     <div
