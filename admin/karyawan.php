@@ -128,7 +128,6 @@ $karyawan_list = [
           </thead>
           <tbody class="divide-y divide-white-hover text-white-darker font-medium" id="tableBodyKaryawan">
             
-<<<<<<< HEAD
             <!-- ROW 1: Admin Ilham Ramadhan -->
             <tr class="hover:bg-warning-light/40 transition-colors row-karyawan"
                 data-role="admin"
@@ -175,7 +174,6 @@ $karyawan_list = [
                 </div>
               </td>
             </tr>
-=======
             <?php foreach ($karyawan_list as $row): ?>
               <?php
                   // Logika Warna Berdasarkan Peran
@@ -186,7 +184,6 @@ $karyawan_list = [
                       $avatar_class = 'bg-orange-light text-danger-dark';
                       $role_badge   = 'bg-orange-light text-danger-dark';
                   }
->>>>>>> a5c667f8547f86d91fe7f5c06980e0c35cb3906d
 
                   // Logika Warna Berdasarkan Status
                   if (strtolower($row['status']) === 'aktif') {
