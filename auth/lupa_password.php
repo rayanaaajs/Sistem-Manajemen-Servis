@@ -69,7 +69,7 @@
 
       <div class="mt-6">
         <a
-          href="login.html"
+          href="login.php"
           class="text-sm text-orange hover:text-orange-hover font-medium"
         >
           &larr; Kembali ke halaman Login
