@@ -19,14 +19,15 @@ function badgeStatus($status)
         'dibatalkan' => 'bg-[#F9ECEA] text-[#742619] border-[#742619]',
         'reguler' => 'bg-[#FFFEFD] text-[#090D1F] border-[#FFFEFD]',
         'admin' => 'bg-[#E8E9EE] text-[#141C43] border-[#141C43]',
+        'menunggu persetujuan' => 'bg-[#FEF9EF] text-[#8A5A00] border-[#8A5A00]',
         'menunggu' => 'bg-[#E8E9EE] text-[#595752] border-[#595752]',
         'teknisi' => 'bg-[#FEF0E9] text-[#AF3A26] border-[#AF3A26]',
         'lunas' => 'bg-[#DDEBE3] text-[#1F7A45] border-[#1F7A45]',
         'nonaktif' => 'bg-[#E8E9EE] text-[#595752] border-[#595752]', // (Atau sesuaikan warna di gambar)
         'aman' => 'bg-[#E9F2EC] text-[#1F7A45] border-[#1F7A45]',
-        'menipis' => 'bg-[#FEF9EF] text-[#8A5A00] border-[#8A5A00]',
+        'menipis' => 'bg-[#FEF6E7] text-[#C79B4A] border-[#C79B4A]',
         'belum bayar' => 'bg-[#E8E9EE] text-[#595752] border-[#595752]',
-        'habis' => 'bg-[#F9ECEA] text-[#742619] border-[#742619]',
+        'habis' => 'bg-[#FEF0E9] text-[#AF3A26] border-[#AF3A26]',
 
 
         // Default kalau statusnya gak dikenali
@@ -36,6 +37,27 @@ function badgeStatus($status)
     // 3. Kembalikan elemen HTML utuh
     return "<span class=\"{$baseClass} {$colorClass}\">" . e($status) . "</span>";
 }
+
+
+if (!function_exists('convertStatusAdmin')) {
+    function convertStatusAdmin($status)
+    {
+        return match (strtolower(trim($status))) {
+            'menunggu' => 'Menunggu',
+
+            'sedang dicek' => 'Diterima',
+
+            'menunggu persetujuan' => 'Menunggu Persetujuan',
+
+            'proses servis' => 'Dikerjakan',
+
+            'selesai' => 'Selesai',
+
+            default => $status,
+        };
+    }
+}
+
 
 //function buat inisial nama di db admin dan teknisi
 if (!function_exists('inisialNama')) {
