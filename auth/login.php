@@ -193,7 +193,7 @@ unset($_SESSION['auth_error'], $_SESSION['auth_success']);
               </div>
 
               <!-- Forgot Password Link -->
-              <a href="lupa_password.php" class="text-xs sm:text-sm font-semibold text-orange hover:text-orange-hover transition-colors">
+              <a href="lupa-password.html" class="text-xs sm:text-sm font-semibold text-orange hover:text-orange-hover transition-colors">
                 lupa sandi?
               </a>
             </div>
