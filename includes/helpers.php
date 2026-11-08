@@ -89,3 +89,13 @@ if (!function_exists('formatTanggal')) {
         return $denganJam ? $str . ', ' . date('H.i', $t) : $str;
     }
 }
+
+if (!function_exists('formatTanggalLengkap')) {
+    function formatTanggalLengkap($ts = null)
+    {
+        $hari  = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        $bulan = [1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        $ts = $ts ?? time();
+        return $hari[(int) date('w', $ts)] . ', ' . date('j', $ts) . ' ' . $bulan[(int) date('n', $ts)] . ' ' . date('Y', $ts);
+    }
+}

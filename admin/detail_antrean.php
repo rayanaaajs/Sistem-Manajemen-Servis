@@ -1,5 +1,7 @@
 <?php
 
+$page_title = 'Detail Antrean';
+$active_menu = 'antrean';
 // Panggil header pelanggan
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/helpers.php';

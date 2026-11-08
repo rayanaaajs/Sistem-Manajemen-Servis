@@ -1,5 +1,7 @@
 <?php
-
+$page_title = 'Pelanggan';
+$active_menu = 'pelanggan';
+$search_placeholder = 'Cari nama atau no WA pelanggan...';
 // Panggil header & helper
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/helpers.php';
@@ -94,7 +96,7 @@ $pelanggan_list = [
                 <th class="py-4 px-5 text-center">Aksi</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-white-hover text-white-darker font-medium" id="tableBodyPelanggan">
+            <tbody id="tableBody" class="divide-y divide-white-hover text-white-darker font-medium" id="tableBodyPelanggan">
               <?php foreach ($pelanggan_list as $row): ?>
               <tr class="hover:bg-warning-light/40 transition-colors row-pelanggan" data-nama="<?= strtolower(htmlspecialchars($row['nama'])) ?>">
                 <!-- Nama Pelanggan -->
