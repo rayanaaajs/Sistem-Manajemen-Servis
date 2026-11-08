@@ -118,10 +118,11 @@ require_once __DIR__ . '/../includes/helpers.php';
                 <p class="text-xs text-blue-darker/70 mt-0.5">Kirimkan link reset ke email Example@gmail.com untuk perbarui kata sandi teknisi.</p>
               </div>
               <!-- Tombol Kirim -->
-              <button type="button"
-                      class="px-5 py-2.5 rounded-full bg-orange hover:bg-orange-hover text-white-light text-xs font-semibold transition cursor-pointer whitespace-nowrap shrink-0">
+              <!-- Tombol Kirim (Diubah jadi tag <a> yang mengarah ke proses_email.php) -->
+              <a href="../auth/proses_email.php?email=Example@gmail.com"
+                class="px-5 py-2.5 rounded-full bg-orange hover:bg-orange-hover text-white-light text-xs font-semibold transition cursor-pointer whitespace-nowrap shrink-0 inline-block text-center">
                 Kirim Link Reset Password
-              </button>
+              </a>
             </div>
           </div>
 

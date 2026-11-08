@@ -45,7 +45,7 @@
         mengatur ulang kata sandi kamu.
       </p>
 
-      <form action="#" method="POST" class="space-y-4">
+      <form action="proses_email.php" method="POST" class="space-y-4">
         <div class="text-left">
           <label
             for="email"
