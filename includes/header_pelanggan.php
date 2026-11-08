@@ -1,11 +1,4 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-require_once __DIR__ . '/koneksi.php';
-require_once __DIR__ . '/helpers.php';
-
-
 // Logika base path biar CSS dan gambar selalu ke-load
 $__jobsheetRoot = dirname(__DIR__);
 $__scriptDir = dirname($_SERVER['SCRIPT_FILENAME']);
@@ -18,20 +11,30 @@ $base = $__rel === '' ? '' : str_repeat('../', substr_count($__rel, '/') + 1);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lacak Servis - Singhasari Computer</title>
-
+    
+    <!-- Google Fonts: Poppins -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+    <!-- Tailwind & Custom CSS -->
     <link rel="stylesheet" href="<?= $base ?>assets/css/tailwind.css">
     <link rel="stylesheet" href="<?= $base ?>assets/css/style.css">
 </head>
 <body class="font-sans text-gray-800 min-h-screen flex flex-col">
+
+    <!-- ================= NAVBAR PELANGGAN ================= -->
     <header class="w-full flex items-center justify-between px-6 sm:px-10 md:px-16 py-6">
+        
+        <!-- Logo Kiri -->
         <div class="flex items-center">
+            <!-- Asumsikan nama file logo tamengnya logo.png, ubah kalau beda -->
             <img src="<?= $base ?>assets/img/logo-polos.png" alt="Logo Singhasari Computer" class="h-18 w-auto">
         </div>
+
+        <!-- Tombol Chat WA Kanan -->
         <a href="https://wa.me/6282290538991" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 bg-tosca-hover hover:bg-tosca-dark text-white-light px-5 py-3.5 rounded-full font-semibold text-sm transition-all">
+            <!-- Icon WhatsApp -->
             <svg xmlns="http://www.w3.org/2000/svg" width="1.3em" height="1.3em" viewBox="0 0 24 24">
                 <path d="M0 0h24v24H0z" fill="none" />
                 <g fill="none">
@@ -48,5 +51,7 @@ $base = $__rel === '' ? '' : str_repeat('../', substr_count($__rel, '/') + 1);
             Chat WhatsApp
         </a>
     </header>
-    <!-- isi konten utama -->
+
+    <!-- ================= KONTEN UTAMA ================= -->
+    <!-- flex-1 biar footernya otomatis kedorong ke paling bawah -->
     <main class="flex-1 w-full max-w-6xl mx-auto py-4 px-6 sm:px-10 lg:px-8 flex flex-col">
