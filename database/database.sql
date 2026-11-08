@@ -6,12 +6,14 @@ CREATE TABLE karyawan (
     peran          VARCHAR(20)  NOT NULL
                    CHECK (peran IN ('Admin', 'Teknisi'))
     email          VARCHAR(255) UNIQUE
+    token_reset_password VARCHAR(255) UNIQUE
+    token_expired TIMESTAMP
 );
 
 CREATE TABLE pelanggan (
     id_pelanggan    INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     nama_pelanggan  VARCHAR(50)  NOT NULL,
-    no_whatsapp     VARCHAR(20)  NOT NULL,
+    no_hp     VARCHAR(20)  NOT NULL,
     alamat          VARCHAR(255)
 );
 

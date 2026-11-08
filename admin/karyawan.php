@@ -1,5 +1,7 @@
 <?php
-
+$page_title = 'Karyawan';
+$active_menu = 'karyawan';
+$search_placeholder = 'Cari Karyawan...';
 // Panggil header & helper
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/helpers.php';
@@ -126,7 +128,7 @@ $karyawan_list = [
               <th class="py-4 px-5 text-center">Aksi</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-white-hover text-white-darker font-medium" id="tableBodyKaryawan">
+          <tbody id="tableBody" class="divide-y divide-white-hover text-white-darker font-medium" id="tableBodyKaryawan">
             
             <!-- ROW 1: Admin Ilham Ramadhan -->
             <tr class="hover:bg-warning-light/40 transition-colors row-karyawan"

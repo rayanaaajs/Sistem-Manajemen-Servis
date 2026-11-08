@@ -3,6 +3,7 @@
 // Panggil header pelanggan
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/helpers.php';
+$search_placeholder = 'Cari antrean menunggu persetujuan...';
 // ==============================================================================
 // 2. DATA DUMMY / DEMO (Disesuaikan dengan desain UI)
 // ==============================================================================
@@ -171,7 +172,7 @@ $daftar_servis_selesai = [
                   <th class="py-4 px-3 text-center">Hubungi</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-gray-200 text-blue-darker font-medium">
+              <tbody id="tableBody" class="divide-y divide-gray-200 text-blue-darker font-medium">
                 <?php foreach ($daftar_servis_selesai as $item): ?>
                   <tr class="hover:bg-gray-50/50 transition-colors">
                     <td class="py-4 px-3 font-bold text-blue-darker"><?= e($item['nota']) ?></td>

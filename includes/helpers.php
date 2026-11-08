@@ -21,15 +21,83 @@ function badgeStatus($status) {
         'dibatalkan' => 'bg-[#F9ECEA] text-[#742619] border-[#742619]',
         'reguler' => 'bg-[#FFFEFD] text-[#090D1F] border-[#FFFEFD]',
         'admin' => 'bg-[#E8E9EE] text-[#141C43] border-[#141C43]',
+        'menunggu persetujuan' => 'bg-[#FEF9EF] text-[#8A5A00] border-[#8A5A00]',
         'menunggu' => 'bg-[#E8E9EE] text-[#595752] border-[#595752]',
         'teknisi' => 'bg-[#FEF0E9] text-[#AF3A26] border-[#AF3A26]',
-        'lunas' => 'bg-[#DDEBE3] text-[#1F7A45]',
-        
-        
+        'lunas' => 'bg-[#DDEBE3] text-[#1F7A45] border-[#1F7A45]',
+        'nonaktif' => 'bg-[#E8E9EE] text-[#595752] border-[#595752]', // (Atau sesuaikan warna di gambar)
+        'aman' => 'bg-[#E9F2EC] text-[#1F7A45] border-[#1F7A45]',
+        'menipis' => 'bg-[#FEF6E7] text-[#C79B4A] border-[#C79B4A]',
+        'belum bayar' => 'bg-[#E8E9EE] text-[#595752] border-[#595752]',
+        'habis' => 'bg-[#FEF0E9] text-[#AF3A26] border-[#AF3A26]',
+
+
         // Default kalau statusnya gak dikenali
         default => 'bg-gray-100 text-gray-600 border-gray-100'
     };
 
     // 3. Kembalikan elemen HTML utuh
-    return "<span class=\"{$baseClass} {$colorClass}\">" . htmlspecialchars($status) . "</span>";
+    return "<span class=\"{$baseClass} {$colorClass}\">" . e($status) . "</span>";
+}
+
+
+if (!function_exists('convertStatusAdmin')) {
+    function convertStatusAdmin($status)
+    {
+        return match (strtolower(trim($status))) {
+            'menunggu' => 'Menunggu',
+
+            'sedang dicek' => 'Diterima',
+
+            'menunggu persetujuan' => 'Menunggu Persetujuan',
+
+            'proses servis' => 'Dikerjakan',
+
+            'selesai' => 'Selesai',
+
+            default => $status,
+        };
+    }
+}
+
+
+//function buat inisial nama di db admin dan teknisi
+if (!function_exists('inisialNama')) {
+    function inisialNama($nama, $default = '?')
+    {
+        $nama = trim((string) $nama);
+        if ($nama === '') return $default;
+
+        $kata = preg_split('/\s+/', $nama);
+
+        if (count($kata) === 1) {
+            // 1 kata: ambil 2 huruf pertama (Ilham -> IL)
+            return mb_strtoupper(mb_substr($kata[0], 0, 2));
+        }
+        // 2 kata atau lebih: huruf pertama kata pertama + kata terakhir (Sari Lestari -> SL)
+        return mb_strtoupper(mb_substr($kata[0], 0, 1) . mb_substr(end($kata), 0, 1));
+    }
+}
+
+// Format tanggal Indonesia: "1 Okt 2026" atau "1 Okt 2026, 09.40"
+if (!function_exists('formatTanggal')) {
+    function formatTanggal($ts, $denganJam = false)
+    {
+        if (empty($ts)) return '-';
+        $t = strtotime($ts);
+        if (!$t) return '-';
+        $bulan = [1 => 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+        $str = date('j', $t) . ' ' . $bulan[(int) date('n', $t)] . ' ' . date('Y', $t);
+        return $denganJam ? $str . ', ' . date('H.i', $t) : $str;
+    }
+}
+
+if (!function_exists('formatTanggalLengkap')) {
+    function formatTanggalLengkap($ts = null)
+    {
+        $hari  = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        $bulan = [1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        $ts = $ts ?? time();
+        return $hari[(int) date('w', $ts)] . ', ' . date('j', $ts) . ' ' . $bulan[(int) date('n', $ts)] . ' ' . date('Y', $ts);
+    }
 }
