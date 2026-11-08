@@ -1,5 +1,6 @@
 <?php
-
+$page_title = 'Tambah Karyawan';
+$active_menu = 'karyawan';
 // Panggil header pelanggan
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/helpers.php';

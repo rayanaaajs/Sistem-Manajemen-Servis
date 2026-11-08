@@ -1,5 +1,6 @@
 <?php
-
+$page_title = 'Edit Pelanggan';
+$active_menu = 'pelanggan';
 // Panggil header & helper
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/helpers.php';

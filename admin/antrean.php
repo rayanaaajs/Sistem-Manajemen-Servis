@@ -1,7 +1,8 @@
 <?php
-// ==============================================================================
-// 1. INISIALISASI SESSION, HELPER, DAN KEAMANAN
-// ==============================================================================
+$page_title = 'Antrean';
+$active_menu = 'antrean';
+$search_placeholder = 'Cari nota, pelanggan, atau perangkat...';
+require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/helpers.php';
 
 /**
@@ -128,9 +129,7 @@ function getBadgeStatusClass($status) {
     }
 }
 
-$page_title = 'Antrean';
-$active_menu = 'antrean';
-require_once __DIR__ . '/../includes/header.php';
+
 ?>
 
       <!-- 2.2 FILTER STATUS & TOMBOL + ANTREAN BARU -->
@@ -196,7 +195,7 @@ require_once __DIR__ . '/../includes/header.php';
                 <th class="py-4 px-5 text-center">Aksi</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-white-hover text-white-darker font-medium" id="tableBodyAntrean">
+            <tbody id="tableBody" class="divide-y divide-white-hover text-white-darker font-medium" id="tableBodyAntrean">
               <?php foreach ($daftar_antrean as $item): ?>
                 <tr class="hover:bg-warning-light/40 transition-colors row-item"
                     data-status="<?= e($item['status']) ?>"
