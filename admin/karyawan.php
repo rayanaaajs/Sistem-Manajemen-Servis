@@ -130,6 +130,52 @@ $karyawan_list = [
           </thead>
           <tbody id="tableBody" class="divide-y divide-white-hover text-white-darker font-medium" id="tableBodyKaryawan">
             
+            <!-- ROW 1: Admin Ilham Ramadhan -->
+            <tr class="hover:bg-warning-light/40 transition-colors row-karyawan"
+                data-role="admin"
+                data-status="aktif"
+                data-nama="ilham ramadhan @ilham">
+              <td class="py-4 px-5">
+                <div class="flex items-center gap-3.5">
+                  <div class="w-10 h-10 rounded-full bg-blue-light text-blue font-bold text-xs flex items-center justify-center shrink-0">
+                    AD
+                  </div>
+                  <div>
+                    <h3 class="font-semibold text-blue-darker text-sm">Ilham Ramadhan</h3>
+                    <p class="text-xs text-white-dark-hover">@ilham</p>
+                  </div>
+                </div>
+              </td>
+              <td class="py-4 px-5 text-center">
+                <span class="inline-block w-28 py-2 rounded-full text-xs font-semibold bg-blue-light text-blue-hover tracking-wide">
+                  Admin
+                </span>
+              </td>
+              <td class="py-4 px-5 font-medium text-white-darker">
+                0813-4455-9900
+              </td>
+              <td class="py-4 px-5 text-center font-semibold text-blue-darker">
+                5 unit
+              </td>
+              <td class="py-4 px-5 text-center">
+                <span class="inline-block w-28 py-2 rounded-full text-xs font-semibold bg-success-light text-success-dark tracking-wide">
+                  Aktif
+                </span>
+              </td>
+              <td class="py-4 px-5 text-center">
+                <div class="inline-flex items-center gap-2">
+                  <a href="edit_karyawan.php" class="px-3.5 py-2 rounded-full border border-tosca-darker text-tosca-darker hover:bg-tosca-darker hover:text-white-light text-xs font-semibold transition">
+                    Edit
+                  </a>
+                  <a href="detail_karyawan.php" class="px-3.5 py-2 rounded-full bg-tosca-dark hover:bg-tosca-dark-hover text-white-light text-xs font-semibold transition">
+                    Detail
+                  </a>
+                  <button type="button" class="px-3.5 py-2 rounded-full border border-danger text-danger hover:bg-danger hover:text-white-light text-xs font-semibold transition cursor-pointer">
+                    Hapus
+                  </button>
+                </div>
+              </td>
+            </tr>
             <?php foreach ($karyawan_list as $row): ?>
               <?php
                   // Logika Warna Berdasarkan Peran

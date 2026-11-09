@@ -10,9 +10,14 @@ require_once __DIR__ . '/../includes/helpers.php';
       <form action="karyawan.php" method="GET" class="grid grid-cols-1 lg:grid-cols-3 gap-5 items-stretch">
 
         <!-- ==========================================
+            KARTU KIRI: DATA TEKNISI (2 KOLOM GRID)
+            ========================================== -->
+        <div class="lg:col-span-2 bg-white-light rounded-3xl p-7 lg:p-8 shadow-sm border border-white-hover/60 flex flex-col justify-between">
+
              KARTU KIRI: DATA TEKNISI (2 KOLOM GRID)
              ========================================== -->
         <div class="lg:col-span-2 bg-white-light rounded-3xl p-7 lg:p-8 border border-gray-200 flex flex-col justify-between">
+
           <div>
             <h2 class="text-xl font-bold text-blue-darker tracking-tight mb-6">
               <span>Data Teknisi</span> 
@@ -114,10 +119,11 @@ require_once __DIR__ . '/../includes/helpers.php';
                 <p class="text-xs text-blue-darker/70 mt-0.5">Kirimkan link reset ke email Example@gmail.com untuk perbarui kata sandi teknisi.</p>
               </div>
               <!-- Tombol Kirim -->
-              <button type="button"
-                      class="px-5 py-2.5 rounded-full bg-orange hover:bg-orange-hover text-white-light text-xs font-semibold transition cursor-pointer whitespace-nowrap shrink-0">
+              <!-- Tombol Kirim (Diubah jadi tag <a> yang mengarah ke proses_email.php) -->
+              <a href="../auth/proses_email.php?email=Example@gmail.com"
+                class="px-5 py-2.5 rounded-full bg-orange hover:bg-orange-hover text-white-light text-xs font-semibold transition cursor-pointer whitespace-nowrap shrink-0 inline-block text-center">
                 Kirim Link Reset Password
-              </button>
+              </a>
             </div>
           </div>
 
