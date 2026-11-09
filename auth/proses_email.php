@@ -37,22 +37,41 @@ if (!empty($email_tujuan)) {
 
             // 5. KIRIM EMAIL DENGAN PHPMAILER
             $link_reset = "http://localhost:8000/auth/reset_password.php?token=" . $token_baru;
+            
+            // --- PEMBACA .ENV ANTI GAGAL ---
+            $env_file = __DIR__ . '/../.env';
+            $smtp_email = '';
+            $smtp_pass = '';
+            
+            if (file_exists($env_file)) {
+                $lines = file($env_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+                foreach ($lines as $line) {
+                    if (strpos(trim($line), '#') === 0) continue; // Abaikan baris komentar
+                    $parts = explode('=', $line, 2);
+                    if (count($parts) == 2) {
+                        $key = trim($parts[0]);
+                        $value = trim(trim($parts[1]), '"\''); // Hapus otomatis tanda kutip
+                        if ($key === 'SMTP_EMAIL') $smtp_email = $value;
+                        if ($key === 'SMTP_PASSWORD') $smtp_pass = $value;
+                    }
+                }
+            }
+            // ---------------------------------
+            
             $mail = new PHPMailer(true);
             $mail->isSMTP();
             $mail->Host       = 'smtp.gmail.com';
             $mail->SMTPAuth   = true;
             
-            // Mengambil email dan sandi dari brankas .env
-            $mail->Username   = $_ENV['SMTP_EMAIL'] ?? getenv('SMTP_EMAIL'); 
-            $mail->Password   = $_ENV['SMTP_PASSWORD'] ?? getenv('SMTP_PASSWORD'); 
+            // Gunakan variabel yang ditarik manual dari brankas
+            $mail->Username   = $smtp_email; 
+            $mail->Password   = $smtp_pass; 
             
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
             $mail->Port       = 465;
 
-            // Pastikan pengirim juga mengambil dari .env
-            $mail->setFrom($_ENV['SMTP_EMAIL'] ?? getenv('SMTP_EMAIL'), 'Admin Singhasari Computer');
-            
-            // Ubah menjadi dinamis! Email akan dikirim ke alamat yang diinputkan
+            // Alamat Pengirim & Penerima
+            $mail->setFrom($smtp_email, 'Admin Singhasari Computer');
             $mail->addAddress($email_tujuan); 
 
             $mail->isHTML(true);
