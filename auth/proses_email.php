@@ -1,10 +1,11 @@
 <?php
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 // Mundur 1 folder untuk memanggil vendor dari dalam folder auth
 require '../includes/koneksi.php';
-require '../vendor/autoload.php'; 
+require '../vendor/autoload.php';
 
 // Tangkap email dari input form (POST) ATAU dari URL tombol (GET)
 $email_tujuan = $_POST['email'] ?? $_GET['email'] ?? '';
@@ -18,10 +19,10 @@ if (!empty($email_tujuan)) {
 
         // Jika email ditemukan di Supabase
         if ($user) {
-            
+
             // 3. GENERATE TOKEN & WAKTU EXPIRED (Misal: 30 Menit)
             $token_baru = bin2hex(random_bytes(16));
-            
+
             // Set zona waktu WIB dan formatkan ke timestamp PostgreSQL
             date_default_timezone_set('Asia/Jakarta');
             $waktu_sekarang = time();
@@ -37,12 +38,20 @@ if (!empty($email_tujuan)) {
 
             // 5. KIRIM EMAIL DENGAN PHPMAILER
             $link_reset = "http://localhost:8000/auth/reset_password.php?token=" . $token_baru;
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> 58356731e922ec135f3229f30cee1f46dec926d3
             // --- PEMBACA .ENV ANTI GAGAL ---
             $env_file = __DIR__ . '/../.env';
             $smtp_email = '';
             $smtp_pass = '';
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> 58356731e922ec135f3229f30cee1f46dec926d3
             if (file_exists($env_file)) {
                 $lines = file($env_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
                 foreach ($lines as $line) {
@@ -56,12 +65,17 @@ if (!empty($email_tujuan)) {
                     }
                 }
             }
+<<<<<<< HEAD
             // ---------------------------------
             
+=======
+
+>>>>>>> 58356731e922ec135f3229f30cee1f46dec926d3
             $mail = new PHPMailer(true);
             $mail->isSMTP();
             $mail->Host       = 'smtp.gmail.com';
             $mail->SMTPAuth   = true;
+<<<<<<< HEAD
             
             // Gunakan variabel yang ditarik manual dari brankas
             $mail->Username   = $smtp_email; 
@@ -73,6 +87,21 @@ if (!empty($email_tujuan)) {
             // Alamat Pengirim & Penerima
             $mail->setFrom($smtp_email, 'Admin Singhasari Computer');
             $mail->addAddress($email_tujuan); 
+=======
+
+            // Mengambil email dan sandi dari brankas .env
+            $mail->Username   = $smtp_email;
+            $mail->Password   = $smtp_pass;
+
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+            $mail->Port       = 465;
+
+            // Pastikan pengirim juga mengambil dari .env
+            $mail->setFrom($smtp_email, 'Admin Singhasari Computer');
+
+            // Ubah menjadi dinamis! Email akan dikirim ke alamat yang diinputkan
+            $mail->addAddress($email_tujuan);
+>>>>>>> 58356731e922ec135f3229f30cee1f46dec926d3
 
             $mail->isHTML(true);
             $mail->Subject = 'Permintaan Reset Kata Sandi';
@@ -83,17 +112,15 @@ if (!empty($email_tujuan)) {
                               Jika Anda tidak meminta ini, abaikan saja email ini.";
 
             $mail->send();
-            
+
             if (isset($_POST['email'])) {
                 echo "<script>alert('Link reset telah dikirim ke email!'); window.location.href='lupa_password.php';</script>";
             } else {
                 echo "<script>alert('Link reset teknisi telah dikirim!'); window.location.href='../admin/edit_karyawan.php';</script>";
             }
-
         } else {
             echo "<script>alert('Email tidak terdaftar di sistem!'); window.history.back();</script>";
         }
-        
     } catch (\PDOException $e) {
         echo "<script>alert('Terjadi kesalahan pada database Supabase!'); window.history.back();</script>";
     } catch (Exception $e) {
@@ -102,4 +129,3 @@ if (!empty($email_tujuan)) {
 } else {
     echo "<script>alert('Email tidak valid!'); window.history.back();</script>";
 }
-?>
