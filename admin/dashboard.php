@@ -17,10 +17,10 @@ $stat_omzet = ['total' => 'Rp 8,9 jt', 'label_bawah' => 'Bulan lalu: 7,8 jt', 'b
 
 // --- DATA GRAFIK SERVIS ---
 $data_grafik_servis = [
-    ['minggu' => 'Mg 1', 'masuk' => 10, 'selesai' => 9],
-    ['minggu' => 'Mg 2', 'masuk' => 25, 'selesai' => 20],
-    ['minggu' => 'Mg 3', 'masuk' => 80, 'selesai' => 50],
-    ['minggu' => 'Mg 4', 'masuk' => 120, 'selesai' => 49],
+    ['minggu' => 'Mg 1', 'masuk' => 25, 'selesai' => 20],
+    ['minggu' => 'Mg 2', 'masuk' => 100, 'selesai' => 80],
+    ['minggu' => 'Mg 3', 'masuk' => 30, 'selesai' => 30],
+    ['minggu' => 'Mg 4', 'masuk' => 80, 'selesai' => 50],
 ];
 
 // --- DATA BEBAN TEKNISI ---

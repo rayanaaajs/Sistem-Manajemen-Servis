@@ -33,8 +33,8 @@ unset($_SESSION['auth_error'], $_SESSION['auth_success']);
     />
 
     <!-- Tailwind CSS & Custom Style CSS -->
-    <link rel="../stylesheet" href="assets/css/tailwind.css" />
-    <link rel="../stylesheet" href="assets/css/style.css" />
+    <link rel="stylesheet" href="../assets/css/tailwind.css" />
+    <link rel="stylesheet" href="../assets/css/style.css" />
   </head>
   <body class="bg-orange-50 min-h-screen flex items-center justify-center p-4">
     <div
@@ -63,7 +63,7 @@ unset($_SESSION['auth_error'], $_SESSION['auth_success']);
       </p>
 
       <!-- 1. Ubah action="#" menjadi file prosesnya -->
-      <form action="proses_email.php" method="POST" class="space-y-4 text-left">
+      <form action="proses_reset_password.php" method="POST" class="space-y-4 text-left">
         
         <!-- 2. Ubah value token agar otomatis mengambil dari URL -->
         <input type="hidden" name="token" value="<?php echo htmlspecialchars($_GET['token'] ?? ''); ?>" />
