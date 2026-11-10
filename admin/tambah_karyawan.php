@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../includes/auth.php';   
 $page_title = 'Tambah Karyawan';
 $active_menu = 'karyawan';
 // Panggil header pelanggan
