@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../includes/auth.php';   
 $page_title = 'Tambah Sparepart';
 $active_menu = 'sparepart';
 // Panggil header & helper
@@ -55,7 +56,7 @@ require_once __DIR__ . '/../includes/helpers.php';
 
           <!-- Tombol Aksi Bawah: Batal & Tambah Sparepart -->
           <div class="mt-12 pt-6 flex items-center justify-end gap-3.5">
-            <a href="sparepart.php"
+            <a href="index.php"
                class="px-8 py-2.5 rounded-full border border-blue-darker text-blue-darker hover:bg-white-hover text-sm font-bold transition text-center cursor-pointer">
               Batal
             </a>

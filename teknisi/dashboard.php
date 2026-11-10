@@ -2,11 +2,13 @@
 // ==============================================================================
 // 1. DATA DUMMY (nanti diganti query database antrean milik teknisi)
 // ==============================================================================
+require_once __DIR__ . '/../includes/auth.php';   
+require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/helpers.php';
 
 // Dibaca oleh header.php
-$page_title         = 'Dashboard';
-$nama_user          = 'Ilham';          // nanti ganti $_SESSION['nama'] kalau login sudah jadi
+$page_title         = 'Dashboard';       
+$_SESSION['nama'];
 $search_placeholder = 'Cari Antrean';
 
 // Statistik (dummy, nanti diganti COUNT dari database)
@@ -61,7 +63,7 @@ $awal          = $total ? ($halaman - 1) * $per_page + 1 : 0;
 $akhir         = $total ? $awal + count($tampil) - 1 : 0;
 
 // Sidebar + header (sesuai role) sudah ada di header.php
-require_once __DIR__ . '/../includes/header.php';
+
 ?>
 
       <!-- ==============================================================================
