@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../includes/auth.php';   
 $page_title = 'Sparepart';
 $active_menu = 'sparepart';
 $search_placeholder = 'Cari nama atau kode sparepart...';
@@ -187,14 +188,14 @@ $sparepart_list = [
 
                 <!-- Tombol Edit (HANYA UNTUK ADMIN) -->
                 <?php if (isset($_SESSION['role']) && strtolower($_SESSION['role']) === 'admin'): ?>
-                  <a href="edit_sparepart.php?id=<?= $row['id'] ?>"
+                  <a href="edit.php?id=<?= $row['id'] ?>"
                     class="px-3.5 py-2 rounded-full border border-tosca-darker text-tosca-darker hover:bg-tosca-darker hover:text-white-light text-xs font-semibold transition cursor-pointer">
                     Edit
                   </a>
                 <?php endif; ?>
 
                 <!-- Tombol Detail (BISA DILIHAT SEMUA ROLE) -->
-                <a href="detail_sparepart.php?id=<?= $row['id'] ?>"
+                <a href="detail.php?id=<?= $row['id'] ?>"
                   class="px-3.5 py-2 rounded-full bg-tosca-dark hover:bg-tosca-dark-hover text-white-light text-xs font-semibold transition cursor-pointer">
                   Detail
                 </a>
@@ -202,7 +203,7 @@ $sparepart_list = [
                 <!-- Tombol Hapus (HANYA UNTUK ADMIN) -->
                 <?php if (isset($_SESSION['role']) && strtolower($_SESSION['role']) === 'admin'): ?>
                   <button type="button"
-                    onclick="bukaModalHapus('<?= htmlspecialchars($row['nama']) ?>', 'hapus_sparepart.php?id=<?= $row['id'] ?>')"
+                    onclick="bukaModalHapus('<?= e($row['nama']) ?>', 'hapus_sparepart.php?id=<?= $row['id'] ?>')"
                     class="px-3.5 py-2 rounded-full border border-danger text-danger hover:bg-danger hover:text-white-light text-xs font-semibold transition cursor-pointer">
                     Hapus
                   </button>

@@ -1,5 +1,5 @@
 <?php
-
+require_once __DIR__ . '/../includes/auth.php';   
 $page_title = 'Detail Antrean';
 $active_menu = 'antrean';
 // Panggil header pelanggan

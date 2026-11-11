@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../includes/auth.php';   
 $page_title = 'Edit Pelanggan';
 $active_menu = 'pelanggan';
 // Panggil header & helper

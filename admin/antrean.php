@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../includes/auth.php';   
 $page_title = 'Antrean';
 $active_menu = 'antrean';
 $search_placeholder = 'Cari nota, pelanggan, atau perangkat...';

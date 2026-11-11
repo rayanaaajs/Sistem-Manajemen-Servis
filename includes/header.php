@@ -1,9 +1,10 @@
 <?php
 require_once __DIR__ . '/helpers.php';
+require_once __DIR__ . '/session.php';
+require_once __DIR__ . '/csrf.php';
 
 if (session_status() === PHP_SESSION_NONE) session_start();
-$nama_user = 'Budiono';   // harusnya kapsul jadi "SL"
-$role = 'teknisi';        // harusnya "admin" atau "teknisi"
+
 // Biar tanggal sesuai WIB (server kadang default UTC)
 date_default_timezone_set('Asia/Jakarta');
 
@@ -60,7 +61,7 @@ $search_placeholder = $search_placeholder ?? 'Cari nomor nota';
         <nav class="flex-1 px-5 mt-4 space-y-2">
             <!-- Link Dashboard (admin/dashboard.php atau teknisi/dashboard.php) -->
             <a href="<?= $base . $folder_role ?>/dashboard.php"
-                class="flex items-center gap-4 px-4 py-3.5 rounded-xl font-medium transition-all <?= ($currentPage === 'dashboard_admin.php' || $currentPage === 'dashboard_teknisi.php' || $currentPage === 'index.php' || $currentPage === 'dashboard.php') ? 'bg-orange text-white-light' : 'text-gray-300 hover:text-white-light hover:bg-white/10' ?>">
+                class="flex items-center gap-4 px-4 py-3.5 rounded-xl font-medium transition-all <?= ($currentPage === 'dashboard_admin.php' || $currentPage === 'dashboard_teknisi.php' || $currentPage === 'dashboard.php') ? 'bg-orange text-white-light' : 'text-gray-300 hover:text-white-light hover:bg-white/10' ?>">
                 <svg xmlns="http://www.w3.org/2000/svg" width="1.4em" height="1.4em" viewBox="0 0 24 24">
                     <path d="M0 0h24v24H0z" fill="none" />
                     <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m3 11l2.5-2.5c1.017-1.017 1.526-1.526 2.137-1.638a2 2 0 0 1 .726 0c.611.112 1.12.62 2.137 1.638s1.526 1.526 2.137 1.638c.24.045.486.045.726 0c.611-.112 1.12-.621 2.137-1.638L21 3M3 15v6m6-8v8m6-5v5m6-12v12" />
@@ -101,7 +102,7 @@ $search_placeholder = $search_placeholder ?? 'Cari nomor nota';
             <?php endif; ?>
 
             <!-- Link Sparepart (ikut folder sesuai role) -->
-            <a href="<?= $base . $folder_role ?>/sparepart.php"
+            <a href="<?= $base ?>sparepart/index.php"
                 class="flex items-center gap-4 px-4 py-3.5 rounded-xl font-medium transition-all <?= ((isset($active_menu) && $active_menu === 'sparepart') || $currentPage === 'sparepart.php') ? 'bg-orange text-white-light' : 'text-gray-300 hover:text-white-light hover:bg-white/10' ?>">
                 <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" viewBox="0 0 16 16">
                     <path d="M0 0h16v16H0z" fill="none" />
@@ -174,17 +175,17 @@ $search_placeholder = $search_placeholder ?? 'Cari nomor nota';
                             <p class="text-xs text-white-dark-active"><?= e($role_label) ?></p>
                         </div>
 
-                        <form action="<?= $base ?>logout.php" method="POST">
+                        <form action="<?= $base ?>auth/logout.php" method="POST">
                             <button type="submit"
                                 class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-danger hover:bg-danger-light transition cursor-pointer">
-                                <svg class="w-4 h-4 pr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-8 h-8 pr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                                 </svg>
                                 Keluar
                             </button>
                         </form>
                     </div>
-                </div>
+                </div
             </div>
         </header>
 
