@@ -38,20 +38,12 @@ if (!empty($email_tujuan)) {
 
             // 5. KIRIM EMAIL DENGAN PHPMAILER
             $link_reset = "http://localhost:8000/auth/reset_password.php?token=" . $token_baru;
-<<<<<<< HEAD
-            
-=======
 
->>>>>>> 58356731e922ec135f3229f30cee1f46dec926d3
             // --- PEMBACA .ENV ANTI GAGAL ---
             $env_file = __DIR__ . '/../.env';
             $smtp_email = '';
             $smtp_pass = '';
-<<<<<<< HEAD
-            
-=======
 
->>>>>>> 58356731e922ec135f3229f30cee1f46dec926d3
             if (file_exists($env_file)) {
                 $lines = file($env_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
                 foreach ($lines as $line) {
@@ -65,17 +57,12 @@ if (!empty($email_tujuan)) {
                     }
                 }
             }
-<<<<<<< HEAD
-            // ---------------------------------
-            
-=======
 
->>>>>>> 58356731e922ec135f3229f30cee1f46dec926d3
             $mail = new PHPMailer(true);
             $mail->isSMTP();
             $mail->Host       = 'smtp.gmail.com';
             $mail->SMTPAuth   = true;
-<<<<<<< HEAD
+
             
             // Gunakan variabel yang ditarik manual dari brankas
             $mail->Username   = $smtp_email; 
@@ -87,7 +74,6 @@ if (!empty($email_tujuan)) {
             // Alamat Pengirim & Penerima
             $mail->setFrom($smtp_email, 'Admin Singhasari Computer');
             $mail->addAddress($email_tujuan); 
-=======
 
             // Mengambil email dan sandi dari brankas .env
             $mail->Username   = $smtp_email;
@@ -101,7 +87,6 @@ if (!empty($email_tujuan)) {
 
             // Ubah menjadi dinamis! Email akan dikirim ke alamat yang diinputkan
             $mail->addAddress($email_tujuan);
->>>>>>> 58356731e922ec135f3229f30cee1f46dec926d3
 
             $mail->isHTML(true);
             $mail->Subject = 'Permintaan Reset Kata Sandi';
