@@ -63,6 +63,18 @@ if (!empty($email_tujuan)) {
             $mail->Host       = 'smtp.gmail.com';
             $mail->SMTPAuth   = true;
 
+            
+            // Gunakan variabel yang ditarik manual dari brankas
+            $mail->Username   = $smtp_email; 
+            $mail->Password   = $smtp_pass; 
+            
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+            $mail->Port       = 465;
+
+            // Alamat Pengirim & Penerima
+            $mail->setFrom($smtp_email, 'Admin Singhasari Computer');
+            $mail->addAddress($email_tujuan); 
+
             // Mengambil email dan sandi dari brankas .env
             $mail->Username   = $smtp_email;
             $mail->Password   = $smtp_pass;
@@ -86,10 +98,12 @@ if (!empty($email_tujuan)) {
 
             $mail->send();
 
-            if (isset($_POST['email'])) {
+           if (isset($_POST['email'])) {
                 echo "<script>alert('Link reset telah dikirim ke email!'); window.location.href='lupa_password.php';</script>";
             } else {
-                echo "<script>alert('Link reset teknisi telah dikirim!'); window.location.href='../admin/edit_karyawan.php';</script>";
+                // Tangkap ID yang dititipkan dari tombol tadi
+                $id_kembali = $_GET['id'] ?? '';
+                echo "<script>alert('Link reset teknisi telah dikirim!'); window.location.href='../admin/edit_karyawan.php?id=" . $id_kembali . "';</script>";
             }
         } else {
             echo "<script>alert('Email tidak terdaftar di sistem!'); window.history.back();</script>";

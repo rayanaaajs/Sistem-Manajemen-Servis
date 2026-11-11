@@ -1,24 +1,66 @@
 <?php
 require_once __DIR__ . '/../includes/auth.php';   
+require_once __DIR__ . '/../includes/koneksi.php'; // Panggil koneksi database
+
 $page_title = 'Tambah Karyawan';
 $active_menu = 'karyawan';
-// Panggil header pelanggan
+
+// LOGIKA SIMPAN DATA KE SUPABASE
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $nama     = trim($_POST['nama'] ?? '');
+    $username = trim($_POST['username'] ?? '');
+    $password = $_POST['password'] ?? '';
+    $email    = trim($_POST['email'] ?? '');
+    $peran    = 'Teknisi'; // Peran default
+
+    if (empty($nama) || empty($username) || empty($password) || empty($email)) {
+        echo "<script>alert('Semua bidang formulir wajib diisi!'); window.history.back();</script>";
+        exit;
+    }
+
+    try {
+        // 1. Cek apakah username atau email sudah pernah digunakan
+        $checkStmt = $pdo->prepare("SELECT id_karyawan FROM karyawan WHERE username = :username OR email = :email LIMIT 1");
+        $checkStmt->execute(['username' => $username, 'email' => $email]);
+
+        if ($checkStmt->fetch()) {
+            echo "<script>alert('Username atau Email sudah terdaftar! Gunakan data lain.'); window.history.back();</script>";
+            exit;
+        }
+
+        // 2. Hash password demi keamanan akun
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+        // 3. Insert ke database Supabase
+        $stmt = $pdo->prepare("INSERT INTO karyawan (nama_karyawan, username, password, peran, email) VALUES (:nama, :username, :password, :peran, :email)");
+        $stmt->execute([
+            'nama'     => $nama,
+            'username' => $username,
+            'password' => $hashed_password,
+            'peran'    => $peran,
+            'email'    => $email
+        ]);
+
+        echo "<script>alert('Karyawan berhasil ditambahkan!'); window.location.href='karyawan.php';</script>";
+        exit;
+
+    } catch (PDOException $e) {
+        echo "<script>alert('Gagal menyimpan data: " . addslashes($e->getMessage()) . "'); window.history.back();</script>";
+        exit;
+    }
+}
+
+// Panggil header & helper
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/helpers.php';
 ?>
 
       <!-- FORM 2 KOLOM (KIRI: FORM DATA TEKNISI, KANAN: RINGKASAN TEKNISI) -->
-      <form
-        action="karyawan_admin.html"
-        method="GET"
-        class="grid grid-cols-1 lg:grid-cols-3 gap-5 items-stretch"
-      >
+      <form action="tambah_karyawan.php" method="POST" class="grid grid-cols-1 lg:grid-cols-3 gap-5 items-stretch">
         <!-- ==========================================
            KARTU KIRI: DATA TEKNISI (2 KOLOM GRID)
            ========================================== -->
-        <div
-          class="lg:col-span-2 bg-white-light rounded-3xl p-7 lg:p-8 border border-gray-200 flex flex-col justify-between"
-        >
+        <div class="lg:col-span-2 bg-white-light rounded-3xl p-7 lg:p-8 border border-gray-200 flex flex-col justify-between">
           <div>
             <h2 class="text-xl font-bold text-blue-darker tracking-tight mb-6">
               Data Teknisi
@@ -28,12 +70,11 @@ require_once __DIR__ . '/../includes/helpers.php';
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5 lg:gap-6">
               <!-- Nama -->
               <div>
-                <label class="block text-sm font-bold text-blue-darker mb-2"
-                  >Nama</label
-                >
+                <label class="block text-sm font-bold text-blue-darker mb-2">Nama</label>
                 <input
                   type="text"
                   name="nama"
+                  required
                   placeholder="Masukkan Nama"
                   class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker placeholder-white-dark-hover focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition"
                 />
@@ -41,41 +82,27 @@ require_once __DIR__ . '/../includes/helpers.php';
 
               <!-- Username -->
               <div>
-                <label class="block text-sm font-bold text-blue-darker mb-2"
-                  >Username</label
-                >
+                <label class="block text-sm font-bold text-blue-darker mb-2">Username</label>
                 <input
                   type="text"
                   name="username"
+                  required
                   placeholder="Buat Username"
                   class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker placeholder-white-dark-hover focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition"
                 />
               </div>
 
-              <!-- Alamat -->
-              <div>
-                <label class="block text-sm font-bold text-blue-darker mb-2"
-                  >Alamat</label
-                >
-                <input
-                  type="text"
-                  name="alamat"
-                  placeholder="Masukkan Alamat"
-                  class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker placeholder-white-dark-hover focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition"
-                />
-              </div>
+              <!-- Input Alamat Dihapus agar sesuai database -->
 
               <!-- Password -->
               <div>
-                <label class="block text-sm font-bold text-blue-darker mb-2"
-                  >Password</label
-                >
+                <label class="block text-sm font-bold text-blue-darker mb-2">Password</label>
                 <div class="relative">
                   <input
                     type="password"
                     id="passwordInput"
                     name="password"
-                    value="12345678"
+                    required
                     placeholder="••••••••"
                     class="w-full pl-4 pr-11 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm text-blue-darker tracking-wider focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition"
                   />
@@ -109,24 +136,11 @@ require_once __DIR__ . '/../includes/helpers.php';
                 </div>
               </div>
 
-              <!-- Nomor Whatsapp -->
-              <div>
-                <label class="block text-sm font-bold text-blue-darker mb-2"
-                  >Nomor</label
-                >
-                <input
-                  type="tel"
-                  name="nomor"
-                  placeholder="Masukkan Nomor Whatsapp"
-                  class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker placeholder-white-dark-hover focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition"
-                />
-              </div>
+              <!-- Input Nomor Whatsapp Dihapus agar sesuai database -->
 
               <!-- Pilih Status Teknisi -->
               <div>
-                <label class="block text-sm font-bold text-blue-darker mb-2"
-                  >Pilih Status Teknisi</label
-                >
+                <label class="block text-sm font-bold text-blue-darker mb-2">Pilih Status Teknisi</label>
                 <div class="relative">
                   <select
                     name="status_teknisi"
@@ -135,9 +149,7 @@ require_once __DIR__ . '/../includes/helpers.php';
                     <option value="Aktif" selected>Aktif</option>
                     <option value="Nonaktif">Nonaktif</option>
                   </select>
-                  <div
-                    class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-success-dark"
-                  >
+                  <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-success-dark">
                     <svg
                       class="w-4 h-4"
                       fill="none"
@@ -157,12 +169,11 @@ require_once __DIR__ . '/../includes/helpers.php';
 
               <!-- Email Teknisi -->
               <div>
-                <label class="block text-sm font-bold text-blue-darker mb-2"
-                  >Email Teknisi</label
-                >
+                <label class="block text-sm font-bold text-blue-darker mb-2">Email Teknisi</label>
                 <input
                   type="email"
                   name="email"
+                  required
                   placeholder="Example@gmail.com"
                   class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker placeholder-white-dark-hover focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition"
                 />
@@ -190,22 +201,15 @@ require_once __DIR__ . '/../includes/helpers.php';
         <!-- ==========================================
            KARTU KANAN: RINGKASAN TEKNISI
            ========================================== -->
-        <div
-          class="bg-white-light rounded-3xl p-7 lg:p-8 border border-gray-200 flex flex-col justify-between"
-        >
+        <div class="bg-white-light rounded-3xl p-7 lg:p-8 border border-gray-200 flex flex-col justify-between">
           <div>
             <h2 class="text-xl font-bold text-blue-darker tracking-tight mb-6">
               Ringkasan Teknisi
             </h2>
 
             <!-- State Kosong: Belum ada data -->
-            <div
-              class="flex flex-col items-center justify-center text-center py-12"
-            >
-              <!-- Ikon Placeholder -->
-              <div
-                class="w-16 h-16 rounded-full bg-white-hover/60 flex items-center justify-center mb-4"
-              >
+            <div class="flex flex-col items-center justify-center text-center py-12">
+              <div class="w-16 h-16 rounded-full bg-white-hover/60 flex items-center justify-center mb-4">
                 <svg
                   class="w-8 h-8 text-white-dark"
                   fill="none"
@@ -228,46 +232,31 @@ require_once __DIR__ . '/../includes/helpers.php';
               </p>
             </div>
 
-            <!-- Daftar Informasi Ringkasan (Kosong / Placeholder) -->
+            <!-- Daftar Informasi Ringkasan -->
             <div class="space-y-4 text-xs font-medium text-white-darker mt-4">
               <div class="flex justify-between items-center py-1">
                 <span>Tanggal Akun Dibuat</span>
-                <span class="font-bold text-white-dark-hover text-sm">-</span>
+                <span class="font-bold text-white-dark-hover text-sm"><?= date('d M Y') ?></span>
               </div>
 
-              <div
-                class="flex justify-between items-center py-1 border-t border-white-hover/60 pt-3"
-              >
+              <div class="flex justify-between items-center py-1 border-t border-white-hover/60 pt-3">
                 <span>Status awal</span>
-                <span class="font-bold text-white-dark-hover text-sm">-</span>
+                <span class="font-bold text-success-dark text-sm">Aktif</span>
               </div>
 
-              <div
-                class="flex justify-between items-center py-1 border-t border-white-hover/60 pt-3"
-              >
+              <div class="flex justify-between items-center py-1 border-t border-white-hover/60 pt-3">
                 <span>Peran</span>
-                <span class="font-bold text-white-dark-hover text-sm">-</span>
-              </div>
-
-              <div
-                class="flex justify-between items-center py-1 border-t border-white-hover/60 pt-3"
-              >
-                <span>Teknisi</span>
-                <span class="font-bold text-white-dark-hover text-sm">-</span>
+                <span class="font-bold text-blue-darker text-sm">Teknisi</span>
               </div>
             </div>
           </div>
 
           <!-- Banner Biru Muda: Setelah disimpan -->
-          <div
-            class="mt-8 p-5 rounded-2xl bg-lightblue-light text-lightblue-darker text-xs font-medium"
-          >
+          <div class="mt-8 p-5 rounded-2xl bg-lightblue-light text-lightblue-darker text-xs font-medium">
             <h4 class="font-bold text-lightblue-darker mb-2 text-xs">
               Setelah disimpan
             </h4>
-            <ul
-              class="space-y-1.5 text-[11px] text-lightblue-dark font-medium list-disc list-inside"
-            >
+            <ul class="space-y-1.5 text-[11px] text-lightblue-dark font-medium list-disc list-inside">
               <li>Akun bisa di loginkan</li>
               <li>Dapat di edit lagi</li>
             </ul>
