@@ -12,14 +12,7 @@ require_once __DIR__ . '/../includes/helpers.php';
 // Stok 0          => Habis
 // Stok 1 - 5      => Menipis   (ubah BATAS_MENIPIS kalau mau batas lain)
 // Stok di atas 5  => Aman
-const BATAS_MENIPIS = 5;
 
-function hitungStatusSparepart($stok) {
-    $stok = (int) $stok;
-    if ($stok <= 0) return 'Habis';
-    if ($stok <= BATAS_MENIPIS) return 'Menipis';
-    return 'Aman';
-}
 
 function getBadgeSparepartClass($status) {
     switch ($status) {

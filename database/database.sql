@@ -48,7 +48,8 @@ CREATE TABLE servis (
     id_karyawan           INTEGER       REFERENCES karyawan (id_karyawan),   -- teknisi yang menangani
     estimasi_pengambilan  TIMESTAMP,
     jenis_layanan         VARCHAR(30),
-    biaya_urgent          NUMERIC(12,2) NOT NULL DEFAULT 0 CHECK (biaya_urgent >= 0)
+    biaya_urgent          NUMERIC(12,2) NOT NULL DEFAULT 0 CHECK (biaya_urgent >= 0),
+    persetujuan_pelanggan VARCHAR(10) CHECK (persetujuan_pelanggan IN ('Ya', 'Tidak'));
 );
 
 ALTER SEQUENCE seq_no_nota OWNED BY servis.no_nota;
