@@ -5,7 +5,7 @@ $base = '/';
 </main>
 
 
-<div id="modalHapus" class="fixed inset-0 z-[99] hidden flex items-center justify-center">
+<div id="modalHapus" class="fixed inset-0 z-99 hidden flex items-center justify-center">
   <div id="modalBackdrop" class="absolute inset-0 bg-black/40 backdrop-blur-sm opacity-0 transition-opacity duration-300" onclick="tutupModalHapus()"></div>
   <div id="modalBox" class="relative bg-white-light rounded-3xl p-6 md:p-8 max-w-sm w-full mx-4 shadow-xl transform scale-95 opacity-0 transition-all duration-300 text-center">
     <div class="w-16 h-16 rounded-full bg-danger/10 text-danger-dark-hover mx-auto flex items-center justify-center mb-5">
@@ -33,6 +33,7 @@ $base = '/';
 
 <script src="<?= $base ?>assets/js/app.js"></script>
 <script src="<?= $base ?>assets/js/admin.js"></script>
+<script src="<?= $base ?>assets/js/sparepart.js"></script>
 </body>
 
 </html>

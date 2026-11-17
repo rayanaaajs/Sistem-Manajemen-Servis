@@ -7,13 +7,14 @@ function e($value)
 }
 
 // Fungsi untuk bikin badge/kapsul status otomatis
-function badgeStatus($status) {
+function badgeStatus($status)
+{
     // 1. Class dasar yang dipakai semua kapsul (bentuk, ukuran, font)
-    $baseClass = "inline-flex items-center justify-center w-28 py-2 rounded-full text-xs font-semibold transition-colors border-transparent";
+    $baseClass = "inline-flex items-center justify-center min-w-28 w-auto px-4 py-2 rounded-full whitespace-nowrap text-xs font-semibold transition-colors border-transparent";
 
     // 2. Tentukan warna berdasarkan nama status
     // (Warna HEX disesuaikan bayangan dari gambarmu)
-    $colorClass = match(strtolower(trim($status))) {
+    $colorClass = match (strtolower(trim($status))) {
         'selesai', 'aktif' => 'bg-[#E9F2EC] text-[#1F7A45] border-[#1F7A45]',
         'dikerjakan' => 'bg-[#E6F5F9] text-[#0277BD] border-[#0277BD]',
         'diterima' => 'bg-[#FEF9EF] text-[#8A5A00] border-[#8A5A00]',
@@ -38,26 +39,6 @@ function badgeStatus($status) {
 
     // 3. Kembalikan elemen HTML utuh
     return "<span class=\"{$baseClass} {$colorClass}\">" . e($status) . "</span>";
-}
-
-
-if (!function_exists('convertStatusAdmin')) {
-    function convertStatusAdmin($status)
-    {
-        return match (strtolower(trim($status))) {
-            'menunggu' => 'Menunggu',
-
-            'sedang dicek' => 'Diterima',
-
-            'menunggu persetujuan' => 'Menunggu Persetujuan',
-
-            'proses servis' => 'Dikerjakan',
-
-            'selesai' => 'Selesai',
-
-            default => $status,
-        };
-    }
 }
 
 
@@ -99,5 +80,18 @@ if (!function_exists('formatTanggalLengkap')) {
         $bulan = [1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
         $ts = $ts ?? time();
         return $hari[(int) date('w', $ts)] . ', ' . date('j', $ts) . ' ' . $bulan[(int) date('n', $ts)] . ' ' . date('Y', $ts);
+    }
+}
+
+//batas menipis sparepart
+if (!defined('BATAS_MENIPIS')) define('BATAS_MENIPIS', 5);
+
+if (!function_exists('hitungStatusSparepart')) {
+    function hitungStatusSparepart($stok)
+    {
+        $stok = (int) $stok;
+        if ($stok <= 0) return 'Habis';
+        if ($stok <= BATAS_MENIPIS) return 'Menipis';
+        return 'Aman';
     }
 }
