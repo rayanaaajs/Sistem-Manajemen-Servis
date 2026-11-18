@@ -1,86 +1,74 @@
 <?php
-require_once __DIR__ . '/../includes/auth.php';   
+require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/../includes/koneksi.php';
+
 $page_title = 'Sparepart';
 $active_menu = 'sparepart';
 $search_placeholder = 'Cari nama atau kode sparepart...';
-// Panggil header & helper
-require_once __DIR__ . '/../includes/header.php';
-require_once __DIR__ . '/../includes/helpers.php';
 
-// Data dummy sparepart sesuai screenshot Figma
-$sparepart_list = [
-  [
-    'id'       => 1,
-    'nama'     => 'RAM DDR4 8GB SODIMM',
-    'stok'     => 12,
-    'min_stok' => 5,
-    'status'   => 'Aman',
-    'harga'    => 285000,
-    'terpakai' => '8 item',
-    'inisial'  => 'RM'
-  ],
-  [
-    'id'       => 2,
-    'nama'     => 'RAM DDR4 8GB SODIMM',
-    'stok'     => 12,
-    'min_stok' => 5,
-    'status'   => 'Aman',
-    'harga'    => 285000,
-    'terpakai' => '8 item',
-    'inisial'  => 'RM'
-  ],
-  [
-    'id'       => 3,
-    'nama'     => 'RAM DDR4 8GB SODIMM',
-    'stok'     => 5,
-    'min_stok' => 5,
-    'status'   => 'Menipis',
-    'harga'    => 285000,
-    'terpakai' => '8 item',
-    'inisial'  => 'RM'
-  ],
-  [
-    'id'       => 4,
-    'nama'     => 'RAM DDR4 8GB SODIMM',
-    'stok'     => 12,
-    'min_stok' => 5,
-    'status'   => 'Aman',
-    'harga'    => 285000,
-    'terpakai' => '8 item',
-    'inisial'  => 'RM'
-  ],
-  [
-    'id'       => 5,
-    'nama'     => 'RAM DDR4 8GB SODIMM',
-    'stok'     => 5,
-    'min_stok' => 5,
-    'status'   => 'Menipis',
-    'harga'    => 285000,
-    'terpakai' => '8 item',
-    'inisial'  => 'RM'
-  ],
-  [
-    'id'       => 6,
-    'nama'     => 'RAM DDR4 8GB SODIMM',
-    'stok'     => 0,
-    'min_stok' => 5,
-    'status'   => 'Habis',
-    'harga'    => 285000,
-    'terpakai' => '8 item',
-    'inisial'  => 'RM'
-  ],
-  [
-    'id'       => 7,
-    'nama'     => 'RAM DDR4 8GB SODIMM',
-    'stok'     => 12,
-    'min_stok' => 5,
-    'status'   => 'Aman',
-    'harga'    => 285000,
-    'terpakai' => '8 item',
-    'inisial'  => 'RM'
-  ]
-];
+$sparepart_list = [];
+$errorPage = '';
+
+// Jika helpers.php menyediakan konstanta batas stok, gunakan nilainya.
+// Database sparepart saat ini tidak memiliki kolom minimal stok per item.
+$batasMenipis = defined('BATAS_MENIPIS') ? max(0, (int) BATAS_MENIPIS) : 5;
+
+try {
+  // Ambil seluruh daftar sekali. Search, filter dan pagination berlangsung di browser.
+  // Agregasi menghindari query terpisah untuk tiap sparepart (N+1).
+  $stmt = $pdo->query("
+    SELECT
+      sp.id_sparepart,
+      sp.nama_sparepart,
+      sp.stok_tersedia,
+      sp.harga_satuan,
+      COALESCE(pemakaian.total_dipakai, 0) AS total_dipakai
+    FROM public.sparepart AS sp
+    LEFT JOIN (
+      SELECT
+        id_sparepart,
+        SUM(jumlah_dipakai) AS total_dipakai
+      FROM public.detail_servis
+      GROUP BY id_sparepart
+    ) AS pemakaian
+      ON pemakaian.id_sparepart = sp.id_sparepart
+    ORDER BY sp.nama_sparepart ASC, sp.id_sparepart ASC
+  ");
+
+  foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $sp) {
+    $nama = (string) $sp['nama_sparepart'];
+    $stok = (int) $sp['stok_tersedia'];
+    $status = $stok <= 0 ? 'Habis' : ($stok <= $batasMenipis ? 'Menipis' : 'Aman');
+
+    $sparepart_list[] = [
+      'id'       => (int) $sp['id_sparepart'],
+      'nama'     => $nama,
+      'stok'     => $stok,
+      'min_stok' => $batasMenipis,
+      'status'   => $status,
+      'harga'    => (float) $sp['harga_satuan'],
+      'terpakai' => (int) $sp['total_dipakai'] . ' item',
+      'inisial'  => function_exists('inisialNama')
+        ? inisialNama($nama)
+        : strtoupper(substr($nama, 0, 2)),
+    ];
+  }
+} catch (PDOException $e) {
+  error_log('sparepart/index.php: ' . $e->getMessage());
+  $errorPage = 'Gagal mengambil data sparepart. Silakan coba lagi.';
+}
+
+$jumlahSparepart = count($sparepart_list);
+
+require_once __DIR__ . '/../includes/header.php';
 ?>
+
+<?php if ($errorPage !== ''): ?>
+  <div role="alert" class="mb-5 rounded-2xl border border-danger bg-danger-light px-5 py-4 text-sm font-medium text-danger-dark">
+    <?= e($errorPage) ?>
+  </div>
+<?php endif; ?>
 
 <!-- AREA AKSI: FILTER (KIRI) & TOMBOL TAMBAH (KANAN) -->
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
@@ -88,7 +76,7 @@ $sparepart_list = [
   <!-- Kiri: Kelompok Filter Kategori Status -->
   <div class="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0" id="filterStatusSparepart">
     <button type="button" data-filter="all" class="filter-sparepart-btn px-6 py-2.5 rounded-full bg-tosca-dark text-white-light text-xs font-semibold shadow-xs transition cursor-pointer whitespace-nowrap">
-      Semua 7
+      Semua <?= $jumlahSparepart ?>
     </button>
     <button type="button" data-filter="Aman" class="filter-sparepart-btn px-6 py-2.5 rounded-full bg-white-light text-white-darker border border-gray-200 text-xs font-medium hover:bg-white-light-hover transition cursor-pointer whitespace-nowrap">
       Aman
@@ -116,12 +104,12 @@ $sparepart_list = [
   <!-- Header Tabel & Info Jumlah -->
   <div class="flex items-center justify-between mb-5">
     <h2 class="text-lg font-bold text-blue-darker tracking-tight">Daftar Sparepart</h2>
-    <span class="text-sm text-white-dark-hover font-medium">7 sparepart</span>
+    <span class="text-sm text-white-dark-hover font-medium"><?= $jumlahSparepart ?> sparepart</span>
   </div>
 
   <!-- Tabel Responsif -->
   <div class="overflow-x-auto">
-    <table class="w-full text-left border-collapse text-sm" id="tableSparepart">
+    <table class="w-full text-left border-collapse text-sm" id="tableInventarisSparepart">
       <thead>
         <tr class="border-b border-white-hover text-white-darker font-bold text-[13px] tracking-wider">
           <th class="py-4 px-5">Nama Sparepart</th>
@@ -132,10 +120,11 @@ $sparepart_list = [
           <th class="py-4 px-5 text-center">Aksi</th>
         </tr>
       </thead>
-      <tbody id="tableBody" class="divide-y divide-white-hover text-white-darker font-medium" id="tableBodySparepart">
+      <tbody id="tableBody" class="divide-y divide-white-hover text-white-darker font-medium">
         <?php foreach ($sparepart_list as $row): ?>
           <tr class="hover:bg-warning-light/40 transition-colors row-sparepart"
-            data-status="<?= htmlspecialchars($row['status']) ?>">
+            data-status="<?= e($row['status']) ?>"
+            data-search="<?= e($row['nama'] . ' ' . $row['id']) ?>">
 
             <!-- Nama Sparepart -->
             <td class="py-4 px-5">
@@ -151,8 +140,8 @@ $sparepart_list = [
 
             <!-- Stok -->
             <td class="py-4 px-5 text-center">
-              <p class="font-semibold text-blue-darker text-sm"><?= $row['stok'] ?> pcs</p>
-              <p class="text-[11px] text-white-dark-hover font-medium">min. <?= $row['min_stok'] ?></p>
+              <p class="font-semibold text-blue-darker text-sm"><?= (int) $row['stok'] ?> pcs</p>
+              <p class="text-[11px] text-white-dark-hover font-medium">min. <?= (int) $row['min_stok'] ?></p>
             </td>
 
             <!-- Status Badge (Ukurannya w-28) -->
@@ -179,7 +168,7 @@ $sparepart_list = [
 
             <!-- Terpakai -->
             <td class="py-4 px-5 text-blue-darker text-sm font-medium">
-              <?= htmlspecialchars($row['terpakai']) ?>
+              <?= e($row['terpakai']) ?>
             </td>
 
             <!-- Aksi -->
@@ -188,14 +177,14 @@ $sparepart_list = [
 
                 <!-- Tombol Edit (HANYA UNTUK ADMIN) -->
                 <?php if (isset($_SESSION['role']) && strtolower($_SESSION['role']) === 'admin'): ?>
-                  <a href="edit.php?id=<?= $row['id'] ?>"
+                  <a href="edit.php?id=<?= (int) $row['id'] ?>"
                     class="px-3.5 py-2 rounded-full border border-tosca-darker text-tosca-darker hover:bg-tosca-darker hover:text-white-light text-xs font-semibold transition cursor-pointer">
                     Edit
                   </a>
                 <?php endif; ?>
 
                 <!-- Tombol Detail (BISA DILIHAT SEMUA ROLE) -->
-                <a href="detail.php?id=<?= $row['id'] ?>"
+                <a href="detail.php?id=<?= (int) $row['id'] ?>"
                   class="px-3.5 py-2 rounded-full bg-tosca-dark hover:bg-tosca-dark-hover text-white-light text-xs font-semibold transition cursor-pointer">
                   Detail
                 </a>
@@ -203,7 +192,7 @@ $sparepart_list = [
                 <!-- Tombol Hapus (HANYA UNTUK ADMIN) -->
                 <?php if (isset($_SESSION['role']) && strtolower($_SESSION['role']) === 'admin'): ?>
                   <button type="button"
-                    onclick="bukaModalHapus('<?= e($row['nama']) ?>', 'hapus_sparepart.php?id=<?= $row['id'] ?>')"
+                    onclick="bukaModalHapus(<?= e(json_encode($row['nama'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)) ?>, 'hapus_sparepart.php?id=<?= (int) $row['id'] ?>')"
                     class="px-3.5 py-2 rounded-full border border-danger text-danger hover:bg-danger hover:text-white-light text-xs font-semibold transition cursor-pointer">
                     Hapus
                   </button>
@@ -216,53 +205,117 @@ $sparepart_list = [
       </tbody>
     </table>
   </div>
+  <div id="emptySparepart" class="hidden text-center py-12 text-white-dark-hover">
+    Tidak ada sparepart yang cocok.
+  </div>
 
-  <!-- Footer Pagination -->
+  <!-- Footer Pagination (client-side) -->
   <div class="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-white-dark-hover mt-8 pt-4 border-t border-gray-100">
-    <p>Menampilkan 1-7 dari 7 sparepart</p>
+    <p id="infoSparepart">Menampilkan <?= $jumlahSparepart ? 1 : 0 ?>-<?= $jumlahSparepart ?> dari <?= $jumlahSparepart ?> sparepart</p>
 
-    <div class="flex items-center gap-1.5">
-      <span class="w-8 h-8 rounded-full bg-orange text-white-light font-bold text-xs flex items-center justify-center cursor-pointer shadow-xs">
-        1
-      </span>
-      <a href="#page-2" class="w-8 h-8 rounded-full text-blue-darker hover:bg-white-hover font-medium text-xs flex items-center justify-center transition cursor-pointer">
-        2
-      </a>
-      <a href="#page-next" class="text-xs text-blue-darker hover:text-orange font-bold transition px-2 cursor-pointer">
-        &gt;
-      </a>
-    </div>
+    <div id="pagerSparepart" class="flex items-center gap-1.5"></div>
   </div>
 </div>
 
-<!-- JAVASCRIPT: Client-side Filter Status (Tanpa Search Bar) -->
+<!-- Search, filter status, dan pagination semuanya di sisi client. -->
 <script>
-  document.addEventListener("DOMContentLoaded", function() {
-    const filterButtons = document.querySelectorAll(".filter-sparepart-btn");
-    const rows = document.querySelectorAll(".row-sparepart");
+  document.addEventListener("DOMContentLoaded", () => {
+    const table = document.getElementById("tableInventarisSparepart");
+    if (!table) return;
 
-    filterButtons.forEach(btn => {
-      btn.addEventListener("click", function() {
-        // Reset semua tombol ke style abu-abu outline
-        filterButtons.forEach(b => {
-          b.className = "filter-sparepart-btn px-6 py-2.5 rounded-full bg-white-light text-white-darker border border-gray-200 text-xs font-medium hover:bg-white-light-hover transition cursor-pointer whitespace-nowrap";
-        });
-        // Bikin tombol yang diklik jadi tosca solid
-        this.className = "filter-sparepart-btn px-6 py-2.5 rounded-full bg-tosca-dark text-white-light text-xs font-semibold transition cursor-pointer whitespace-nowrap";
+    const PER_PAGE = 7;
+    const entries = [...document.querySelectorAll("#tableBody .row-sparepart")].map(row => ({
+      row,
+      search: (row.dataset.search ?? "").toLocaleLowerCase("id-ID"),
+      status: row.dataset.status ?? "",
+    }));
 
-        const filter = this.getAttribute("data-filter");
+    const searchInput = document.getElementById("searchNotaInput")
+      ?? document.querySelector('input[placeholder="Cari nama atau kode sparepart..."]');
+    const filterButtons = [...document.querySelectorAll(".filter-sparepart-btn")];
+    const emptyEl = document.getElementById("emptySparepart");
+    const infoEl = document.getElementById("infoSparepart");
+    const pagerEl = document.getElementById("pagerSparepart");
 
-        // Filter baris tabel berdasarkan status
-        rows.forEach(row => {
-          const status = row.getAttribute("data-status");
-          if (filter === "all" || status === filter) {
-            row.style.display = "";
-          } else {
-            row.style.display = "none";
-          }
-        });
+    const FILTER_INACTIVE = "filter-sparepart-btn px-6 py-2.5 rounded-full bg-white-light text-white-darker border border-gray-200 text-xs font-medium hover:bg-white-light-hover transition cursor-pointer whitespace-nowrap";
+    const FILTER_ACTIVE = "filter-sparepart-btn px-6 py-2.5 rounded-full bg-tosca-dark text-white-light text-xs font-semibold transition cursor-pointer whitespace-nowrap";
+    const PAGE_INACTIVE = "w-8 h-8 rounded-full text-blue-darker hover:bg-white-hover font-medium text-xs flex items-center justify-center transition cursor-pointer";
+    const PAGE_ACTIVE = "w-8 h-8 rounded-full bg-orange text-white-light font-bold text-xs flex items-center justify-center cursor-pointer shadow-xs";
+    const PAGE_ARROW = "text-xs text-blue-darker hover:text-orange font-bold transition px-2 cursor-pointer";
+
+    let activeFilter = "all";
+    let searchQuery = "";
+    let currentPage = 1;
+
+    const render = () => {
+      const filtered = entries.filter(({ search, status }) =>
+        search.includes(searchQuery) &&
+        (activeFilter === "all" || status === activeFilter)
+      );
+      const total = filtered.length;
+      const pageCount = Math.max(1, Math.ceil(total / PER_PAGE));
+      currentPage = Math.min(currentPage, pageCount);
+
+      // Tidak melakukan fetch ulang ke Supabase ketika filter/search berubah.
+      entries.forEach(({ row }) => { row.style.display = "none"; });
+      filtered
+        .slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE)
+        .forEach(({ row }) => { row.style.display = ""; });
+
+      emptyEl.classList.toggle("hidden", total !== 0);
+      const start = total ? (currentPage - 1) * PER_PAGE + 1 : 0;
+      const end = Math.min(currentPage * PER_PAGE, total);
+      infoEl.textContent = `Menampilkan ${start}-${end} dari ${total} sparepart`;
+
+      pagerEl.replaceChildren();
+      const addPage = (label, destination, active, disabled = false, arrow = false) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = label;
+        button.className = active ? PAGE_ACTIVE : (arrow ? PAGE_ARROW : PAGE_INACTIVE);
+        button.disabled = disabled;
+        if (disabled) button.classList.add("opacity-40", "cursor-default");
+        if (!active && !disabled) {
+          button.addEventListener("click", () => {
+            currentPage = destination;
+            render();
+          });
+        }
+        pagerEl.appendChild(button);
+      };
+
+      if (pageCount > 1) addPage("‹", currentPage - 1, false, currentPage === 1, true);
+      for (let i = 1; i <= pageCount; i++) {
+        addPage(String(i), i, i === currentPage);
+      }
+      if (pageCount > 1) addPage(">", currentPage + 1, false, currentPage === pageCount, true);
+    };
+
+    if (searchInput) {
+      searchQuery = searchInput.value.toLocaleLowerCase("id-ID").trim();
+      searchInput.addEventListener("input", () => {
+        searchQuery = searchInput.value.toLocaleLowerCase("id-ID").trim();
+        currentPage = 1;
+        render();
+      });
+
+      // Jika search pada header berada di dalam form, Enter tidak me-reload halaman.
+      searchInput.closest("form")?.addEventListener("submit", event => {
+        event.preventDefault();
+      });
+    }
+
+    filterButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        filterButtons.forEach(item => { item.className = FILTER_INACTIVE; });
+        button.className = FILTER_ACTIVE;
+        activeFilter = button.dataset.filter ?? "all";
+        currentPage = 1;
+        render();
       });
     });
+
+    render();
   });
 </script>
 

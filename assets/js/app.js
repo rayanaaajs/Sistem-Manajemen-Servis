@@ -359,7 +359,6 @@ document.addEventListener("DOMContentLoaded", function () {
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") setOpen(false);
   });
-  s;
 })();
 
 // search data tiap tabel dihalaman admin dan teknisi
@@ -408,4 +407,68 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   }
+});
+
+// pop up konfirmasi perubahan status teknisi
+
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("formEditServis");
+  const modal = document.getElementById("modalKonfirmasiStatus");
+  const status = document.getElementById("status_pengerjaan");
+  const pesan = document.getElementById("pesanKonfirmasiStatus");
+  const btnBatal = document.getElementById("btnBatalStatus");
+  const btnYakin = document.getElementById("btnYakinStatus");
+  const backdrop = document.getElementById("backdropKonfirmasiStatus");
+
+  if (
+    !form ||
+    !modal ||
+    !status ||
+    !pesan ||
+    !btnBatal ||
+    !btnYakin ||
+    !backdrop
+  ) {
+    return;
+  }
+
+  const statusAwal = form.dataset.statusAwal;
+  const nota = form.dataset.nota;
+  let sudahKonfirmasi = false;
+
+  const tutupModal = () => {
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+  };
+
+  form.addEventListener("submit", (event) => {
+    if (sudahKonfirmasi || status.value === statusAwal) {
+      return;
+    }
+
+    event.preventDefault();
+
+    pesan.textContent =
+      `Yakin ingin melakukan perubahan status servis "${nota}" ` +
+      `dari "${statusAwal}" menjadi "${status.value}"?`;
+
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+    btnBatal.focus();
+  });
+
+  btnBatal.addEventListener("click", tutupModal);
+  backdrop.addEventListener("click", tutupModal);
+
+  btnYakin.addEventListener("click", () => {
+    sudahKonfirmasi = true;
+    tutupModal();
+    form.requestSubmit();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !modal.classList.contains("hidden")) {
+      tutupModal();
+    }
+  });
 });
