@@ -23,112 +23,40 @@ function jsAlertBackEdit($pesan) {
 // 1. PROSES SIMPAN PERUBAHAN DATA ANTREAN + VALIDASI + SINKRONISASI TABEL VALIDASI
 // ==============================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id_pelanggan       = (int)($_POST['id_pelanggan'] ?? 0);
-    $nama_pelanggan     = trim($_POST['pelanggan'] ?? '');
-    $no_hp              = preg_replace('/[\s\-\(\)\+]/', '', trim($_POST['nomor'] ?? ''));
-    $alamat             = trim($_POST['alamat'] ?? '');
-
-    $jenis_barang       = trim($_POST['jenis_barang'] ?? '');
-    $merek_spesifikasi  = trim($_POST['merek_spesifikasi'] ?? '');
-    $kelengkapan        = trim($_POST['kelengkapan'] ?? '');
-    $kondisi_unit       = trim($_POST['kondisi_unit'] ?? 'Hidup');
-    $password_perangkat = trim($_POST['password_perangkat'] ?? '');
-
-    $biaya_jasa_raw     = trim($_POST['biaya_jasa'] ?? '0');
-    $biaya_jasa         = (int)preg_replace('/[^0-9\-]/', '', $biaya_jasa_raw);
-
-    $keluhan            = trim($_POST['keluhan'] ?? '');
-    $catatan_cek_fisik  = trim($_POST['catatan_cek_fisik'] ?? '');
-    $id_karyawan        = (int)($_POST['id_karyawan'] ?? 0);
-    $tgl_masuk_input    = trim($_POST['tgl_masuk'] ?? '');
-    $tgl_estimasi_input = trim($_POST['tgl_estimasi'] ?? '');
-    $estimasi_lama      = trim($_POST['estimasi_lama'] ?? '');
-
-    $jenis_layanan      = trim($_POST['jenis_layanan'] ?? 'Reguler');
-    $persetujuan_raw    = trim($_POST['persetujuan_bongkar'] ?? 'setuju');
-
-    $status_pembayaran  = trim($_POST['status_pembayaran'] ?? 'Belum Lunas');
-    $status_pengambilan = trim($_POST['status_pengambilan'] ?? 'Belum Diambil');
-
-    // --- VALIDASI INPUT SERVER-SIDE ---
-    if ($nama_pelanggan === '' || mb_strlen($nama_pelanggan) < 2) {
-        jsAlertBackEdit('Nama pelanggan wajib diisi (minimal 2 karakter)!');
-    }
-    if (!preg_match('/^(08|62)[0-9]{8,13}$/', $no_hp)) {
-        jsAlertBackEdit('Nomor WhatsApp tidak valid! Gunakan awalan 08 atau 62 (10–15 digit angka).');
-    }
-    if ($alamat === '') {
-        jsAlertBackEdit('Alamat pelanggan wajib diisi!');
-    }
-    if ($jenis_barang === '' || $merek_spesifikasi === '') {
-        jsAlertBackEdit('Jenis barang serta merek & spesifikasi wajib diisi!');
-    }
-    if (!in_array($kondisi_unit, ['Hidup', 'Mati', 'Blank'], true)) {
-        jsAlertBackEdit('Pilihan kondisi awal unit tidak valid!');
-    }
-    if ($biaya_jasa < 0) {
-        jsAlertBackEdit('Biaya jasa servis tidak boleh kurang dari 0!');
-    }
-    if ($keluhan === '' || $id_karyawan <= 0) {
-        jsAlertBackEdit('Keluhan kerusakan dan teknisi penanggung jawab wajib diisi!');
-    }
-    if (!strtotime($tgl_masuk_input) || !strtotime($tgl_estimasi_input)) {
-        jsAlertBackEdit('Format tanggal masuk maupun estimasi selesai tidak valid!');
-    }
-    $tglMasukYmd    = date('Y-m-d', strtotime($tgl_masuk_input));
-    $tglEstimasiYmd = date('Y-m-d', strtotime($tgl_estimasi_input));
-    if ($tglEstimasiYmd < $tglMasukYmd) {
-        jsAlertBackEdit('Tanggal Estimasi Selesai tidak boleh lebih awal dari tanggal Servis Masuk!');
-    }
-    if (!in_array($jenis_layanan, ['Reguler', 'Express'], true)) {
-        jsAlertBackEdit('Jenis layanan harus Reguler atau Express!');
-    }
-    if (!in_array($persetujuan_raw, ['setuju', 'tidak_setuju'], true)) {
-        jsAlertBackEdit('Pilihan persetujuan bongkar tidak valid!');
-    }
-    if (!in_array($status_pembayaran, ['Belum Lunas', 'Lunas'], true)) {
-        jsAlertBackEdit('Status pembayaran tidak valid!');
-    }
-    if (!in_array($status_pengambilan, ['Belum Diambil', 'Sudah Diambil'], true)) {
-        jsAlertBackEdit('Status pengambilan tidak valid!');
-    }
-
-    $biaya_urgent        = ($jenis_layanan === 'Express') ? 50000 : 0;
-    $persetujuan_bongkar = ($persetujuan_raw === 'tidak_setuju') ? 'Tidak' : 'Ya';
-
-    // Default nilai database sesuai insert di tambah_antrean.php
-    $db_status_pembayaran  = ($status_pembayaran === 'Lunas') ? 'Lunas' : 'Belum Dibayar';
-    $db_status_pengambilan = ($status_pengambilan === 'Sudah Diambil') ? 'Sudah Diambil' : 'Belum Diambil';
-
     try {
-        // 1) Samakan nilai persetujuan_bongkar dengan constraint CHECK di Supabase
-        $stmtCheck = $pdo->query("
-            SELECT pg_get_constraintdef(oid) 
-            FROM pg_constraint 
-            WHERE conname = 'servis_persetujuan_barang_check' 
-            LIMIT 1
-        ");
-        $checkDef = (string)$stmtCheck->fetchColumn();
-        if ($checkDef !== '' && preg_match_all("/'([^']+)'/", $checkDef, $matches) && !empty($matches[1])) {
-            $allowedVals = $matches[1];
-            if ($persetujuan_raw === 'tidak_setuju') {
-                foreach ($allowedVals as $val) {
-                    if (stripos($val, 'tidak') !== false || stripos($val, 'tolak') !== false || strtolower($val) === 'no') {
-                        $persetujuan_bongkar = $val;
-                        break;
-                    }
-                }
-            } else {
-                foreach ($allowedVals as $val) {
-                    if (stripos($val, 'tidak') === false && stripos($val, 'tolak') === false && strtolower($val) !== 'no') {
-                        $persetujuan_bongkar = $val;
-                        break;
-                    }
-                }
-            }
+        // Ambil data lama terlebih dahulu untuk cek status_pengerjaan saat ini di DB
+        $stmtOld = $pdo->prepare("SELECT * FROM servis WHERE no_nota = :nota LIMIT 1");
+        $stmtOld->execute(['nota' => $no_nota]);
+        $oldData = $stmtOld->fetch(PDO::FETCH_ASSOC);
+
+        if (!$oldData) {
+            echo "<script>alert('Data nota tidak ditemukan!'); window.location.href='antrean.php';</script>";
+            exit;
         }
 
-        // 2) Cek constraint tabel validasi agar nilai status_pembayaran & status_pengambilan 100% sesuai DB
+        $status_saat_ini = $oldData['status_pengerjaan'] ?? 'Menunggu';
+        $is_selesai_post = (strtolower(trim((string)$status_saat_ini)) === 'selesai');
+
+        $biaya_jasa_raw     = trim($_POST['biaya_jasa'] ?? '0');
+        $biaya_jasa         = (int)preg_replace('/[^0-9\-]/', '', $biaya_jasa_raw);
+        $status_pembayaran  = trim($_POST['status_pembayaran'] ?? 'Belum Lunas');
+        $status_pengambilan = trim($_POST['status_pengambilan'] ?? 'Belum Diambil');
+
+        if ($biaya_jasa < 0) {
+            jsAlertBackEdit('Biaya jasa servis tidak boleh kurang dari 0!');
+        }
+        if (!in_array($status_pembayaran, ['Belum Lunas', 'Lunas'], true)) {
+            jsAlertBackEdit('Status pembayaran tidak valid!');
+        }
+        if (!in_array($status_pengambilan, ['Belum Diambil', 'Sudah Diambil'], true)) {
+            jsAlertBackEdit('Status pengambilan tidak valid!');
+        }
+
+        // Default nilai database sesuai constraint tabel validasi
+        $db_status_pembayaran  = ($status_pembayaran === 'Lunas') ? 'Lunas' : 'Belum Dibayar';
+        $db_status_pengambilan = ($status_pengambilan === 'Sudah Diambil') ? 'Sudah Diambil' : 'Belum Diambil';
+
+        // Cek constraint tabel validasi agar nilai status_pembayaran & status_pengambilan 100% sesuai DB
         $stmtValConstraints = $pdo->query("
             SELECT conname, pg_get_constraintdef(oid) AS def
             FROM pg_constraint
@@ -173,9 +101,144 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
+        // ======================================================================
+        // MODE TERKUNCI (STATUS = SELESAI):
+        // Hanya memperbarui Biaya Jasa, Status Pembayaran, & Status Pengambilan
+        // ======================================================================
+        if ($is_selesai_post) {
+            $pdo->beginTransaction();
+
+            $stmtUpdBiaya = $pdo->prepare("
+                UPDATE servis 
+                SET biaya_jasa = :biaya_jasa
+                WHERE no_nota = :no_nota
+            ");
+            $stmtUpdBiaya->execute([
+                'biaya_jasa' => $biaya_jasa,
+                'no_nota'    => $no_nota
+            ]);
+
+            $cekVal = $pdo->prepare("SELECT no_nota FROM validasi WHERE no_nota = :nota LIMIT 1");
+            $cekVal->execute(['nota' => $no_nota]);
+
+            if ($cekVal->fetchColumn()) {
+                $stmtVal = $pdo->prepare("
+                    UPDATE validasi
+                    SET status_pembayaran  = :bayar,
+                        status_pengambilan = :ambil
+                    WHERE no_nota = :nota
+                ");
+                $stmtVal->execute([
+                    'bayar' => $db_status_pembayaran,
+                    'ambil' => $db_status_pengambilan,
+                    'nota'  => $no_nota
+                ]);
+            } else {
+                $stmtValIns = $pdo->prepare("
+                    INSERT INTO validasi (no_nota, status_pembayaran, status_pengambilan)
+                    VALUES (:nota, :bayar, :ambil)
+                ");
+                $stmtValIns->execute([
+                    'nota'  => $no_nota,
+                    'bayar' => $db_status_pembayaran,
+                    'ambil' => $db_status_pengambilan
+                ]);
+            }
+
+            $pdo->commit();
+
+            echo "<script>alert('Finalisasi biaya & status nota " . addslashes($no_nota) . " berhasil disimpan!'); window.location.href='antrean.php';</script>";
+            exit;
+        }
+
+        // ======================================================================
+        // MODE NORMAL (BELUM SELESAI): Semua kolom bisa diperbarui
+        // ======================================================================
+        $id_pelanggan       = (int)($_POST['id_pelanggan'] ?? 0);
+        $nama_pelanggan     = trim($_POST['pelanggan'] ?? '');
+        $no_hp              = preg_replace('/[\s\-\(\)\+]/', '', trim($_POST['nomor'] ?? ''));
+        $alamat             = trim($_POST['alamat'] ?? '');
+
+        $jenis_barang       = trim($_POST['jenis_barang'] ?? '');
+        $merek_spesifikasi  = trim($_POST['merek_spesifikasi'] ?? '');
+        $kelengkapan        = trim($_POST['kelengkapan'] ?? '');
+        $kondisi_unit       = trim($_POST['kondisi_unit'] ?? 'Hidup');
+        $password_perangkat = trim($_POST['password_perangkat'] ?? '');
+
+        $keluhan            = trim($_POST['keluhan'] ?? '');
+        $catatan_cek_fisik  = trim($_POST['catatan_cek_fisik'] ?? '');
+        $id_karyawan        = (int)($_POST['id_karyawan'] ?? 0);
+        $tgl_masuk_input    = trim($_POST['tgl_masuk'] ?? '');
+        $tgl_estimasi_input = trim($_POST['tgl_estimasi'] ?? '');
+        $estimasi_lama      = trim($_POST['estimasi_lama'] ?? '');
+
+        $jenis_layanan      = trim($_POST['jenis_layanan'] ?? 'Reguler');
+        $persetujuan_raw    = trim($_POST['persetujuan_bongkar'] ?? 'setuju');
+
+        if ($nama_pelanggan === '' || mb_strlen($nama_pelanggan) < 2) {
+            jsAlertBackEdit('Nama pelanggan wajib diisi (minimal 2 karakter)!');
+        }
+        if (!preg_match('/^(08|62)[0-9]{8,13}$/', $no_hp)) {
+            jsAlertBackEdit('Nomor WhatsApp tidak valid! Gunakan awalan 08 atau 62 (10–15 digit angka).');
+        }
+        if ($alamat === '') {
+            jsAlertBackEdit('Alamat pelanggan wajib diisi!');
+        }
+        if ($jenis_barang === '' || $merek_spesifikasi === '') {
+            jsAlertBackEdit('Jenis barang serta merek & spesifikasi wajib diisi!');
+        }
+        if (!in_array($kondisi_unit, ['Hidup', 'Mati', 'Blank'], true)) {
+            jsAlertBackEdit('Pilihan kondisi awal unit tidak valid!');
+        }
+        if ($keluhan === '' || $id_karyawan <= 0) {
+            jsAlertBackEdit('Keluhan kerusakan dan teknisi penanggung jawab wajib diisi!');
+        }
+        if (!strtotime($tgl_masuk_input) || !strtotime($tgl_estimasi_input)) {
+            jsAlertBackEdit('Format tanggal masuk maupun estimasi selesai tidak valid!');
+        }
+        $tglMasukYmd    = date('Y-m-d', strtotime($tgl_masuk_input));
+        $tglEstimasiYmd = date('Y-m-d', strtotime($tgl_estimasi_input));
+        if ($tglEstimasiYmd < $tglMasukYmd) {
+            jsAlertBackEdit('Tanggal Estimasi Selesai tidak boleh lebih awal dari tanggal Servis Masuk!');
+        }
+        if (!in_array($jenis_layanan, ['Reguler', 'Express'], true)) {
+            jsAlertBackEdit('Jenis layanan harus Reguler atau Express!');
+        }
+        if (!in_array($persetujuan_raw, ['setuju', 'tidak_setuju'], true)) {
+            jsAlertBackEdit('Pilihan persetujuan bongkar tidak valid!');
+        }
+
+        $biaya_urgent        = ($jenis_layanan === 'Express') ? 50000 : 0;
+        $persetujuan_bongkar = ($persetujuan_raw === 'tidak_setuju') ? 'Tidak' : 'Ya';
+
+        $stmtCheck = $pdo->query("
+            SELECT pg_get_constraintdef(oid) 
+            FROM pg_constraint 
+            WHERE conname = 'servis_persetujuan_barang_check' 
+            LIMIT 1
+        ");
+        $checkDef = (string)$stmtCheck->fetchColumn();
+        if ($checkDef !== '' && preg_match_all("/'([^']+)'/", $checkDef, $matches) && !empty($matches[1])) {
+            $allowedVals = $matches[1];
+            if ($persetujuan_raw === 'tidak_setuju') {
+                foreach ($allowedVals as $val) {
+                    if (stripos($val, 'tidak') !== false || stripos($val, 'tolak') !== false || strtolower($val) === 'no') {
+                        $persetujuan_bongkar = $val;
+                        break;
+                    }
+                }
+            } else {
+                foreach ($allowedVals as $val) {
+                    if (stripos($val, 'tidak') === false && stripos($val, 'tolak') === false && strtolower($val) !== 'no') {
+                        $persetujuan_bongkar = $val;
+                        break;
+                    }
+                }
+            }
+        }
+
         $pdo->beginTransaction();
 
-        // Update data pelanggan
         if ($id_pelanggan > 0) {
             $stmtPel = $pdo->prepare("
                 UPDATE pelanggan 
@@ -190,17 +253,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
         }
 
-        // Ambil data lama (jam masuk & status_pengerjaan saat ini dari teknisi)
-        $stmtOld = $pdo->prepare("SELECT tanggal_masuk, status_pengerjaan FROM servis WHERE no_nota = :nota");
-        $stmtOld->execute(['nota' => $no_nota]);
-        $oldData = $stmtOld->fetch(PDO::FETCH_ASSOC);
-        $status_saat_ini = $oldData['status_pengerjaan'] ?? 'Menunggu';
-
         $jamMasuk = !empty($oldData['tanggal_masuk']) ? date('H:i:s', strtotime($oldData['tanggal_masuk'])) : date('H:i:s');
         $tanggal_masuk_baru = $tglMasukYmd . ' ' . $jamMasuk;
         $estimasi_baru      = $tglEstimasiYmd . ' ' . $jamMasuk;
 
-        // Update data servis (tanpa mengubah status_pengerjaan milik teknisi)
         $stmtUpd = $pdo->prepare("
             UPDATE servis SET
                 tanggal_masuk         = :tanggal_masuk,
@@ -237,7 +293,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'no_nota'              => $no_nota
         ]);
 
-        // Sinkronisasi ke tabel validasi (status pembayaran & pengambilan)
         $cekVal = $pdo->prepare("SELECT no_nota FROM validasi WHERE no_nota = :nota LIMIT 1");
         $cekVal->execute(['nota' => $no_nota]);
 
@@ -265,7 +320,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
         }
 
-        // Catat ke tracking_servis jika estimasi waktu diperpanjang
         $aktor_id = (int)($_SESSION['user_id'] ?? $id_karyawan);
         if ($estimasi_lama !== '' && $tglEstimasiYmd > $estimasi_lama) {
             $stmtTrack = $pdo->prepare("
@@ -363,6 +417,8 @@ try {
 $kondisi_val        = $data['kondisi_awal_unit'] ?: 'Hidup';
 $layanan_val        = $data['jenis_layanan'] ?: 'Reguler';
 $status_val         = $data['status_pengerjaan'] ?: 'Menunggu';
+$is_selesai         = (strtolower(trim((string)$status_val)) === 'selesai');
+
 $status_bayar_val   = (strtolower(trim((string)($data['status_pembayaran'] ?? ''))) === 'lunas') ? 'Lunas' : 'Belum Lunas';
 $status_ambil_val   = (strtolower(trim((string)($data['status_pengambilan'] ?? ''))) === 'sudah diambil') ? 'Sudah Diambil' : 'Belum Diambil';
 $persetujuan_val    = (stripos((string)($data['persetujuan_bongkar'] ?? ''), 'tidak') !== false) ? 'tidak_setuju' : 'setuju';
@@ -373,12 +429,17 @@ $total_biaya_val    = $biaya_jasa_val + $biaya_exp_val + $total_sparepart;
 $tgl_masuk_val    = !empty($data['tanggal_masuk']) ? date('Y-m-d', strtotime($data['tanggal_masuk'])) : date('Y-m-d');
 $tgl_estimasi_val = !empty($data['estimasi_pengambilan']) ? date('Y-m-d', strtotime($data['estimasi_pengambilan'])) : date('Y-m-d', strtotime($tgl_masuk_val . ' +3 days'));
 
+// Helper atribut & class untuk field yang dikunci saat status = Selesai
+$lockedInputAttr  = $is_selesai ? 'readonly tabindex="-1"' : '';
+$lockedInputClass = $is_selesai
+    ? 'w-full px-4 py-3.5 rounded-2xl border border-white-hover bg-white-light-active text-sm font-medium text-white-dark-hover cursor-not-allowed select-none focus:outline-none'
+    : 'w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition';
+
 $page_title = 'Edit Antrean';
 $active_menu = 'antrean';
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/helpers.php';
 
-// Konversi label status aman tanpa bergantung pada fungsi yang mungkin berubah di helpers.php
 $status_tampil_edit = function_exists('convertStatusAdmin')
     ? convertStatusAdmin($status_val)
     : match (strtolower(trim($status_val))) {
@@ -416,6 +477,18 @@ $badgeStatusClass = match (true) {
         </div>
       </div>
 
+      <!-- BANNER KUNCI DATA SAAT STATUS = SELESAI -->
+      <?php if ($is_selesai): ?>
+        <div class="mb-4 flex items-center gap-3 bg-success-light/60 border border-success/30 text-success-dark px-5 py-3.5 rounded-2xl text-xs sm:text-sm font-medium">
+          <svg class="w-5 h-5 shrink-0 text-success-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+          <span>
+            Servis telah berstatus <strong>Selesai</strong>. Data pelanggan, perangkat, dan penanganan dikunci—Anda hanya dapat mengubah <strong>Biaya Jasa Servis</strong>, <strong>Status Pembayaran</strong>, dan <strong>Status Pengambilan</strong>.
+          </span>
+        </div>
+      <?php endif; ?>
+
       <!-- FORM 3 KOLOM -->
       <form
         action="edit_antrean.php?nota=<?= urlencode($data['no_nota']) ?>"
@@ -430,9 +503,14 @@ $badgeStatusClass = match (true) {
         <!-- KOLOM 1: DATA PELANGGAN -->
         <div class="bg-white-light rounded-3xl p-7 lg:p-8 border border-white-hover/60 flex flex-col justify-between">
           <div>
-            <h2 class="text-lg lg:text-xl font-bold text-blue-darker tracking-tight mb-6">
-              Data Pelanggan
-            </h2>
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-lg lg:text-xl font-bold text-blue-darker tracking-tight">
+                Data Pelanggan
+              </h2>
+              <?php if ($is_selesai): ?>
+                <span class="px-2.5 py-1 rounded-full bg-white-hover text-white-dark-hover text-[11px] font-semibold">Terkunci</span>
+              <?php endif; ?>
+            </div>
 
             <div class="space-y-5 lg:space-y-6">
               <div>
@@ -444,7 +522,8 @@ $badgeStatusClass = match (true) {
                   value="<?= e($data['nama_pelanggan'] ?? '') ?>"
                   required
                   minlength="2"
-                  class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition"
+                  <?= $lockedInputAttr ?>
+                  class="<?= $lockedInputClass ?>"
                 />
               </div>
 
@@ -456,7 +535,8 @@ $badgeStatusClass = match (true) {
                   id="inputNomorEdit"
                   value="<?= e($data['no_hp'] ?? '') ?>"
                   required
-                  class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition"
+                  <?= $lockedInputAttr ?>
+                  class="<?= $lockedInputClass ?>"
                 />
               </div>
 
@@ -468,7 +548,8 @@ $badgeStatusClass = match (true) {
                   id="inputAlamatEdit"
                   value="<?= e($data['alamat'] ?? '') ?>"
                   required
-                  class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition"
+                  <?= $lockedInputAttr ?>
+                  class="<?= $lockedInputClass ?>"
                 />
               </div>
             </div>
@@ -478,9 +559,14 @@ $badgeStatusClass = match (true) {
         <!-- KOLOM 2: DATA PERANGKAT + RINCIAN BIAYA DI BAWAHNYA -->
         <div class="flex flex-col gap-4">
           <div class="bg-white-light rounded-3xl p-7 lg:p-8 border border-white-hover/60">
-            <h2 class="text-lg lg:text-xl font-bold text-blue-darker tracking-tight mb-6">
-              Data Perangkat
-            </h2>
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-lg lg:text-xl font-bold text-blue-darker tracking-tight">
+                Data Perangkat
+              </h2>
+              <?php if ($is_selesai): ?>
+                <span class="px-2.5 py-1 rounded-full bg-white-hover text-white-dark-hover text-[11px] font-semibold">Terkunci</span>
+              <?php endif; ?>
+            </div>
 
             <div class="space-y-5 lg:space-y-6">
               <div>
@@ -491,7 +577,8 @@ $badgeStatusClass = match (true) {
                   id="inputJenisBarangEdit"
                   value="<?= e($data['jenis_barang'] ?? '') ?>"
                   required
-                  class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition"
+                  <?= $lockedInputAttr ?>
+                  class="<?= $lockedInputClass ?>"
                 />
               </div>
 
@@ -503,7 +590,8 @@ $badgeStatusClass = match (true) {
                   id="inputMerekEdit"
                   value="<?= e($data['merek_dan_spesifikasi'] ?? '') ?>"
                   required
-                  class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition"
+                  <?= $lockedInputAttr ?>
+                  class="<?= $lockedInputClass ?>"
                 />
               </div>
 
@@ -513,7 +601,8 @@ $badgeStatusClass = match (true) {
                   type="text"
                   name="kelengkapan"
                   value="<?= e($data['kelengkapan_barang'] ?? '') ?>"
-                  class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition"
+                  <?= $lockedInputAttr ?>
+                  class="<?= $lockedInputClass ?>"
                 />
               </div>
 
@@ -525,7 +614,8 @@ $badgeStatusClass = match (true) {
                     <button
                       type="button"
                       data-val="<?= $optKondisi ?>"
-                      class="kondisi-btn py-3 px-4 rounded-2xl text-sm transition text-center cursor-pointer <?= $isAktif ? 'bg-tosca-dark text-white-light font-semibold shadow-xs' : 'border border-white-active bg-white-light text-blue-darker hover:bg-white-hover font-medium' ?>"
+                      <?= $is_selesai ? 'disabled' : '' ?>
+                      class="kondisi-btn py-3 px-4 rounded-2xl text-sm transition text-center <?= $is_selesai ? 'cursor-not-allowed opacity-75' : 'cursor-pointer' ?> <?= $isAktif ? 'bg-tosca-dark text-white-light font-semibold shadow-xs' : 'border border-white-active bg-white-light text-blue-darker font-medium ' . ($is_selesai ? '' : 'hover:bg-white-hover') ?>"
                     >
                       <?= $optKondisi ?>
                     </button>
@@ -542,7 +632,8 @@ $badgeStatusClass = match (true) {
                     id="passwordPerangkat"
                     name="password_perangkat"
                     value="<?= e($data['password_perangkat'] ?? '') ?>"
-                    class="w-full pl-4 pr-11 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition"
+                    <?= $lockedInputAttr ?>
+                    class="<?= $is_selesai ? 'w-full pl-4 pr-11 py-3.5 rounded-2xl border border-white-hover bg-white-light-active text-sm text-white-dark-hover cursor-not-allowed focus:outline-none' : 'w-full pl-4 pr-11 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition' ?>"
                   />
                   <button
                     type="button"
@@ -559,7 +650,7 @@ $badgeStatusClass = match (true) {
             </div>
           </div>
 
-          <!-- KARTU RINCIAN BIAYA DI BAWAH DATA PERANGKAT -->
+          <!-- KARTU RINCIAN BIAYA DI BAWAH DATA PERANGKAT (TETAP AKTIF) -->
           <div class="bg-white-light rounded-3xl p-7 lg:p-8 border border-white-hover/60">
             <h2 class="text-lg lg:text-xl font-bold text-blue-darker tracking-tight mb-5">
               Rincian Biaya
@@ -621,9 +712,14 @@ $badgeStatusClass = match (true) {
         <!-- KOLOM 3: KELUHAN DAN PENANGANAN -->
         <div class="bg-white-light rounded-3xl p-7 lg:p-8 border border-white-hover/60 flex flex-col justify-between">
           <div class="space-y-5 lg:space-y-6">
-            <h2 class="text-lg lg:text-xl font-bold text-blue-darker tracking-tight mb-6">
-              Keluhan dan Penanganan
-            </h2>
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-lg lg:text-xl font-bold text-blue-darker tracking-tight">
+                Keluhan dan Penanganan
+              </h2>
+              <?php if ($is_selesai): ?>
+                <span class="px-2.5 py-1 rounded-full bg-white-hover text-white-dark-hover text-[11px] font-semibold">Sebagian Terkunci</span>
+              <?php endif; ?>
+            </div>
 
             <div>
               <label class="block text-sm font-bold text-blue-darker mb-2">Keluhan Kerusakan</label>
@@ -633,7 +729,8 @@ $badgeStatusClass = match (true) {
                 id="inputKeluhanEdit"
                 value="<?= e($data['keluhan_kerusakan'] ?? '') ?>"
                 required
-                class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition"
+                <?= $lockedInputAttr ?>
+                class="<?= $lockedInputClass ?>"
               />
             </div>
 
@@ -643,7 +740,8 @@ $badgeStatusClass = match (true) {
                 type="text"
                 name="catatan_cek_fisik"
                 value="<?= e($data['catatan_cek_fisik'] ?? '') ?>"
-                class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition"
+                <?= $lockedInputAttr ?>
+                class="<?= $lockedInputClass ?>"
               />
             </div>
 
@@ -654,7 +752,8 @@ $badgeStatusClass = match (true) {
                   name="id_karyawan"
                   id="selectTeknisiAktif"
                   required
-                  class="w-full pl-9 pr-8 py-3 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker appearance-none focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition cursor-pointer"
+                  <?= $is_selesai ? 'disabled' : '' ?>
+                  class="w-full pl-9 pr-8 py-3 rounded-2xl border text-sm font-medium appearance-none transition <?= $is_selesai ? 'border-white-hover bg-white-light-active text-white-dark-hover cursor-not-allowed' : 'border-white-active bg-white-light text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 cursor-pointer' ?>"
                 >
                   <?php foreach ($teknisi_aktif_list as $tek): ?>
                     <option
@@ -691,7 +790,8 @@ $badgeStatusClass = match (true) {
                   id="inputTglMasuk"
                   value="<?= e($tgl_masuk_val) ?>"
                   required
-                  class="w-full px-4 py-3 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition cursor-pointer"
+                  <?= $lockedInputAttr ?>
+                  class="w-full px-4 py-3 rounded-2xl border text-sm font-medium transition <?= $is_selesai ? 'border-white-hover bg-white-light-active text-white-dark-hover cursor-not-allowed pointer-events-none' : 'border-white-active bg-white-light text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 cursor-pointer' ?>"
                 />
               </div>
 
@@ -703,7 +803,8 @@ $badgeStatusClass = match (true) {
                   id="inputTglEstimasi"
                   value="<?= e($tgl_estimasi_val) ?>"
                   required
-                  class="w-full px-4 py-3 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition cursor-pointer"
+                  <?= $lockedInputAttr ?>
+                  class="w-full px-4 py-3 rounded-2xl border text-sm font-medium transition <?= $is_selesai ? 'border-white-hover bg-white-light-active text-white-dark-hover cursor-not-allowed pointer-events-none' : 'border-white-active bg-white-light text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 cursor-pointer' ?>"
                 />
               </div>
             </div>
@@ -716,7 +817,8 @@ $badgeStatusClass = match (true) {
                   <button
                     type="button"
                     data-val="<?= $optLayanan ?>"
-                    class="layanan-btn py-3 px-4 rounded-2xl text-sm transition text-center cursor-pointer <?= $isLayAktif ? 'bg-tosca-dark text-white-light font-semibold shadow-xs' : 'border border-white-active bg-white-light text-blue-darker hover:bg-white-hover font-medium' ?>"
+                    <?= $is_selesai ? 'disabled' : '' ?>
+                    class="layanan-btn py-3 px-4 rounded-2xl text-sm transition text-center <?= $is_selesai ? 'cursor-not-allowed opacity-75' : 'cursor-pointer' ?> <?= $isLayAktif ? 'bg-tosca-dark text-white-light font-semibold shadow-xs' : 'border border-white-active bg-white-light text-blue-darker font-medium ' . ($is_selesai ? '' : 'hover:bg-white-hover') ?>"
                   >
                     <?= $optLayanan ?>
                   </button>
@@ -729,9 +831,9 @@ $badgeStatusClass = match (true) {
               <label class="block text-sm font-bold text-blue-darker mb-2">Persetujuan Bongkar</label>
               <div class="grid grid-cols-2 gap-3" id="groupPersetujuan">
                 <label
-                  class="persetujuan-card flex items-center gap-2.5 px-4 py-3 rounded-2xl border bg-white-light cursor-pointer transition select-none <?= $persetujuan_val === 'setuju' ? 'border-blue-darker/60' : 'border-white-active hover:bg-white-hover' ?>"
+                  class="persetujuan-card flex items-center gap-2.5 px-4 py-3 rounded-2xl border transition select-none <?= $is_selesai ? 'pointer-events-none opacity-75 bg-white-light-active' : 'bg-white-light cursor-pointer' ?> <?= $persetujuan_val === 'setuju' ? 'border-blue-darker/60' : 'border-white-active ' . ($is_selesai ? '' : 'hover:bg-white-hover') ?>"
                 >
-                  <input type="radio" name="persetujuan_bongkar" value="setuju" <?= $persetujuan_val === 'setuju' ? 'checked' : '' ?> class="sr-only" />
+                  <input type="radio" name="persetujuan_bongkar" value="setuju" <?= $persetujuan_val === 'setuju' ? 'checked' : '' ?> <?= $is_selesai ? 'disabled' : '' ?> class="sr-only" />
                   <div class="check-box-icon w-5 h-5 rounded-md flex items-center justify-center text-xs font-bold transition <?= $persetujuan_val === 'setuju' ? 'bg-tosca-dark text-white-light' : 'border border-white-active bg-white-light text-transparent' ?>">
                     ✓
                   </div>
@@ -739,9 +841,9 @@ $badgeStatusClass = match (true) {
                 </label>
 
                 <label
-                  class="persetujuan-card flex items-center gap-2.5 px-4 py-3 rounded-2xl border bg-white-light cursor-pointer transition select-none <?= $persetujuan_val === 'tidak_setuju' ? 'border-blue-darker/60' : 'border-white-active hover:bg-white-hover' ?>"
+                  class="persetujuan-card flex items-center gap-2.5 px-4 py-3 rounded-2xl border transition select-none <?= $is_selesai ? 'pointer-events-none opacity-75 bg-white-light-active' : 'bg-white-light cursor-pointer' ?> <?= $persetujuan_val === 'tidak_setuju' ? 'border-blue-darker/60' : 'border-white-active ' . ($is_selesai ? '' : 'hover:bg-white-hover') ?>"
                 >
-                  <input type="radio" name="persetujuan_bongkar" value="tidak_setuju" <?= $persetujuan_val === 'tidak_setuju' ? 'checked' : '' ?> class="sr-only" />
+                  <input type="radio" name="persetujuan_bongkar" value="tidak_setuju" <?= $persetujuan_val === 'tidak_setuju' ? 'checked' : '' ?> <?= $is_selesai ? 'disabled' : '' ?> class="sr-only" />
                   <div class="check-box-icon w-5 h-5 rounded-md flex items-center justify-center text-xs font-bold transition <?= $persetujuan_val === 'tidak_setuju' ? 'bg-tosca-dark text-white-light' : 'border border-white-active bg-white-light text-transparent' ?>">
                     ✓
                   </div>
@@ -750,7 +852,7 @@ $badgeStatusClass = match (true) {
               </div>
             </div>
 
-            <!-- DROPDOWN MANUAL PEMBAYARAN & PENGAMBILAN -->
+            <!-- DROPDOWN MANUAL PEMBAYARAN & PENGAMBILAN (TETAP AKTIF) -->
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="block text-xs font-bold text-blue-darker mb-1.5">Status Pembayaran</label>
@@ -871,6 +973,8 @@ $badgeStatusClass = match (true) {
         }
 
         document.addEventListener("DOMContentLoaded", function () {
+          const isSelesai = <?= $is_selesai ? 'true' : 'false' ?>;
+
           function formatRupiah(angka) {
             return "Rp " + (Number(angka) || 0).toLocaleString("id-ID");
           }
@@ -895,6 +999,16 @@ $badgeStatusClass = match (true) {
           const modalSimpan         = document.getElementById("modalKonfirmasiSimpan");
 
           function validasiFormEdit() {
+            if ((parseInt(inputBiayaJasa?.value || "0", 10) || 0) < 0) {
+              alert("Biaya jasa servis tidak boleh kurang dari 0!");
+              inputBiayaJasa?.focus();
+              return false;
+            }
+
+            if (isSelesai) {
+              return true;
+            }
+
             if (!inputPelangganEdit || inputPelangganEdit.value.trim().length < 2) {
               alert("Nama pelanggan wajib diisi (minimal 2 karakter)!");
               inputPelangganEdit?.focus();
@@ -919,11 +1033,6 @@ $badgeStatusClass = match (true) {
             if (!inputMerek || inputMerek.value.trim() === "") {
               alert("Merek dan spesifikasi wajib diisi!");
               inputMerek?.focus();
-              return false;
-            }
-            if ((parseInt(inputBiayaJasa?.value || "0", 10) || 0) < 0) {
-              alert("Biaya jasa servis tidak boleh kurang dari 0!");
-              inputBiayaJasa?.focus();
               return false;
             }
             if (!inputKeluhan || inputKeluhan.value.trim() === "") {
@@ -996,18 +1105,6 @@ $badgeStatusClass = match (true) {
             });
           }
 
-          const kondisiBtns  = document.querySelectorAll("#groupKondisiUnit .kondisi-btn");
-          const inputKondisi = document.getElementById("inputKondisiUnit");
-          kondisiBtns.forEach(btn => {
-            btn.addEventListener("click", function () {
-              kondisiBtns.forEach(b => {
-                b.className = "kondisi-btn py-3 px-4 rounded-2xl border border-white-active bg-white-light text-blue-darker hover:bg-white-hover text-sm font-medium transition text-center cursor-pointer";
-              });
-              this.className = "kondisi-btn py-3 px-4 rounded-2xl bg-tosca-dark text-white-light text-sm font-semibold shadow-xs transition text-center cursor-pointer";
-              if (inputKondisi) inputKondisi.value = this.getAttribute("data-val");
-            });
-          });
-
           const selectTeknisi = document.getElementById("selectTeknisiAktif");
           const teknisiAvatar = document.getElementById("teknisiAvatarInitial");
           function updateAvatar() {
@@ -1024,40 +1121,54 @@ $badgeStatusClass = match (true) {
             updateAvatar();
           }
 
-          const layananBtns = document.querySelectorAll("#groupLayanan .layanan-btn");
-          layananBtns.forEach(btn => {
-            btn.addEventListener("click", function () {
-              layananBtns.forEach(b => {
-                b.className = "layanan-btn py-3 px-4 rounded-2xl border border-white-active bg-white-light text-blue-darker hover:bg-white-hover text-sm font-medium transition text-center cursor-pointer";
+          if (!isSelesai) {
+            const kondisiBtns  = document.querySelectorAll("#groupKondisiUnit .kondisi-btn");
+            const inputKondisi = document.getElementById("inputKondisiUnit");
+            kondisiBtns.forEach(btn => {
+              btn.addEventListener("click", function () {
+                kondisiBtns.forEach(b => {
+                  b.className = "kondisi-btn py-3 px-4 rounded-2xl border border-white-active bg-white-light text-blue-darker hover:bg-white-hover text-sm font-medium transition text-center cursor-pointer";
+                });
+                this.className = "kondisi-btn py-3 px-4 rounded-2xl bg-tosca-dark text-white-light text-sm font-semibold shadow-xs transition text-center cursor-pointer";
+                if (inputKondisi) inputKondisi.value = this.getAttribute("data-val");
               });
-              this.className = "layanan-btn py-3 px-4 rounded-2xl bg-tosca-dark text-white-light text-sm font-semibold shadow-xs transition text-center cursor-pointer";
-              if (inputLayanan) inputLayanan.value = this.getAttribute("data-val");
-              hitungTotalBiaya();
             });
-          });
 
-          const persetujuanCards = document.querySelectorAll("#groupPersetujuan .persetujuan-card");
-          persetujuanCards.forEach(card => {
-            card.addEventListener("click", function () {
-              persetujuanCards.forEach(c => {
-                c.className = "persetujuan-card flex items-center gap-2.5 px-4 py-3 rounded-2xl border border-white-active bg-white-light cursor-pointer hover:bg-white-hover transition select-none";
-                const icon = c.querySelector(".check-box-icon");
-                if (icon) icon.className = "check-box-icon w-5 h-5 rounded-md border border-white-active bg-white-light flex items-center justify-center text-xs font-bold text-transparent transition";
-                const span = c.querySelector("span");
-                if (span) span.className = "text-sm font-medium text-blue-darker";
-                const radio = c.querySelector('input[type="radio"]');
-                if (radio) radio.checked = false;
+            const layananBtns = document.querySelectorAll("#groupLayanan .layanan-btn");
+            layananBtns.forEach(btn => {
+              btn.addEventListener("click", function () {
+                layananBtns.forEach(b => {
+                  b.className = "layanan-btn py-3 px-4 rounded-2xl border border-white-active bg-white-light text-blue-darker hover:bg-white-hover text-sm font-medium transition text-center cursor-pointer";
+                });
+                this.className = "layanan-btn py-3 px-4 rounded-2xl bg-tosca-dark text-white-light text-sm font-semibold shadow-xs transition text-center cursor-pointer";
+                if (inputLayanan) inputLayanan.value = this.getAttribute("data-val");
+                hitungTotalBiaya();
               });
-
-              this.className = "persetujuan-card flex items-center gap-2.5 px-4 py-3 rounded-2xl border border-blue-darker/60 bg-white-light cursor-pointer transition select-none";
-              const activeIcon = this.querySelector(".check-box-icon");
-              if (activeIcon) activeIcon.className = "check-box-icon w-5 h-5 rounded-md bg-tosca-dark text-white-light flex items-center justify-center text-xs font-bold transition";
-              const activeSpan = this.querySelector("span");
-              if (activeSpan) activeSpan.className = "text-sm font-semibold text-blue-darker";
-              const currentRadio = this.querySelector('input[type="radio"]');
-              if (currentRadio) currentRadio.checked = true;
             });
-          });
+
+            const persetujuanCards = document.querySelectorAll("#groupPersetujuan .persetujuan-card");
+            persetujuanCards.forEach(card => {
+              card.addEventListener("click", function () {
+                persetujuanCards.forEach(c => {
+                  c.className = "persetujuan-card flex items-center gap-2.5 px-4 py-3 rounded-2xl border border-white-active bg-white-light cursor-pointer hover:bg-white-hover transition select-none";
+                  const icon = c.querySelector(".check-box-icon");
+                  if (icon) icon.className = "check-box-icon w-5 h-5 rounded-md border border-white-active bg-white-light flex items-center justify-center text-xs font-bold text-transparent transition";
+                  const span = c.querySelector("span");
+                  if (span) span.className = "text-sm font-medium text-blue-darker";
+                  const radio = c.querySelector('input[type="radio"]');
+                  if (radio) radio.checked = false;
+                });
+
+                this.className = "persetujuan-card flex items-center gap-2.5 px-4 py-3 rounded-2xl border border-blue-darker/60 bg-white-light cursor-pointer transition select-none";
+                const activeIcon = this.querySelector(".check-box-icon");
+                if (activeIcon) activeIcon.className = "check-box-icon w-5 h-5 rounded-md bg-tosca-dark text-white-light flex items-center justify-center text-xs font-bold transition";
+                const activeSpan = this.querySelector("span");
+                if (activeSpan) activeSpan.className = "text-sm font-semibold text-blue-darker";
+                const currentRadio = this.querySelector('input[type="radio"]');
+                if (currentRadio) currentRadio.checked = true;
+              });
+            });
+          }
         });
       </script>
 
