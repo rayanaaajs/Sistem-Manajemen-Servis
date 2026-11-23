@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax_action'] ?? '') === '
 
         echo json_encode([
             'success'        => true,
-            'message'        => 'Data pelanggan baru berhasil disimpan ke database!',
+            'message'        => 'Data pelanggan baru berhasil disimpan!',
             'id_pelanggan'   => (int)$newId,
             'nama_pelanggan' => $nama_pelanggan,
             'no_hp'          => $no_hp,
@@ -726,7 +726,7 @@ require_once __DIR__ . '/../includes/helpers.php';
 
           <h3 class="text-xl font-bold text-blue-darker text-center mb-1.5">Konfirmasi Data Pelanggan</h3>
           <p class="text-xs text-white-dark-hover text-center mb-5 leading-relaxed">
-            Pastikan data pelanggan berikut sudah benar sebelum disimpan ke database.
+            Pastikan data pelanggan berikut sudah benar sebelum disimpan.
           </p>
 
           <div class="rounded-2xl bg-white-light-active border border-white-hover p-4 space-y-2.5 text-xs mb-6">
