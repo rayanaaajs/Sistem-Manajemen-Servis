@@ -377,6 +377,25 @@ $page_title = 'Edit Antrean';
 $active_menu = 'antrean';
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/helpers.php';
+
+// Konversi label status aman tanpa bergantung pada fungsi yang mungkin berubah di helpers.php
+$status_tampil_edit = function_exists('convertStatusAdmin')
+    ? convertStatusAdmin($status_val)
+    : match (strtolower(trim($status_val))) {
+        'proses servis' => 'Dikerjakan',
+        'sedang dicek'  => 'Diterima',
+        default         => $status_val,
+    };
+
+$stLower = strtolower(trim($status_tampil_edit));
+$badgeStatusClass = match (true) {
+    $stLower === 'selesai' => 'bg-success-light text-success-dark',
+    in_array($stLower, ['dikerjakan', 'proses servis'], true) => 'bg-lightblue-light text-lightblue-dark',
+    in_array($stLower, ['diterima', 'sedang dicek'], true) => 'bg-warning-light text-warning-dark',
+    $stLower === 'dibatalkan' => 'bg-danger-light text-danger-dark',
+    str_contains($stLower, 'menunggu') => 'bg-blue-light text-blue-hover',
+    default => 'bg-white-hover text-white-darker',
+};
 ?>
 
       <!-- HEADER INFO NOTA (STATUS PENGERJAAN READ-ONLY DARI TEKNISI) -->
@@ -387,7 +406,13 @@ require_once __DIR__ . '/../includes/helpers.php';
         </div>
         <div class="flex items-center gap-2 text-xs font-medium text-white-dark-hover">
           <span>Status Pengerjaan (Teknisi):</span>
-          <?= badgeStatus(convertStatusAdmin($status_val)) ?>
+          <?php if (function_exists('badgeStatus')): ?>
+            <?= badgeStatus($status_tampil_edit) ?>
+          <?php else: ?>
+            <span class="inline-block px-4 py-1.5 rounded-full text-xs font-semibold <?= $badgeStatusClass ?>">
+              <?= e($status_tampil_edit) ?>
+            </span>
+          <?php endif; ?>
         </div>
       </div>
 
@@ -918,7 +943,6 @@ require_once __DIR__ . '/../includes/helpers.php';
             return true;
           }
 
-          // Klik Simpan Perubahan -> Validasi dulu -> Munculkan Modal Konfirmasi
           if (btnBukaModalSimpan && modalSimpan) {
             btnBukaModalSimpan.addEventListener("click", function () {
               if (!validasiFormEdit()) return;

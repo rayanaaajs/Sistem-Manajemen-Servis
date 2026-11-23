@@ -41,8 +41,6 @@ function getBadgeStatusClass($status) {
         return 'bg-lightblue-light text-lightblue-dark';
     } elseif ($s === 'diterima' || $s === 'sedang dicek') {
         return 'bg-warning-light text-warning-dark';
-    } elseif ($s === 'dibatalkan') {
-        return 'bg-danger-light text-danger-dark';
     } elseif (stripos($s, 'menunggu') !== false) {
         return 'bg-blue-light text-blue-hover';
     }
@@ -60,12 +58,13 @@ function normalizeFilterStatus($status) {
 }
 
 // ==============================================================================
-// AMBIL DATA ANTREAN AKTIF (YANG SUDAH SELESAI+LUNAS+DIAMBIL OTOMATIS KE RIWAYAT)
-// Urutan prioritas:
-// 0 -> Selesai dikerjakan, tapi belum Lunas atau belum Diambil (PALING ATAS)
-// 1 -> Dibatalkan, tapi unit belum diambil pelanggan
-// 2 -> Antrean aktif layanan Express (FIFO berdasarkan no_nota)
-// 3 -> Antrean aktif layanan Reguler (FIFO berdasarkan no_nota)
+// AMBIL DATA ANTREAN AKTIF DENGAN URUTAN PRIORITAS:
+// 0 -> Selesai (belum Lunas atau belum Diambil)
+// 1 -> Menunggu Persetujuan
+// 2 -> Dikerjakan (Proses Servis / Dikerjakan)
+// 3 -> Diterima (Sedang Dicek / Diterima)
+// 4 -> Menunggu
+// (Status Dibatalkan & Selesai+Lunas+Sudah Diambil otomatis masuk ke Riwayat)
 // ==============================================================================
 $daftar_antrean = [];
 
@@ -88,22 +87,20 @@ try {
         LEFT JOIN karyawan k ON s.id_karyawan = k.id_karyawan
         LEFT JOIN validasi v ON s.no_nota = v.no_nota
         WHERE NOT (
-            (
+            LOWER(TRIM(COALESCE(s.status_pengerjaan, ''))) = 'dibatalkan'
+            OR (
                 LOWER(TRIM(COALESCE(s.status_pengerjaan, ''))) = 'selesai'
                 AND LOWER(TRIM(COALESCE(v.status_pembayaran, ''))) = 'lunas'
-                AND LOWER(TRIM(COALESCE(v.status_pengambilan, ''))) = 'sudah diambil'
-            )
-            OR (
-                LOWER(TRIM(COALESCE(s.status_pengerjaan, ''))) = 'dibatalkan'
                 AND LOWER(TRIM(COALESCE(v.status_pengambilan, ''))) = 'sudah diambil'
             )
         )
         ORDER BY 
             CASE 
                 WHEN LOWER(TRIM(COALESCE(s.status_pengerjaan, ''))) = 'selesai' THEN 0
-                WHEN LOWER(TRIM(COALESCE(s.status_pengerjaan, ''))) = 'dibatalkan' THEN 1
-                WHEN LOWER(TRIM(COALESCE(s.jenis_layanan, ''))) = 'express' THEN 2
-                ELSE 3
+                WHEN LOWER(TRIM(COALESCE(s.status_pengerjaan, ''))) = 'menunggu persetujuan' THEN 1
+                WHEN LOWER(TRIM(COALESCE(s.status_pengerjaan, ''))) IN ('dikerjakan', 'proses servis') THEN 2
+                WHEN LOWER(TRIM(COALESCE(s.status_pengerjaan, ''))) IN ('diterima', 'sedang dicek') THEN 3
+                ELSE 4
             END ASC,
             CASE 
                 WHEN LOWER(TRIM(COALESCE(s.jenis_layanan, ''))) = 'express' THEN 0 
@@ -115,9 +112,15 @@ try {
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     foreach ($rows as $row) {
-        $status_raw    = $row['status_pengerjaan'] ?? 'Menunggu';
-        $status_tampil = function_exists('convertStatusAdmin') ? convertStatusAdmin($status_raw) : $status_raw;
-        $layanan_raw   = $row['jenis_layanan'] ?? 'Reguler';
+        $status_raw = $row['status_pengerjaan'] ?? 'Menunggu';
+        $status_tampil = function_exists('convertStatusAdmin')
+            ? convertStatusAdmin($status_raw)
+            : match (strtolower(trim($status_raw))) {
+                'proses servis' => 'Dikerjakan',
+                'sedang dicek'  => 'Diterima',
+                default         => $status_raw,
+            };
+        $layanan_raw = $row['jenis_layanan'] ?? 'Reguler';
 
         $daftar_antrean[] = [
             'nota'      => $row['no_nota'],
@@ -152,9 +155,6 @@ $total_antrean = count($daftar_antrean);
           </button>
           <button type="button" class="filter-tab-btn shrink-0 px-6 py-2.5 rounded-full bg-white-light text-white-darker border border-gray-200 text-xs font-medium hover:bg-white-light-hover transition cursor-pointer whitespace-nowrap" data-filter="diterima">
             Diterima
-          </button>
-          <button type="button" class="filter-tab-btn shrink-0 px-6 py-2.5 rounded-full bg-white-light text-white-darker border border-gray-200 text-xs font-medium hover:bg-white-light-hover transition cursor-pointer whitespace-nowrap" data-filter="dibatalkan">
-            Dibatalkan
           </button>
           <button type="button" class="filter-tab-btn shrink-0 px-6 py-2.5 rounded-full bg-white-light text-white-darker border border-gray-200 text-xs font-medium hover:bg-white-light-hover transition cursor-pointer whitespace-nowrap" data-filter="menunggu">
             Menunggu
@@ -288,7 +288,6 @@ $total_antrean = count($daftar_antrean);
            ============================================================================== -->
       <div id="modalHapusAntrean" onclick="if(event.target === this) tutupModalHapusAntrean()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 99999; background-color: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 1rem;">
         <div class="bg-white-light w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl border border-gray-200">
-          <!-- Ikon Tempat Sampah Merah -->
           <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-danger-light mb-5">
             <svg class="h-8 w-8 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
