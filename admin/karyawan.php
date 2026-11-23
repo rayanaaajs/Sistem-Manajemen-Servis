@@ -114,7 +114,8 @@ $total_karyawan = count($karyawan_list);
               
               <tr class="hover:bg-warning-light/40 transition-colors row-karyawan"
                   data-role="<?= strtolower(htmlspecialchars($row['peran'])) ?>"
-                  data-status="<?= strtolower(htmlspecialchars($row['status'])) ?>">
+                  data-status="<?= strtolower(htmlspecialchars($row['status'])) ?>"
+                  data-search="<?= strtolower(htmlspecialchars($row['nama'] . ' ' . $row['username'])) ?>">
                 
                 <!-- Karyawan -->
                 <td class="py-4 px-5">
@@ -158,7 +159,7 @@ $total_karyawan = count($karyawan_list);
                       Detail
                     </a>
                     <button type="button" 
-                            onclick="bukaModalHapus('<?= htmlspecialchars(addslashes($row['nama']), ENT_QUOTES) ?>', 'hapus_karyawan.php?id=<?= $row['id'] ?>')"
+                            onclick="bukaModalHapusKaryawan(<?= htmlspecialchars(json_encode($row['nama']), ENT_QUOTES) ?>, <?= htmlspecialchars(json_encode('hapus_karyawan.php?id=' . $row['id']), ENT_QUOTES) ?>)"
                             class="px-3.5 py-2 rounded-full border border-danger text-danger hover:bg-danger hover:text-white-light text-xs font-semibold transition cursor-pointer">
                       Hapus
                     </button>
@@ -167,7 +168,7 @@ $total_karyawan = count($karyawan_list);
               </tr>
             <?php endforeach; ?>
 
-            <!-- Baris Kosong Jika Filter Tidak Menemukan Data -->
+            <!-- Baris Kosong Jika Filter / Pencarian Tidak Menemukan Data -->
             <tr id="emptyFilterRow" style="display: none;">
               <td colspan="5" class="py-8 text-center text-sm text-white-dark-hover">
                 Tidak ada data karyawan yang sesuai.
@@ -193,7 +194,7 @@ $total_karyawan = count($karyawan_list);
     <!-- ==========================================
          MODAL POP-UP KONFIRMASI HAPUS
          ========================================== -->
-    <div id="modalHapus" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 99999; background-color: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 1rem;">
+    <div id="modalHapusKaryawan" onclick="if(event.target === this) tutupModalHapusKaryawan()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 99999; background-color: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 1rem;">
       <div class="bg-white-light w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl border border-gray-200">
         
         <!-- Ikon Tempat Sampah Merah -->
@@ -211,7 +212,7 @@ $total_karyawan = count($karyawan_list);
         
         <!-- Tombol Batal & Ya, Hapus -->
         <div class="flex items-center justify-center gap-3">
-          <button type="button" onclick="tutupModalHapus()" class="w-full rounded-full border border-gray-300 py-3 text-sm font-semibold text-blue-darker hover:bg-gray-50 transition cursor-pointer">
+          <button type="button" onclick="tutupModalHapusKaryawan()" class="w-full rounded-full border border-gray-300 py-3 text-sm font-semibold text-blue-darker hover:bg-gray-50 transition cursor-pointer">
             Batal
           </button>
           <a id="linkHapusKaryawan" href="#" class="w-full rounded-full bg-danger py-3 text-sm font-semibold text-white-light hover:bg-danger-dark transition cursor-pointer">
@@ -222,7 +223,7 @@ $total_karyawan = count($karyawan_list);
       </div>
     </div>
 
-    <!-- JAVASCRIPT: Filter, Pagination (8 Baris/Halaman) & Modal Logic -->
+    <!-- JAVASCRIPT: Live Search, Filter, Pagination (8 Baris/Halaman) & Modal Logic -->
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         const filterButtons = document.querySelectorAll(".filter-tab-btn");
@@ -230,17 +231,26 @@ $total_karyawan = count($karyawan_list);
         const emptyRow = document.getElementById("emptyFilterRow");
         const paginationInfo = document.getElementById("paginationInfo");
         const paginationButtons = document.getElementById("paginationButtons");
+        
+        // Tangkap kotak pencarian dari header.php
+        const searchInput = document.querySelector('input[placeholder*="Cari"], header input[type="text"], header input[type="search"]');
 
         const rowsPerPage = 8;
         let currentPage = 1;
         let currentFilter = "all";
+        let currentSearch = "";
 
-        // Ambil baris yang lolos filter aktif
+        // Ambil baris yang lolos filter tab DAN kata kunci pencarian
         function getFilteredRows() {
           return allRows.filter(row => {
-            const role = row.getAttribute("data-role");
-            const status = row.getAttribute("data-status");
-            return currentFilter === "all" || role === currentFilter || status === currentFilter;
+            const role = row.getAttribute("data-role") || "";
+            const status = row.getAttribute("data-status") || "";
+            const searchText = row.getAttribute("data-search") || "";
+
+            const matchFilter = currentFilter === "all" || role === currentFilter || status === currentFilter;
+            const matchSearch = currentSearch === "" || searchText.includes(currentSearch);
+
+            return matchFilter && matchSearch;
           });
         }
 
@@ -284,7 +294,7 @@ $total_karyawan = count($karyawan_list);
             }
           }
 
-          // Render tombol nomor halaman (muncul otomatis jika > 8 baris / > 1 halaman)
+          // Render tombol nomor halaman (warna orange dari input.css)
           if (paginationButtons) {
             paginationButtons.innerHTML = "";
 
@@ -296,7 +306,7 @@ $total_karyawan = count($karyawan_list);
               prevBtn.disabled = currentPage === 1;
               prevBtn.className = currentPage === 1
                 ? "px-4 py-2 rounded-full bg-white-light text-white-dark border border-gray-200 text-xs font-medium opacity-50 cursor-not-allowed"
-                : "px-4 py-2 rounded-full bg-white-light text-white-darker border border-gray-200 hover:bg-white-light-hover text-xs font-medium transition cursor-pointer";
+                : "px-4 py-2 rounded-full bg-white-light text-white-darker border border-gray-200 hover:border-orange hover:text-orange text-xs font-medium transition cursor-pointer";
               prevBtn.addEventListener("click", () => {
                 if (currentPage > 1) {
                   currentPage--;
@@ -311,8 +321,8 @@ $total_karyawan = count($karyawan_list);
                 pageBtn.type = "button";
                 pageBtn.textContent = i;
                 pageBtn.className = i === currentPage
-                  ? "w-9 h-9 rounded-full bg-tosca-dark text-white-light text-xs font-semibold shadow-xs transition cursor-pointer"
-                  : "w-9 h-9 rounded-full bg-white-light text-white-darker border border-gray-200 hover:bg-white-light-hover text-xs font-medium transition cursor-pointer";
+                  ? "w-9 h-9 rounded-full bg-orange hover:bg-orange-hover text-white-light text-xs font-semibold shadow-xs transition cursor-pointer"
+                  : "w-9 h-9 rounded-full bg-white-light text-white-darker border border-gray-200 hover:border-orange hover:text-orange text-xs font-medium transition cursor-pointer";
                 pageBtn.addEventListener("click", () => {
                   currentPage = i;
                   renderTable();
@@ -327,7 +337,7 @@ $total_karyawan = count($karyawan_list);
               nextBtn.disabled = currentPage === totalPages;
               nextBtn.className = currentPage === totalPages
                 ? "px-4 py-2 rounded-full bg-white-light text-white-dark border border-gray-200 text-xs font-medium opacity-50 cursor-not-allowed"
-                : "px-4 py-2 rounded-full bg-white-light text-white-darker border border-gray-200 hover:bg-white-light-hover text-xs font-medium transition cursor-pointer";
+                : "px-4 py-2 rounded-full bg-white-light text-white-darker border border-gray-200 hover:border-orange hover:text-orange text-xs font-medium transition cursor-pointer";
               nextBtn.addEventListener("click", () => {
                 if (currentPage < totalPages) {
                   currentPage++;
@@ -339,6 +349,22 @@ $total_karyawan = count($karyawan_list);
           }
         }
 
+        // Event listener kotak pencarian di header
+        if (searchInput) {
+          const parentForm = searchInput.closest("form");
+          if (parentForm) {
+            parentForm.addEventListener("submit", function (e) {
+              e.preventDefault();
+            });
+          }
+
+          searchInput.addEventListener("input", function () {
+            currentSearch = this.value.toLowerCase().trim();
+            currentPage = 1;
+            renderTable();
+          });
+        }
+
         // Event listener tombol filter tab
         filterButtons.forEach(btn => {
           btn.addEventListener("click", function () {
@@ -348,7 +374,7 @@ $total_karyawan = count($karyawan_list);
             this.className = "filter-tab-btn px-6 py-2.5 rounded-full bg-tosca-dark text-white-light text-xs font-semibold shadow-xs transition cursor-pointer whitespace-nowrap";
             
             currentFilter = this.getAttribute("data-filter");
-            currentPage = 1; // Reset ke halaman 1 setiap ganti filter
+            currentPage = 1;
             renderTable();
           });
         });
@@ -358,17 +384,17 @@ $total_karyawan = count($karyawan_list);
       });
 
       // Fungsi Buka Modal Hapus
-      function bukaModalHapus(nama, link) {
+      function bukaModalHapusKaryawan(nama, link) {
         document.getElementById('namaKaryawanHapus').textContent = nama;
         document.getElementById('linkHapusKaryawan').href = link;
         
-        const modal = document.getElementById('modalHapus');
+        const modal = document.getElementById('modalHapusKaryawan');
         modal.style.display = 'flex';
       }
 
       // Fungsi Tutup Modal Hapus
-      function tutupModalHapus() {
-        const modal = document.getElementById('modalHapus');
+      function tutupModalHapusKaryawan() {
+        const modal = document.getElementById('modalHapusKaryawan');
         modal.style.display = 'none';
       }
     </script>
