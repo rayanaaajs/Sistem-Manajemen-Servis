@@ -59,10 +59,25 @@ try {
   $errorPage = 'Gagal mengambil data sparepart. Silakan coba lagi.';
 }
 
+// Hapus menggunakan POST dan token CSRF yang sama dengan hapus.php.
+if (empty($_SESSION['csrf_sparepart'])) {
+  $_SESSION['csrf_sparepart'] = bin2hex(random_bytes(32));
+}
+
+// Tampilkan hasil tambah, edit, atau hapus setelah redirect ke daftar.
+$flashSparepart = $_SESSION['flash_sparepart'] ?? null;
+unset($_SESSION['flash_sparepart']);
+
 $jumlahSparepart = count($sparepart_list);
 
 require_once __DIR__ . '/../includes/header.php';
 ?>
+
+<?php if ($flashSparepart): ?>
+  <div role="alert" class="mb-5 rounded-2xl border px-5 py-4 text-sm font-medium <?= ($flashSparepart['tipe'] ?? '') === 'success' ? 'border-success bg-success-light text-success-dark' : 'border-danger bg-danger-light text-danger-dark' ?>">
+    <?= e((string) ($flashSparepart['pesan'] ?? '')) ?>
+  </div>
+<?php endif; ?>
 
 <?php if ($errorPage !== ''): ?>
   <div role="alert" class="mb-5 rounded-2xl border border-danger bg-danger-light px-5 py-4 text-sm font-medium text-danger-dark">
@@ -91,7 +106,7 @@ require_once __DIR__ . '/../includes/header.php';
 
   <!-- Kanan: Tombol + Tambah Sparepart (HANYA UNTUK ADMIN) -->
   <?php if (isset($_SESSION['role']) && strtolower($_SESSION['role']) === 'admin'): ?>
-    <a href="tambah_sparepart.php" class="inline-flex items-center justify-center gap-1.5 px-12 py-3 rounded-full bg-orange hover:bg-orange-hover text-white-light text-xs font-semibold transition-all whitespace-nowrap self-start sm:self-auto cursor-pointer">
+    <a href="tambah.php" class="inline-flex items-center justify-center gap-1.5 px-12 py-3 rounded-full bg-orange hover:bg-orange-hover text-white-light text-xs font-semibold transition-all whitespace-nowrap self-start sm:self-auto cursor-pointer">
       <span class="text-sm font-bold">+</span>
       <span>Tambah Sparepart</span>
     </a>
@@ -192,7 +207,8 @@ require_once __DIR__ . '/../includes/header.php';
                 <!-- Tombol Hapus (HANYA UNTUK ADMIN) -->
                 <?php if (isset($_SESSION['role']) && strtolower($_SESSION['role']) === 'admin'): ?>
                   <button type="button"
-                    onclick="bukaModalHapus(<?= e(json_encode($row['nama'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)) ?>, 'hapus_sparepart.php?id=<?= (int) $row['id'] ?>')"
+                    data-hapus-id="<?= (int) $row['id'] ?>"
+                    data-hapus-nama="<?= e($row['nama']) ?>"
                     class="px-3.5 py-2 rounded-full border border-danger text-danger hover:bg-danger hover:text-white-light text-xs font-semibold transition cursor-pointer">
                     Hapus
                   </button>
@@ -230,8 +246,8 @@ require_once __DIR__ . '/../includes/header.php';
       status: row.dataset.status ?? "",
     }));
 
-    const searchInput = document.getElementById("searchNotaInput")
-      ?? document.querySelector('input[placeholder="Cari nama atau kode sparepart..."]');
+    const searchInput = document.getElementById("searchNotaInput") ??
+      document.querySelector('input[placeholder="Cari nama atau kode sparepart..."]');
     const filterButtons = [...document.querySelectorAll(".filter-sparepart-btn")];
     const emptyEl = document.getElementById("emptySparepart");
     const infoEl = document.getElementById("infoSparepart");
@@ -248,7 +264,10 @@ require_once __DIR__ . '/../includes/header.php';
     let currentPage = 1;
 
     const render = () => {
-      const filtered = entries.filter(({ search, status }) =>
+      const filtered = entries.filter(({
+          search,
+          status
+        }) =>
         search.includes(searchQuery) &&
         (activeFilter === "all" || status === activeFilter)
       );
@@ -257,10 +276,18 @@ require_once __DIR__ . '/../includes/header.php';
       currentPage = Math.min(currentPage, pageCount);
 
       // Tidak melakukan fetch ulang ke Supabase ketika filter/search berubah.
-      entries.forEach(({ row }) => { row.style.display = "none"; });
+      entries.forEach(({
+        row
+      }) => {
+        row.style.display = "none";
+      });
       filtered
         .slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE)
-        .forEach(({ row }) => { row.style.display = ""; });
+        .forEach(({
+          row
+        }) => {
+          row.style.display = "";
+        });
 
       emptyEl.classList.toggle("hidden", total !== 0);
       const start = total ? (currentPage - 1) * PER_PAGE + 1 : 0;
@@ -307,7 +334,9 @@ require_once __DIR__ . '/../includes/header.php';
 
     filterButtons.forEach(button => {
       button.addEventListener("click", () => {
-        filterButtons.forEach(item => { item.className = FILTER_INACTIVE; });
+        filterButtons.forEach(item => {
+          item.className = FILTER_INACTIVE;
+        });
         button.className = FILTER_ACTIVE;
         activeFilter = button.dataset.filter ?? "all";
         currentPage = 1;
@@ -318,6 +347,74 @@ require_once __DIR__ . '/../includes/header.php';
     render();
   });
 </script>
+
+
+<!-- Modal konfirmasi hapus. Tidak mengubah desain tabel dan tombol pada index. -->
+<?php if (strtolower((string) ($_SESSION['role'] ?? '')) === 'admin'): ?>
+  <div id="modalHapusSparepart" class="fixed inset-0 z-100 hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="judulModalHapusSparepart">
+    <div id="backdropHapusSparepart" class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+    <div class="relative w-full max-w-md rounded-[30px] bg-white-light p-7 text-center shadow-xl">
+      <div class="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-danger-light text-danger">
+        <svg class="h-8 w-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18m-2 0-.9 14H5.9L5 6m3 0V4h8v2M10 10v7m4-7v7" />
+        </svg>
+      </div>
+      <h3 id="judulModalHapusSparepart" class="mb-3 text-xl font-bold text-blue-darker">Hapus Sparepart?</h3>
+      <p class="mb-7 text-sm leading-relaxed text-gray-600">
+        Yakin ingin menghapus <strong id="namaHapusSparepart" class="text-blue-darker"></strong>?
+        Tindakan ini tidak dapat dibatalkan.
+      </p>
+      <form action="hapus.php" method="POST" id="formHapusSparepart" class="flex flex-col-reverse gap-3 sm:flex-row">
+        <input type="hidden" name="csrf_sparepart" value="<?= e($_SESSION['csrf_sparepart']) ?>">
+        <input type="hidden" name="id_sparepart" id="idHapusSparepart" value="">
+        <button type="button" id="batalHapusSparepart" class="flex-1 rounded-full border border-tosca-dark px-5 py-3 text-sm font-semibold text-tosca-dark transition hover:bg-white-hover">Batal</button>
+        <button type="submit" class="flex-1 rounded-full bg-danger px-5 py-3 text-sm font-semibold text-white-light transition hover:bg-danger-hover">Ya, Hapus</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const modal = document.getElementById('modalHapusSparepart');
+      const backdrop = document.getElementById('backdropHapusSparepart');
+      const btnBatal = document.getElementById('batalHapusSparepart');
+      const inputId = document.getElementById('idHapusSparepart');
+      const nama = document.getElementById('namaHapusSparepart');
+      const tombolHapus = document.querySelectorAll('button[data-hapus-id]');
+      if (!modal || !backdrop || !btnBatal || !inputId || !nama) return;
+
+      let tombolTerakhir = null;
+
+      const tutupModal = () => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        tombolTerakhir?.focus();
+      };
+
+      tombolHapus.forEach((button) => {
+        button.addEventListener('click', () => {
+          const id = button.dataset.hapusId ?? '';
+          if (!/^\d+$/.test(id) || Number(id) <= 0) return;
+
+          tombolTerakhir = button;
+          inputId.value = id;
+          nama.textContent = button.dataset.hapusNama ?? 'sparepart ini';
+          modal.classList.remove('hidden');
+          modal.classList.add('flex');
+          btnBatal.focus();
+        });
+      });
+
+      btnBatal.addEventListener('click', tutupModal);
+      backdrop.addEventListener('click', tutupModal);
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+          tutupModal();
+        }
+      });
+    });
+  </script>
+<?php endif; ?>
 
 <?php
 require_once __DIR__ . '/../includes/footer.php';
