@@ -110,6 +110,18 @@ $search_placeholder = $search_placeholder ?? 'Cari nomor nota';
                 </svg>
                 Sparepart
             </a>
+
+            <?php if ($is_admin): ?>
+                <!-- Link Riwayat (Arsip Servis Selesai & Sudah Diambil) -->
+                <a href="<?= $base ?>admin/riwayat.php"
+                    class="flex items-center gap-4 px-4 py-3.5 rounded-xl font-medium transition-all <?= ((isset($active_menu) && $active_menu === 'riwayat') || $currentPage === 'riwayat.php') ? 'bg-orange text-white-light' : 'text-gray-300 hover:text-white-light hover:bg-white/10' ?>">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="1.4em" height="1.4em" viewBox="0 0 24 24">
+                        <path d="M0 0h24v24H0z" fill="none" />
+                        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0a9 9 0 0 1 18 0" />
+                    </svg>
+                    Riwayat
+                </a>
+            <?php endif; ?>
         </nav>
 
         <!-- Copyright Footer Sidebar -->
@@ -185,7 +197,7 @@ $search_placeholder = $search_placeholder ?? 'Cari nomor nota';
                             </button>
                         </form>
                     </div>
-                </div
+                </div>
             </div>
         </header>
 
