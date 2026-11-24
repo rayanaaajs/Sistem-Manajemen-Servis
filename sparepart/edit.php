@@ -139,19 +139,7 @@ $stokTampilan = is_numeric($stok) ? (int) $stok : 0;
 $status_sparepart = $stokTampilan <= 0 ? 'Habis'
   : ($stokTampilan <= $batasMenipis ? 'Menipis' : 'Aman');
 
-function getBadgeSparepartClass($status)
-{
-  switch ($status) {
-    case 'Aman':
-      return 'bg-success-light text-success-dark';
-    case 'Menipis':
-      return 'bg-warning-light text-warning-dark';
-    case 'Habis':
-      return 'bg-danger-light text-danger-dark';
-    default:
-      return 'bg-white-hover text-white-darker';
-  }
-}
+
 
 $sparepart = [
   'nama' => $nama,
