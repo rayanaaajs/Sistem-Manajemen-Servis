@@ -60,7 +60,7 @@ $search_placeholder = $search_placeholder ?? 'Cari nomor nota';
         <nav class="flex-1 px-5 mt-4 space-y-2">
             <!-- Link Dashboard (admin/dashboard.php atau teknisi/dashboard.php) -->
             <a href="<?= $base . $folder_role ?>/dashboard.php"
-                class="flex items-center gap-4 px-4 py-3.5 rounded-xl font-medium transition-all <?= ($currentPage === 'dashboard_admin.php' || $currentPage === 'dashboard_teknisi.php' || $currentPage === 'dashboard.php') ? 'bg-orange text-white-light' : 'text-gray-300 hover:text-white-light hover:bg-white/10' ?>">
+                class="flex items-center gap-4 px-4 py-3.5 rounded-xl font-medium transition-all <?= (strtolower($active_menu ?? '') === 'dashboard' || $currentPage === 'dashboard.php') ? 'bg-orange text-white-light' : 'text-gray-300 hover:text-white-light hover:bg-white/10' ?>">
                 <svg xmlns="http://www.w3.org/2000/svg" width="1.4em" height="1.4em" viewBox="0 0 24 24">
                     <path d="M0 0h24v24H0z" fill="none" />
                     <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m3 11l2.5-2.5c1.017-1.017 1.526-1.526 2.137-1.638a2 2 0 0 1 .726 0c.611.112 1.12.62 2.137 1.638s1.526 1.526 2.137 1.638c.24.045.486.045.726 0c.611-.112 1.12-.621 2.137-1.638L21 3M3 15v6m6-8v8m6-5v5m6-12v12" />
@@ -110,13 +110,17 @@ $search_placeholder = $search_placeholder ?? 'Cari nomor nota';
                 Sparepart
             </a>
 
-            <?php if ($is_admin): ?>
-                <!-- Link Riwayat (Arsip Servis Selesai & Sudah Diambil) -->
+            <?php if (in_array($role, ['admin', 'teknisi'], true)): ?>
                 <a href="<?= $base ?>admin/riwayat.php"
-                    class="flex items-center gap-4 px-4 py-3.5 rounded-xl font-medium transition-all <?= ((isset($active_menu) && $active_menu === 'riwayat') || $currentPage === 'riwayat.php') ? 'bg-orange text-white-light' : 'text-gray-300 hover:text-white-light hover:bg-white/10' ?>">
+                    class="flex items-center gap-4 px-4 py-3.5 rounded-xl font-medium transition-all <?= (strtolower($active_menu ?? '') === 'riwayat' || $currentPage === 'riwayat.php') ? 'bg-orange text-white-light' : 'text-gray-300 hover:text-white-light hover:bg-white/10' ?>">
+
                     <svg xmlns="http://www.w3.org/2000/svg" width="1.4em" height="1.4em" viewBox="0 0 24 24">
                         <path d="M0 0h24v24H0z" fill="none" />
-                        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0a9 9 0 0 1 18 0" />
+                        <path fill="none" stroke="currentColor"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0a9 9 0 0 1 18 0" />
                     </svg>
                     Riwayat
                 </a>
