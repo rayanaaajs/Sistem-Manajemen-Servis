@@ -1175,3 +1175,5 @@ $badgeStatusClass = match (true) {
 <?php
 require_once __DIR__ . '/../includes/footer.php';
 ?>
+
+<!-- test -->
