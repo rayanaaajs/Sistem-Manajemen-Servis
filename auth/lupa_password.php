@@ -12,9 +12,9 @@
       rel="stylesheet"
     />
 
-  <!-- Tailwind CSS & Custom Style CSS -->
-  <link rel="stylesheet" href="../assets/css/tailwind.css">
-  <link rel="stylesheet" href="../assets/css/style.css">
+    <!-- Tailwind CSS & Custom Style CSS -->
+    <link rel="stylesheet" href="../assets/css/tailwind.css" />
+    <link rel="stylesheet" href="../assets/css/style.css" />
   </head>
   <body class="min-h-screen flex items-center justify-center p-4">
     <div
@@ -45,7 +45,7 @@
         mengatur ulang kata sandi kamu.
       </p>
 
-      <form action="#" method="POST" class="space-y-4">
+      <form action="proses_email.php" method="POST" class="space-y-4">
         <div class="text-left">
           <label
             for="email"

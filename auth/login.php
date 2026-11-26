@@ -1,12 +1,14 @@
 <?php
+require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/csrf.php';
 
 if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+  session_start();
 }
 
 // Jika sudah login, arahkan ke dashboard.
 if (isset($_SESSION['user_id'])) {
-    header('Location: ../index.php');
+    header('Location: ' . (($_SESSION['role'] ?? '') === 'admin' ? '../admin/dashboard.php' : '../teknisi/dashboard.php'));
     exit;
 }
 
@@ -20,11 +22,12 @@ unset($_SESSION['auth_error'], $_SESSION['auth_success']);
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - Singosari Computer</title>
-  <link rel="icon" type="image/png" href="assets/img/logo polos.png">
+  <link rel="icon" type="image/png" href="..assets/img/logo polos.png">
 
   <!-- Google Fonts: Full Poppins (Weights: 300, 400, 500, 600, 700, 800, 900) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -35,16 +38,17 @@ unset($_SESSION['auth_error'], $_SESSION['auth_success']);
   <link rel="stylesheet" href="../assets/css/tailwind.css">
   <link rel="stylesheet" href="../assets/css/style.css">
 </head>
+
 <body class="bg-brand-cream min-h-screen relative flex flex-col justify-between overflow-x-hidden selection:bg-brand-orange selection:text-white">
 
 
   <!-- Main Content Area -->
   <main class="w-full grow flex items-center justify-center px-4 sm:px-8 lg:px-16 py-16 lg:py-8">
     <div class="max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-      
+
       <!-- left section -->
       <section class="lg:col-span-7 flex flex-col justify-center items-center lg:items-start text-center lg:text-left pt-12 lg:pt-7">
-        
+
         <!-- Headline -->
         <h1 class="text-3xl sm:text-4xl lg:text-[48px] font-bold text-brand-dark leading-tight tracking-tight max-w-xl">
           Servis lebih tertata,<br class="hidden sm:inline">
@@ -59,7 +63,7 @@ unset($_SESSION['auth_error'], $_SESSION['auth_success']);
 
         <!-- Illustration & Floating Circles Area -->
         <div class="relative mt-8 sm:mt-10 w-full max-w-115 flex items-center justify-center">
-          
+
           <!-- Circle 1: Wrench & Screwdriver (Atas Kanan) -->
           <div class="floating-circle circle-wrench" title="Manajemen Perbaikan Unit" aria-hidden="true">
             <img src="../assets/img/screw-icon.png" alt="Ikon Servis Teknisi">
@@ -77,21 +81,20 @@ unset($_SESSION['auth_error'], $_SESSION['auth_success']);
 
           <!-- Technician Character Illustration -->
           <img
-            src="../assets/img/teknisi.png" 
-            alt="Ilustrasi Teknisi Singosari Computer" 
+            src="../assets/img/teknisi.png"
+            alt="Ilustrasi Teknisi Singosari Computer"
             class="mask-fade-bottom w-full max-w-100 sm:max-w-107.5 h-auto object-contain select-none pointer-events-none drop-shadow-sm transition-transform duration-500 hover:scale-[1.02]"
-            loading="eager"
-          >
+            loading="eager">
           <!-- Efek kabut -->
-        <div class="absolute bottom-0 left-0 w-full h-1/2 bg-linear-to-t from-[#FDF8F0] to-transparent pointer-events-none"></div>
+          <div class="absolute bottom-0 left-0 w-full h-1/2 bg-linear-to-t from-[#FDF8F0] to-transparent pointer-events-none"></div>
         </div>
 
       </section>
-      
+
       <!-- right section -->
       <section class="lg:col-span-5 flex justify-center items-center w-full">
         <div class="login-card p-8 sm:p-10 lg:p-12">
-          
+
           <!-- Card Header: Logo & Titles -->
           <div class="text-center flex flex-col items-center">
             <img src="../assets/img/logo-polos.png" alt="Logo Singosari Computer" class="w-20 h-20 object-contain">
@@ -107,8 +110,14 @@ unset($_SESSION['auth_error'], $_SESSION['auth_success']);
           </div>
 
           <!-- Login Form -->
-          <form id="loginForm" action="index.php" method="POST" class="mt-8 space-y-5" autocomplete="on">
-            
+          <form id="loginForm" action="proses_login.php" method="POST" class="mt-8 space-y-5" autocomplete="on">
+            <?= csrf_field() ?>
+            <?php if ($error !== ''): ?>
+              <div class="p-3.5 rounded-xl bg-danger-light text-danger-dark text-sm" role="alert"><?= htmlspecialchars($error) ?></div>
+            <?php endif; ?>
+            <?php if ($success !== ''): ?>
+              <div class="p-3.5 rounded-xl bg-success-light text-success-dark text-sm" role="status"><?= htmlspecialchars($success) ?></div>
+            <?php endif; ?>
             <!-- Input: Username -->
             <div>
               <label for="username" class="block text-sm font-normal text-brand-dark mb-2">
@@ -118,19 +127,18 @@ unset($_SESSION['auth_error'], $_SESSION['auth_success']);
                 <!-- User Silhouette Icon (Left) -->
                 <div class="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#9CA3AF]">
                   <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                    <path fill-rule="evenodd" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-4.43-.82-6.14-2.88C7.55 15.8 9.68 15 12 15s4.45.8 6.14 2.12C16.43 19.18 14.03 20 12 20z" clip-rule="evenodd"/>
+                    <path fill-rule="evenodd" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-4.43-.82-6.14-2.88C7.55 15.8 9.68 15 12 15s4.45.8 6.14 2.12C16.43 19.18 14.03 20 12 20z" clip-rule="evenodd" />
                   </svg>
                 </div>
                 <!-- Username Input -->
-                <input 
-                  type="text" 
-                  id="username" 
-                  name="username" 
-                  class="custom-input pl-12" 
-                  placeholder="Email Anda" 
-                  autocomplete="off" 
-                  required
-                >
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  class="custom-input pl-12"
+                  placeholder="Masukkan Username Anda"
+                  autocomplete="off"
+                  required>
               </div>
             </div>
 
@@ -143,27 +151,25 @@ unset($_SESSION['auth_error'], $_SESSION['auth_success']);
                 <!-- Lock Icon (Left) -->
                 <div class="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#9CA3AF]">
                   <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
                 <!-- Password Input -->
-                <input 
-                  type="password" 
-                  id="password" 
-                  name="password" 
-                  class="custom-input pl-12" 
-                  placeholder="Kata Sandi Anda" 
-                  autocomplete="off" 
-                  required
-                >
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  class="custom-input pl-12"
+                  placeholder="Kata Sandi Anda"
+                  autocomplete="off"
+                  required>
                 <!-- Eye Toggle Button (Right) -->
-                <button 
-                  type="button" 
-                  id="togglePassword" 
-                  class="eye-toggle-btn absolute right-3.5 top-1/2 -translate-y-1/2" 
-                  aria-label="Tampilkan kata sandi" 
-                  title="Tampilkan kata sandi"
-                >
+                <button
+                  type="button"
+                  id="togglePassword"
+                  class="eye-toggle-btn absolute right-3.5 top-1/2 -translate-y-1/2"
+                  aria-label="Tampilkan kata sandi"
+                  title="Tampilkan kata sandi">
                   <!-- Eye Open Icon -->
                   <svg id="iconEyeOpen" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -214,7 +220,7 @@ unset($_SESSION['auth_error'], $_SESSION['auth_success']);
   </main>
 
   <!-- JavaScript Interaction Script -->
-  <script src="assets/js/app.js"></script>
+  <script src="../assets/js/app.js"></script>
 </body>
-</html>
 
+</html>

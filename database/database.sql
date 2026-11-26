@@ -6,12 +6,14 @@ CREATE TABLE karyawan (
     peran          VARCHAR(20)  NOT NULL
                    CHECK (peran IN ('Admin', 'Teknisi'))
     email          VARCHAR(255) UNIQUE
+    token_reset_password VARCHAR(255) UNIQUE
+    token_expired TIMESTAMP
 );
 
 CREATE TABLE pelanggan (
     id_pelanggan    INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     nama_pelanggan  VARCHAR(50)  NOT NULL,
-    no_whatsapp     VARCHAR(20)  NOT NULL,
+    no_hp     VARCHAR(20)  NOT NULL,
     alamat          VARCHAR(255)
 );
 
@@ -46,7 +48,8 @@ CREATE TABLE servis (
     id_karyawan           INTEGER       REFERENCES karyawan (id_karyawan),   -- teknisi yang menangani
     estimasi_pengambilan  TIMESTAMP,
     jenis_layanan         VARCHAR(30),
-    biaya_urgent          NUMERIC(12,2) NOT NULL DEFAULT 0 CHECK (biaya_urgent >= 0)
+    biaya_urgent          NUMERIC(12,2) NOT NULL DEFAULT 0 CHECK (biaya_urgent >= 0),
+    persetujuan_pelanggan VARCHAR(10) CHECK (persetujuan_pelanggan IN ('Ya', 'Tidak'));
 );
 
 ALTER SEQUENCE seq_no_nota OWNED BY servis.no_nota;

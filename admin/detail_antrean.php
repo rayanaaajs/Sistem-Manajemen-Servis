@@ -1,282 +1,404 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-// Panggil header pelanggan
+require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/koneksi.php';
+
+$no_nota = trim($_GET['nota'] ?? '');
+
+if ($no_nota === '') {
+    echo "<script>alert('Nomor nota tidak ditemukan di URL!'); window.location.href='antrean.php';</script>";
+    exit;
+}
+
+$data = null;
+$total_sparepart = 0;
+$daftar_sparepart_terpakai = [];
+
+try {
+    $stmt = $pdo->prepare("
+        SELECT 
+            s.*,
+            p.nama_pelanggan,
+            p.no_hp,
+            p.alamat,
+            k.nama_karyawan,
+            v.status_pembayaran,
+            v.status_pengambilan
+        FROM servis s
+        LEFT JOIN pelanggan p ON s.id_pelanggan = p.id_pelanggan
+        LEFT JOIN karyawan k ON s.id_karyawan = k.id_karyawan
+        LEFT JOIN validasi v ON s.no_nota = v.no_nota
+        WHERE s.no_nota = :nota
+        LIMIT 1
+    ");
+    $stmt->execute(['nota' => $no_nota]);
+    $data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$data) {
+        echo "<script>alert('Data nota tidak ditemukan di database!'); window.location.href='antrean.php';</script>";
+        exit;
+    }
+
+    $stmtSp = $pdo->prepare("
+        SELECT ds.*, sp.*
+        FROM detail_servis ds
+        JOIN sparepart sp ON ds.id_sparepart = sp.id_sparepart
+        WHERE ds.no_nota = :nota
+    ");
+    $stmtSp->execute(['nota' => $no_nota]);
+    $rawSp = $stmtSp->fetchAll(PDO::FETCH_ASSOC);
+
+    foreach ($rawSp as $sp) {
+        $qty   = (int)($sp['jumlah'] ?? $sp['qty'] ?? 1);
+        $harga = (int)($sp['harga_jual'] ?? $sp['harga'] ?? $sp['harga_satuan'] ?? 0);
+        $sub   = (int)($sp['subtotal'] ?? ($qty * $harga));
+        $namaSp = $sp['nama_sparepart'] ?? $sp['nama_barang'] ?? 'Sparepart';
+
+        $daftar_sparepart_terpakai[] = [
+            'nama_sparepart' => $namaSp,
+            'jumlah'         => $qty,
+            'subtotal'       => $sub
+        ];
+        $total_sparepart += $sub;
+    }
+} catch (\Throwable $e) {
+    die("Error memuat halaman Detail Antrean: " . htmlspecialchars($e->getMessage()));
+}
+
+$kondisi_val     = $data['kondisi_awal_unit'] ?: 'Hidup';
+$layanan_val     = $data['jenis_layanan'] ?: 'Reguler';
+$persetujuan_val = (stripos((string)($data['persetujuan_bongkar'] ?? ''), 'tidak') !== false) ? 'tidak_setuju' : 'setuju';
+$biaya_jasa_val  = (int)($data['biaya_jasa'] ?? 0);
+$biaya_exp_val   = ($layanan_val === 'Express') ? 50000 : 0;
+$total_biaya_val = $biaya_jasa_val + $biaya_exp_val + $total_sparepart;
+
+$nama_teknisi = $data['nama_karyawan'] ?? '-';
+$partsTek     = preg_split('/\s+/', trim($nama_teknisi));
+$inisialTek   = !empty($partsTek[0]) ? strtoupper(substr($partsTek[0], 0, 2)) : 'TK';
+if (count($partsTek) > 1 && !empty($partsTek[1])) {
+    $inisialTek = strtoupper($partsTek[0][0] . $partsTek[1][0]);
+}
+
+$page_title = 'Detail Antrean';
+$active_menu = 'antrean';
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/helpers.php';
 ?>
-    <!-- FORM 3 KOLOM DETAIL ANTREAN (SESUAI DESAIN FIGMA DENGAN DATA PRE-FILLED) -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch">
 
-      <!-- ==========================================
-           KOLOM 1: DATA PELANGGAN
-           ========================================== -->
-      <div class="bg-white-light rounded-3xl p-7 lg:p-8 border border-white-hover/60">
-        <h2 class="text-lg lg:text-xl font-bold text-blue-darker tracking-tight mb-6">Data Pelanggan</h2>
-
-        <div class="space-y-5 lg:space-y-6">
-          <!-- Pelanggan -->
-          <div>
-            <label class="block text-sm font-bold text-blue-darker mb-2">Pelanggan</label>
-            <input type="text"
-                   value="Varell"
-                   readonly
-                   class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition cursor-default">
-          </div>
-
-          <!-- Nomor Whatsapp -->
-          <div>
-            <label class="block text-sm font-bold text-blue-darker mb-2">Nomor</label>
-            <input type="tel"
-                   value="087612341234"
-                   readonly
-                   class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition cursor-default">
-          </div>
-
-          <!-- Alamat -->
-          <div>
-            <label class="block text-sm font-bold text-blue-darker mb-2">Alamat</label>
-            <input type="text"
-                   value="JL.Danau Sentani Tengah"
-                   readonly
-                   class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition cursor-default">
-          </div>
+      <!-- HEADER INFO NOTA (READ-ONLY) -->
+      <div class="mb-4 flex flex-wrap items-center justify-between gap-2 bg-white-light px-6 py-4 rounded-2xl border border-white-hover/60">
+        <div class="flex items-center gap-3">
+          <span class="text-xs font-semibold text-white-dark-hover uppercase tracking-wider">Nomor Nota</span>
+          <span class="px-3.5 py-1 rounded-full bg-tosca-light text-tosca-dark text-sm font-bold"><?= e($data['no_nota']) ?></span>
         </div>
+        <span class="text-xs font-medium text-white-dark-hover">
+          Status Pengerjaan: <strong class="text-blue-darker"><?= e($data['status_pengerjaan'] ?? 'Menunggu') ?></strong>
+        </span>
       </div>
 
-      <!-- ==========================================
-           KOLOM 2: DATA PERANGKAT
-           ========================================== -->
-      <div class="bg-white-light rounded-3xl p-7 lg:p-8 border border-white-hover/60 flex flex-col justify-between">
-        <div>
-          <h2 class="text-lg lg:text-xl font-bold text-blue-darker tracking-tight mb-6">Data Perangkat</h2>
+      <!-- TAMPILAN 3 KOLOM READ-ONLY -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+
+        <!-- KOLOM 1: DATA PELANGGAN (READ-ONLY) -->
+        <div class="bg-white-light rounded-3xl p-7 lg:p-8 border border-white-hover/60">
+          <h2 class="text-lg lg:text-xl font-bold text-blue-darker tracking-tight mb-6">
+            Data Pelanggan
+          </h2>
 
           <div class="space-y-5 lg:space-y-6">
-
-            <!-- Jenis Barang (Dropdown Select dengan Panah) -->
             <div>
-              <label class="block text-sm font-bold text-blue-darker mb-2">Jenis Barang</label>
-              <div class="relative">
-                <select disabled
-                        class="w-full pl-4 pr-10 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker appearance-none cursor-default">
-                  <option value="Computer" selected>Computer</option>
-                  <option value="Laptop">Laptop</option>
-                  <option value="Printer">Printer</option>
-                  <option value="Lainnya">Lainnya</option>
-                </select>
-                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-white-dark-hover">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                  </svg>
+              <label class="block text-sm font-bold text-blue-darker mb-2">Pelanggan</label>
+              <input
+                type="text"
+                value="<?= e($data['nama_pelanggan'] ?? '-') ?>"
+                readonly
+                class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light-active text-sm font-medium text-blue-darker focus:outline-none cursor-default"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-bold text-blue-darker mb-2">Nomor</label>
+              <input
+                type="text"
+                value="<?= e($data['no_hp'] ?? '-') ?>"
+                readonly
+                class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light-active text-sm font-medium text-blue-darker focus:outline-none cursor-default"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-bold text-blue-darker mb-2">Alamat</label>
+              <input
+                type="text"
+                value="<?= e($data['alamat'] ?? '-') ?>"
+                readonly
+                class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light-active text-sm font-medium text-blue-darker focus:outline-none cursor-default"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- KOLOM 2: DATA PERANGKAT + RINCIAN BIAYA DI BAWAHNYA (READ-ONLY) -->
+        <div class="flex flex-col gap-4">
+          <div class="bg-white-light rounded-3xl p-7 lg:p-8 border border-white-hover/60">
+            <h2 class="text-lg lg:text-xl font-bold text-blue-darker tracking-tight mb-6">
+              Data Perangkat
+            </h2>
+
+            <div class="space-y-5 lg:space-y-6">
+              <div>
+                <label class="block text-sm font-bold text-blue-darker mb-2">Jenis Barang</label>
+                <input
+                  type="text"
+                  value="<?= e($data['jenis_barang'] ?? '-') ?>"
+                  readonly
+                  class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light-active text-sm font-medium text-blue-darker focus:outline-none cursor-default"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-bold text-blue-darker mb-2">Merek dan Spesifikasi</label>
+                <input
+                  type="text"
+                  value="<?= e($data['merek_dan_spesifikasi'] ?? '-') ?>"
+                  readonly
+                  class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light-active text-sm font-medium text-blue-darker focus:outline-none cursor-default"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-bold text-blue-darker mb-2">Kelengkapan</label>
+                <input
+                  type="text"
+                  value="<?= e($data['kelengkapan_barang'] ?: '-') ?>"
+                  readonly
+                  class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light-active text-sm font-medium text-blue-darker focus:outline-none cursor-default"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-bold text-blue-darker mb-2">Kondisi Awal Unit</label>
+                <div class="grid grid-cols-3 gap-2.5">
+                  <?php foreach (['Hidup', 'Mati', 'Blank'] as $optKondisi): ?>
+                    <?php $isAktif = (strcasecmp($kondisi_val, $optKondisi) === 0); ?>
+                    <div class="py-3 px-4 rounded-2xl text-sm text-center select-none <?= $isAktif ? 'bg-tosca-dark text-white-light font-semibold shadow-xs' : 'border border-white-active bg-white-light-active text-white-dark-hover font-medium' ?>">
+                      <?= $optKondisi ?>
+                    </div>
+                  <?php endforeach; ?>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-bold text-blue-darker mb-2">Password Perangkat</label>
+                <div class="relative">
+                  <input
+                    type="password"
+                    id="passwordPerangkatDetail"
+                    value="<?= e($data['password_perangkat'] ?? '') ?>"
+                    placeholder="Tidak ada password"
+                    readonly
+                    class="w-full pl-4 pr-11 py-3.5 rounded-2xl border border-white-active bg-white-light-active text-sm text-blue-darker focus:outline-none cursor-default"
+                  />
+                  <?php if (!empty($data['password_perangkat'])): ?>
+                    <button
+                      type="button"
+                      id="togglePasswordDetailBtn"
+                      class="absolute inset-y-0 right-0 pr-4 flex items-center text-white-dark-hover hover:text-blue-darker cursor-pointer"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    </button>
+                  <?php endif; ?>
                 </div>
               </div>
             </div>
+          </div>
 
-            <!-- Merek dan Spesifikasi -->
-            <div>
-              <label class="block text-sm font-bold text-blue-darker mb-2">Merek dan Spesifikasi</label>
-              <input type="text"
-                     value="ROG - i9 - RAM 64 GB"
-                     readonly
-                     class="w-full px-4 py-3.5 rounded-2xl border border-blue-darker/60 bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition cursor-default">
-            </div>
+          <!-- KARTU RINCIAN BIAYA DI BAWAH DATA PERANGKAT -->
+          <div class="bg-white-light rounded-3xl p-7 lg:p-8 border border-white-hover/60">
+            <h2 class="text-lg lg:text-xl font-bold text-blue-darker tracking-tight mb-5">
+              Rincian Biaya
+            </h2>
 
-            <!-- Kelengkapan -->
-            <div>
-              <label class="block text-sm font-bold text-blue-darker mb-2">Kelengkapan</label>
-              <input type="text"
-                     value="Charger, tas"
-                     readonly
-                     class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition cursor-default">
-            </div>
-
-            <!-- Kondisi Awal Unit (Pill Selection: Hidup / Mati / Blank) -->
-            <div>
-              <label class="block text-sm font-bold text-blue-darker mb-2">Kondisi Awal Unit</label>
-              <div class="grid grid-cols-3 gap-2.5" id="groupKondisiUnit">
-                <div class="py-3 px-4 rounded-2xl bg-tosca-dark text-white-light text-sm font-semibold text-center">
-                  Hidup
-                </div>
-                <div class="py-3 px-4 rounded-2xl border border-white-active bg-white-light text-blue-darker text-sm font-medium text-center">
-                  Mati
-                </div>
-                <div class="py-3 px-4 rounded-2xl border border-white-active bg-white-light text-blue-darker text-sm font-medium text-center">
-                  Blank
-                </div>
+            <div class="rounded-2xl bg-white-light-active border border-white-hover p-4 space-y-2.5 text-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-white-dark-hover font-medium">Biaya Jasa Servis</span>
+                <span class="font-semibold text-blue-darker">
+                  Rp <?= number_format($biaya_jasa_val, 0, ',', '.') ?>
+                </span>
               </div>
-            </div>
 
-            <!-- Password Perangkat (Dengan toggle lihat password) -->
-            <div>
-              <label class="block text-sm font-bold text-blue-darker mb-2">Password Perangkat</label>
-              <div class="relative">
-                <input type="password"
-                       id="passwordPerangkat"
-                       value="12345678"
-                       readonly
-                       class="w-full pl-4 pr-11 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm text-blue-darker tracking-wider focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition cursor-default">
-                <button type="button"
-                        id="togglePasswordBtn"
-                        class="absolute inset-y-0 right-0 pr-4 flex items-center text-white-dark-hover hover:text-blue-darker cursor-pointer">
-                  <!-- Eye Icon -->
-                  <svg id="eyeIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                </button>
+              <div class="flex items-center justify-between">
+                <span class="text-white-dark-hover font-medium">Biaya Layanan Express</span>
+                <span class="font-semibold text-blue-darker">
+                  Rp <?= number_format($biaya_exp_val, 0, ',', '.') ?>
+                </span>
+              </div>
+
+              <div class="flex items-center justify-between">
+                <span class="text-white-dark-hover font-medium">
+                  Sparepart Terpakai (<?= count($daftar_sparepart_terpakai) ?> item)
+                </span>
+                <span class="font-semibold text-blue-darker">
+                  Rp <?= number_format($total_sparepart, 0, ',', '.') ?>
+                </span>
+              </div>
+
+              <?php if (!empty($daftar_sparepart_terpakai)): ?>
+                <div class="pt-1 pl-2 border-l-2 border-tosca-light-active space-y-1 text-xs text-white-dark-hover">
+                  <?php foreach ($daftar_sparepart_terpakai as $sp): ?>
+                    <div class="flex justify-between">
+                      <span><?= e($sp['nama_sparepart']) ?> (x<?= (int)$sp['jumlah'] ?>)</span>
+                      <span>Rp <?= number_format((int)$sp['subtotal'], 0, ',', '.') ?></span>
+                    </div>
+                  <?php endforeach; ?>
+                </div>
+              <?php endif; ?>
+
+              <div class="border-t border-white-hover pt-2.5 flex items-center justify-between">
+                <span class="font-bold text-blue-darker">Total Biaya</span>
+                <span class="text-base font-bold text-orange">
+                  Rp <?= number_format($total_biaya_val, 0, ',', '.') ?>
+                </span>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- ==========================================
-           KOLOM 3: KELUHAN DAN PENANGANAN
-           ========================================== -->
-      <div class="bg-white-light rounded-3xl p-7 lg:p-8 -sm border border-white-hover/60 flex flex-col justify-between">
-        <div class="space-y-5 lg:space-y-6">
-          <h2 class="text-lg lg:text-xl font-bold text-blue-darker tracking-tight mb-6">Keluhan dan Penanganan</h2>
+        <!-- KOLOM 3: KELUHAN DAN PENANGANAN (READ-ONLY) -->
+        <div class="bg-white-light rounded-3xl p-7 lg:p-8 border border-white-hover/60 flex flex-col justify-between">
+          <div class="space-y-5 lg:space-y-6">
+            <h2 class="text-lg lg:text-xl font-bold text-blue-darker tracking-tight mb-6">
+              Keluhan dan Penanganan
+            </h2>
 
-          <!-- Keluhan Kerusakan -->
-          <div>
-            <label class="block text-sm font-bold text-blue-darker mb-2">Keluhan Kerusakan</label>
-            <input type="text"
-                   value="pc saya matot"
-                   readonly
-                   class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition cursor-default">
-          </div>
-
-          <!-- Catatan Cek Fisik -->
-          <div>
-            <label class="block text-sm font-bold text-blue-darker mb-2">Catatan Cek Fisik</label>
-            <input type="text"
-                   value="Baret di sudut kiri bawah, engsel kanan agak longgar."
-                   readonly
-                   class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition cursor-default">
-          </div>
-
-          <!-- Row: Pilih Teknisi Aktif & Servis Masuk -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            <!-- Pilih Teknisi Aktif -->
             <div>
-              <label class="block text-sm font-bold text-blue-darker mb-2">Pilih Teknisi Aktif</label>
-              <div class="relative">
-                <select disabled
-                        class="w-full pl-9 pr-8 py-3 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker appearance-none cursor-default">
-                  <option value="Ilham" selected>Ilham</option>
-                  <option value="Bagas">Bagas</option>
-                  <option value="Dimas">Dimas</option>
-                </select>
-                <!-- Avatar Inisial Kecil -->
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <div class="w-5 h-5 rounded-full bg-orange-light-active text-orange text-[9px] font-bold flex items-center justify-center">
-                    IL
+              <label class="block text-sm font-bold text-blue-darker mb-2">Keluhan Kerusakan</label>
+              <input
+                type="text"
+                value="<?= e($data['keluhan_kerusakan'] ?? '-') ?>"
+                readonly
+                class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light-active text-sm font-medium text-blue-darker focus:outline-none cursor-default"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-bold text-blue-darker mb-2">Catatan Cek Fisik</label>
+              <input
+                type="text"
+                value="<?= e($data['catatan_cek_fisik'] ?: '-') ?>"
+                readonly
+                class="w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light-active text-sm font-medium text-blue-darker focus:outline-none cursor-default"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-bold text-blue-darker mb-2">Teknisi Penanggung Jawab</label>
+              <div class="flex items-center gap-2.5 w-full px-4 py-3 rounded-2xl border border-white-active bg-white-light-active text-sm font-medium text-blue-darker">
+                <div class="w-6 h-6 rounded-full bg-orange-light-active text-orange text-[10px] font-bold flex items-center justify-center uppercase">
+                  <?= e($inisialTek) ?>
+                </div>
+                <span><?= e($nama_teknisi) ?></span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <div>
+                <label class="block text-sm font-bold text-blue-darker mb-2">Servis Masuk</label>
+                <input
+                  type="text"
+                  value="<?= !empty($data['tanggal_masuk']) ? date('d M Y', strtotime($data['tanggal_masuk'])) : '-' ?>"
+                  readonly
+                  class="w-full px-4 py-3 rounded-2xl border border-white-active bg-white-light-active text-sm font-medium text-blue-darker focus:outline-none cursor-default"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-bold text-blue-darker mb-2">Estimasi Selesai</label>
+                <input
+                  type="text"
+                  value="<?= !empty($data['estimasi_pengambilan']) ? date('d M Y', strtotime($data['estimasi_pengambilan'])) : '-' ?>"
+                  readonly
+                  class="w-full px-4 py-3 rounded-2xl border border-white-active bg-white-light-active text-sm font-medium text-blue-darker focus:outline-none cursor-default"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-bold text-blue-darker mb-2">Jenis Layanan</label>
+              <div class="grid grid-cols-2 gap-3">
+                <?php foreach (['Reguler', 'Express'] as $optLayanan): ?>
+                  <?php $isLayAktif = (strcasecmp($layanan_val, $optLayanan) === 0); ?>
+                  <div class="py-3 px-4 rounded-2xl text-sm text-center select-none <?= $isLayAktif ? 'bg-tosca-dark text-white-light font-semibold shadow-xs' : 'border border-white-active bg-white-light-active text-white-dark-hover font-medium' ?>">
+                    <?= $optLayanan ?>
                   </div>
-                </div>
-                <!-- Panah Dropdown -->
-                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-white-dark-hover">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                </div>
+                <?php endforeach; ?>
               </div>
             </div>
 
-            <!-- Servis Masuk (Tanggal) -->
             <div>
-              <label class="block text-sm font-bold text-blue-darker mb-2">Servis Masuk</label>
-              <div class="relative">
-                <input type="text"
-                       value="6 Okt 2026"
-                       readonly
-                       class="w-full pl-4 pr-9 py-3 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition cursor-default">
-                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-white-dark-hover">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
+              <label class="block text-sm font-bold text-blue-darker mb-2">Persetujuan Bongkar</label>
+              <div class="grid grid-cols-2 gap-3">
+                <div class="flex items-center gap-2.5 px-4 py-3 rounded-2xl border bg-white-light-active select-none <?= $persetujuan_val === 'setuju' ? 'border-blue-darker/60' : 'border-white-active opacity-60' ?>">
+                  <div class="w-5 h-5 rounded-md flex items-center justify-center text-xs font-bold <?= $persetujuan_val === 'setuju' ? 'bg-tosca-dark text-white-light' : 'border border-white-active text-transparent' ?>">
+                    ✓
+                  </div>
+                  <span class="text-sm text-blue-darker <?= $persetujuan_val === 'setuju' ? 'font-semibold' : 'font-medium' ?>">Setuju Dibongkar</span>
+                </div>
+
+                <div class="flex items-center gap-2.5 px-4 py-3 rounded-2xl border bg-white-light-active select-none <?= $persetujuan_val === 'tidak_setuju' ? 'border-blue-darker/60' : 'border-white-active opacity-60' ?>">
+                  <div class="w-5 h-5 rounded-md flex items-center justify-center text-xs font-bold <?= $persetujuan_val === 'tidak_setuju' ? 'bg-tosca-dark text-white-light' : 'border border-white-active text-transparent' ?>">
+                    ✓
+                  </div>
+                  <span class="text-sm text-blue-darker <?= $persetujuan_val === 'tidak_setuju' ? 'font-semibold' : 'font-medium' ?>">Tidak Setuju</span>
                 </div>
               </div>
             </div>
-          </div>
 
-          <!-- Jenis Layanan (Reguler / Express) -->
-          <div>
-            <label class="block text-sm font-bold text-blue-darker mb-2">Jenis Layanan</label>
-            <div class="grid grid-cols-2 gap-3" id="groupLayanan">
-              <div class="py-3 px-4 rounded-2xl bg-tosca-dark text-white-light text-sm font-semibold -xs text-center">
-                Reguler
-              </div>
-              <div class="py-3 px-4 rounded-2xl border border-white-active bg-white-light text-blue-darker text-sm font-medium text-center">
-                Express
-              </div>
-            </div>
-          </div>
-
-          <!-- Persetujuan Bongkar (Checkbox Style) -->
-          <div>
-            <label class="block text-sm font-bold text-blue-darker mb-2">Persetujuan Bongkar</label>
             <div class="grid grid-cols-2 gap-3">
-              <div class="flex items-center gap-2.5 px-4 py-3 rounded-2xl border border-blue-darker/60 bg-white-light">
-                <div class="w-4 h-4 rounded bg-tosca-dark text-white-light flex items-center justify-center text-[10px] font-bold">✓</div>
-                <span class="text-sm font-semibold text-blue-darker">Setuju Dibongkar</span>
+              <div class="px-4 py-3 rounded-2xl border border-white-active bg-white-light-active text-sm font-medium text-white-darker">
+                <?= e($data['status_pembayaran'] ?? 'Belum Dibayar') ?>
               </div>
-              <div class="flex items-center gap-2.5 px-4 py-3 rounded-2xl border border-white-active bg-white-light opacity-60">
-                <div class="w-4 h-4 rounded border border-white-active bg-white-light"></div>
-                <span class="text-sm font-medium text-blue-darker">Tidak Setuju</span>
+              <div class="px-4 py-3 rounded-2xl border border-white-active bg-white-light-active text-sm font-medium text-white-darker">
+                <?= e($data['status_pengambilan'] ?? 'Belum Diambil') ?>
               </div>
             </div>
           </div>
 
-          <!-- Status Pembayaran & Status Barang -->
-          <div class="grid grid-cols-2 gap-3">
-            <!-- Status Pembayaran -->
-            <div class="relative">
-              <select disabled
-                      class="w-full px-4 py-3 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker appearance-none cursor-default">
-                <option value="Sudah Dibayar" selected>Sudah Dibayar</option>
-                <option value="Belum Dibayar">Belum Dibayar</option>
-              </select>
-              <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-white-dark-hover">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-              </div>
-            </div>
-
-            <!-- Status Pengambilan -->
-            <div class="relative">
-              <select disabled
-                      class="w-full px-4 py-3 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker appearance-none cursor-default">
-                <option value="Belum Diambil" selected>Belum Diambil</option>
-                <option value="Sudah Diambil">Sudah Diambil</option>
-              </select>
-              <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-white-dark-hover">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-              </div>
-            </div>
+          <div class="mt-10 pt-4 flex items-center justify-end gap-3.5">
+            <a
+              href="antrean.php"
+              class="px-8 py-3 rounded-full border border-tosca-dark hover:bg-tosca-dark-hover text-tosca-dark hover:text-white-light text-sm font-semibold transition text-center cursor-pointer"
+            >
+              Kembali
+            </a>
+            <a
+              href="edit_antrean.php?nota=<?= urlencode($data['no_nota']) ?>"
+              class="px-8 py-3 rounded-full bg-orange hover:bg-orange-hover text-white-light text-sm font-semibold transition text-center cursor-pointer"
+            >
+              Edit Antrean
+            </a>
           </div>
-        </div>
-
-        <!-- Tombol Aksi Bawah: Hanya Tombol "Kembali" Sesuai Desain Detail -->
-        <div class="mt-10 pt-4 flex items-center justify-end">
-          <a href="antrean.php"
-             class="px-10 py-3 rounded-full border border-tosca-dark hover:bg-tosca-dark text-tosca-dark hover:text-white-light text-sm font-semibold transition text-center cursor-pointer">
-            Kembali
-          </a>
         </div>
       </div>
-    </div>
 
-  <!-- JAVASCRIPT: Toggle Lihat Password -->
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      const togglePasswordBtn = document.getElementById('togglePasswordBtn');
-      const passwordInput = document.getElementById('passwordPerangkat');
-      if (togglePasswordBtn && passwordInput) {
-        togglePasswordBtn.addEventListener('click', function() {
-          const isPassword = passwordInput.type === 'password';
-          passwordInput.type = isPassword ? 'text' : 'password';
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
+          const btnPass = document.getElementById("togglePasswordDetailBtn");
+          const inpPass = document.getElementById("passwordPerangkatDetail");
+          if (btnPass && inpPass) {
+            btnPass.addEventListener("click", function () {
+              inpPass.type = inpPass.type === "password" ? "text" : "password";
+            });
+          }
         });
-      }
-    });
-  </script>
+      </script>
 
 <?php
 require_once __DIR__ . '/../includes/footer.php';
 ?>
-
