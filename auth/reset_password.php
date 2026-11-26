@@ -62,11 +62,9 @@ unset($_SESSION['auth_error'], $_SESSION['auth_success']);
         Pastikan kata sandi baru kamu kuat dan mudah diingat.
       </p>
 
-      <!-- 1. Ubah action="#" menjadi file prosesnya -->
-      <form action="proses_reset_password.php" method="POST" class="space-y-4 text-left">
-        
-        <!-- 2. Ubah value token agar otomatis mengambil dari URL -->
-        <input type="hidden" name="token" value="<?php echo htmlspecialchars($_GET['token'] ?? ''); ?>" />
+      <form action="#" method="POST" class="space-y-4 text-left">
+        <!-- Input Token Tersembunyi (Biasanya diambil dari URL via JS/Backend) -->
+        <input type="hidden" name="token" value="abc123token_dari_url" />
 
         <div>
           <label
