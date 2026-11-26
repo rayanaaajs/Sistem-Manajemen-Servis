@@ -33,12 +33,12 @@ try {
   $stat['antrean'] = (int) $stmtAntrean->fetchColumn();
 
   // Stat 4: Total Menunggu
-  $stmtMenunggu = $pdo->prepare("SELECT COUNT(*) FROM servis WHERE id_karyawan = :k AND status_pengerjaan IN ('Sedang Dicek', 'Menunggu', 'Menunggu Persetujuan')");
+  $stmtMenunggu = $pdo->prepare("SELECT COUNT(*) FROM servis WHERE id_karyawan = :k AND status_pengerjaan IN ('Diterima', 'Menunggu', 'Menunggu Persetujuan')");
   $stmtMenunggu->execute(['k' => $id_karyawan]);
   $stat['menunggu'] = (int) $stmtMenunggu->fetchColumn();
 
   // Stat 5: Total Dikerjakan
-  $stmtDikerjakan = $pdo->prepare("SELECT COUNT(*) FROM servis WHERE id_karyawan = :k AND status_pengerjaan = 'Proses Servis'");
+  $stmtDikerjakan = $pdo->prepare("SELECT COUNT(*) FROM servis WHERE id_karyawan = :k AND status_pengerjaan = 'Dikerjakan'");
   $stmtDikerjakan->execute(['k' => $id_karyawan]);
   $stat['dikerjakan'] = (int) $stmtDikerjakan->fetchColumn();
   $stat['unit']       = $stat['dikerjakan'];
@@ -51,22 +51,15 @@ $delta = $stat['bulan_lalu'] > 0
   : ($stat['selesai'] > 0 ? 100 : 0);
 
 // ==============================================================================
-// 2. PAGINATION & DAFTAR SERVIS (DARI DATABASE)
+// 2. DAFTAR SERVIS (PAGINATION DI BROWSER)
 // ==============================================================================
 $per_page = 6;
-$halaman  = max(1, (int) ($_GET['page'] ?? 1));
-$offset   = ($halaman - 1) * $per_page;
 
 $tampil = [];
 $total  = 0;
 
 try {
-  // Total Data (Untuk pagination)
-  $stmtTotal = $pdo->prepare("SELECT COUNT(*) FROM servis s WHERE s.id_karyawan = :k");
-  $stmtTotal->execute(['k' => $id_karyawan]);
-  $total = (int) $stmtTotal->fetchColumn();
-
-  // Ambil Data Sesuai Halaman (Tampilkan yang aktif/dikerjakan lebih dulu)
+  // Ambil seluruh daftar milik teknisi login sekali per pemuatan halaman.
   $stmtData = $pdo->prepare("
         SELECT s.no_nota as nota, 
                CONCAT_WS(' ', s.jenis_barang, s.merek_dan_spesifikasi) as perangkat,
@@ -81,25 +74,21 @@ try {
         ORDER BY 
             CASE 
                 WHEN s.status_pengerjaan = 'Dikerjakan' THEN 1
-                WHEN s.status_pengerjaan IN ('Diterima', 'Menunggu') THEN 2
+                WHEN s.status_pengerjaan IN ('Diterima', 'Menunggu', 'Menunggu Persetujuan') THEN 2
                 ELSE 3 
             END,
-            s.tanggal_masuk ASC
-        LIMIT :limit OFFSET :offset
+            s.tanggal_masuk ASC, s.no_nota ASC
     ");
-  // PDO butuh INT untuk LIMIT & OFFSET
   $stmtData->bindValue(':k', $id_karyawan, PDO::PARAM_INT);
-  $stmtData->bindValue(':limit', $per_page, PDO::PARAM_INT);
-  $stmtData->bindValue(':offset', $offset, PDO::PARAM_INT);
   $stmtData->execute();
   $tampil = $stmtData->fetchAll(PDO::FETCH_ASSOC);
+  $total = count($tampil);
 } catch (PDOException $e) {
   error_log("Gagal memuat list antrean: " . $e->getMessage());
 }
 
-$total_halaman = max(1, (int) ceil($total / $per_page));
-$awal          = $total ? $offset + 1 : 0;
-$akhir         = $total ? $awal + count($tampil) - 1 : 0;
+$awal  = $total > 0 ? 1 : 0;
+$akhir = min($total, $per_page);
 
 // Header dipanggil sesudah logic biar $page_title kebaca
 require_once __DIR__ . '/../includes/header.php';
@@ -159,11 +148,12 @@ require_once __DIR__ . '/../includes/header.php';
       Belum ada servis yang ditugaskan ke Anda.
     </div>
   <?php else: ?>
-    <?php foreach ($tampil as $s):
+    <?php foreach ($tampil as $index => $s):
       // 1. Convert DB ("Proses Servis") ke UI ("Dikerjakan")
       $status_ui = ($s['status_pengerjaan']);
     ?>
       <div class="svc-card bg-white-light border border-gray-200 rounded-2xl p-5 lg:p-6 flex flex-col min-h-46"
+        <?= $index >= $per_page ? 'style="display: none;"' : '' ?>
         data-status="<?= e($status_ui) ?>"
         data-layanan="<?= e($s['jenis_layanan']) ?>">
         <!-- Baris atas: nota, layanan, status -->
@@ -216,86 +206,133 @@ require_once __DIR__ . '/../includes/header.php';
     PAGINATION FOOTER
     ============================================================================== -->
 <?php if ($total > 0): ?>
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-white-dark-hover mt-8">
-    <p class="pl-1 font-medium">Menampilkan <?= $awal ?>-<?= $akhir ?> dari <?= $total ?> antrean</p>
-
-    <div class="flex flex-wrap items-center gap-1.5">
-      <?php if ($halaman > 1): ?>
-        <a href="?page=<?= $halaman - 1 ?>" class="text-xs text-blue-darker hover:text-orange font-bold transition px-2">&lt;</a>
-      <?php endif; ?>
-
-      <?php for ($i = 1; $i <= $total_halaman; $i++): ?>
-        <?php if ($i === $halaman): ?>
-          <span class="w-9 h-9 rounded-full bg-orange text-white-light font-bold text-xs flex items-center justify-center"><?= $i ?></span>
-        <?php else: ?>
-          <a href="?page=<?= $i ?>" class="w-9 h-9 rounded-full text-blue-darker hover:bg-white-hover font-medium text-xs flex items-center justify-center transition"><?= $i ?></a>
-        <?php endif; ?>
-      <?php endfor; ?>
-
-      <?php if ($halaman < $total_halaman): ?>
-        <a href="?page=<?= $halaman + 1 ?>" class="text-xs text-blue-darker hover:text-orange font-bold transition px-2">&gt;</a>
-      <?php endif; ?>
-    </div>
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-white-dark-hover mt-8" id="paginationFooter">
+    <p class="pl-1 font-medium" id="paginationInfo" aria-live="polite">Menampilkan <?= $awal ?>-<?= $akhir ?> dari <?= $total ?> antrean</p>
+    <nav class="flex flex-wrap items-center gap-1.5" id="paginationNav" aria-label="Halaman antrean servis"></nav>
   </div>
 <?php endif; ?>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function() {
+  document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('searchNotaInput');
     const chips = document.querySelectorAll('#filterChipGroup .chip-btn');
-    const cards = document.querySelectorAll('#svcGrid .svc-card');
+    const cards = [...document.querySelectorAll('#svcGrid .svc-card')];
     const emptyState = document.getElementById('emptyState');
     const svcGrid = document.getElementById('svcGrid');
+    const paginationInfo = document.getElementById('paginationInfo');
+    const paginationNav = document.getElementById('paginationNav');
+    const perPage = <?= (int) $per_page ?>;
 
     const CHIP_BASE = 'chip-btn px-8 py-3 rounded-full text-xs transition cursor-pointer whitespace-nowrap';
     const CHIP_INACTIVE = CHIP_BASE + ' bg-white-light text-blue-darker border border-gray-200 font-medium hover:bg-white-light-hover';
     const CHIP_ACTIVE = CHIP_BASE + ' bg-tosca-dark text-white-light font-semibold';
+    const PAGE_BUTTON = 'w-9 h-9 rounded-full text-blue-darker hover:bg-white-hover font-medium text-xs flex items-center justify-center transition';
+    const PAGE_ACTIVE = 'w-9 h-9 rounded-full bg-orange text-white-light font-bold text-xs flex items-center justify-center';
+    const PAGE_ARROW = 'text-xs text-blue-darker hover:text-orange font-bold transition px-2';
 
     let currentFilter = 'all';
+    let currentPage = 1;
+    let filteredCards = cards;
 
-    function applyFilter() {
-      const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
-      let visible = 0;
+    const searchableCards = cards.map(card => ({
+      card,
+      text: card.textContent.toLocaleLowerCase('id-ID')
+    }));
 
-      cards.forEach(card => {
-        const status = card.dataset.status;
-        const layanan = card.dataset.layanan;
-
-        let matchFilter = true;
-        if (currentFilter === 'Express' || currentFilter === 'Reguler') {
-          matchFilter = (layanan === currentFilter);
-        } else if (currentFilter !== 'all') {
-          matchFilter = (status === currentFilter);
-        }
-
-        const matchSearch = card.textContent.toLowerCase().includes(query);
-        const show = matchFilter && matchSearch;
-
-        card.classList.toggle('hidden', !show);
-        if (show) visible++;
+    function createPageButton(label, page, className, ariaLabel, active = false) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = label;
+      button.className = className;
+      button.setAttribute('aria-label', ariaLabel);
+      if (active) button.setAttribute('aria-current', 'page');
+      button.addEventListener('click', () => {
+        currentPage = page;
+        renderPage();
       });
+      return button;
+    }
 
-      if (visible === 0 && cards.length > 0) {
-        emptyState.classList.remove('hidden');
-        svcGrid.classList.add('hidden');
-      } else {
-        emptyState.classList.add('hidden');
-        svcGrid.classList.remove('hidden');
+    function renderPagination(totalPages) {
+      if (!paginationNav) return;
+      paginationNav.replaceChildren();
+      if (totalPages <= 1) return;
+
+      if (currentPage > 1) {
+        paginationNav.append(createPageButton('<', currentPage - 1, PAGE_ARROW, 'Halaman sebelumnya'));
+      }
+
+      const firstPage = Math.max(1, Math.min(currentPage - 2, totalPages - 4));
+      const lastPage = Math.min(totalPages, firstPage + 4);
+      for (let page = firstPage; page <= lastPage; page++) {
+        const active = page === currentPage;
+        paginationNav.append(createPageButton(String(page), page, active ? PAGE_ACTIVE : PAGE_BUTTON, `Halaman ${page}`, active));
+      }
+
+      if (currentPage < totalPages) {
+        paginationNav.append(createPageButton('>', currentPage + 1, PAGE_ARROW, 'Halaman berikutnya'));
       }
     }
 
+    function renderPage() {
+      const total = filteredCards.length;
+      const totalPages = Math.max(1, Math.ceil(total / perPage));
+      currentPage = Math.min(Math.max(currentPage, 1), totalPages);
+
+      const start = (currentPage - 1) * perPage;
+      const end = Math.min(start + perPage, total);
+      const visibleCards = new Set(filteredCards.slice(start, end));
+
+      // Hanya kartu pada halaman aktif yang ditampilkan.
+      cards.forEach(card => {
+        card.style.display = visibleCards.has(card) ? '' : 'none';
+      });
+
+      const noMatch = total === 0 && cards.length > 0;
+      emptyState.classList.toggle('hidden', !noMatch);
+      svcGrid.style.display = noMatch ? 'none' : '';
+
+      if (paginationInfo) {
+        paginationInfo.textContent = `Menampilkan ${total ? start + 1 : 0}-${end} dari ${total} antrean`;
+      }
+      renderPagination(totalPages);
+    }
+
+    function applyFilter() {
+      const query = (searchInput?.value ?? '').toLocaleLowerCase('id-ID').trim();
+      filteredCards = searchableCards.filter(({
+        card,
+        text
+      }) => {
+        const isServiceFilter = currentFilter === 'Express' || currentFilter === 'Reguler';
+        const matchFilter = currentFilter === 'all' ||
+          (isServiceFilter ? card.dataset.layanan === currentFilter : card.dataset.status === currentFilter);
+        return matchFilter && text.includes(query);
+      }).map(({
+        card
+      }) => card);
+
+      // Pencarian dan filter selalu dimulai dari halaman pertama.
+      currentPage = 1;
+      renderPage();
+    }
+
     chips.forEach(chip => {
-      chip.addEventListener('click', function() {
+      chip.addEventListener('click', () => {
         chips.forEach(c => {
           c.className = CHIP_INACTIVE;
         });
-        this.className = CHIP_ACTIVE;
-        currentFilter = this.dataset.filter;
+        chip.className = CHIP_ACTIVE;
+        currentFilter = chip.dataset.filter;
         applyFilter();
       });
     });
 
-    if (searchInput) searchInput.addEventListener('input', applyFilter);
+    if (searchInput) {
+      searchInput.addEventListener('input', applyFilter);
+      searchInput.closest('form')?.addEventListener('submit', event => event.preventDefault());
+    }
+    applyFilter();
   });
 </script>
 
