@@ -47,7 +47,6 @@ if ($nota === '' || strlen($nota) > 10 || $idKaryawan <= 0) {
 
 $bisa_pakai = $servis !== null && !in_array($servis['status'], ['Selesai', 'Dibatalkan'], true);
 $page_title = 'Pakai Sparepart';
-$active_menu = 'dashboard';
 $search_placeholder = 'Cari Sparepart';
 require_once __DIR__ . '/../includes/header.php';
 ?>

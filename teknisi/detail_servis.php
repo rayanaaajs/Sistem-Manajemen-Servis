@@ -82,10 +82,8 @@ if ($nota === '' || strlen($nota) > 10 || $idKaryawan <= 0) {
   }
 }
 
-$dariRiwayat = ($_GET['from'] ?? '') === 'riwayat';
-$page_title = $dariRiwayat ? 'Detail Riwayat' : 'Detail Servis';
-$active_menu = $dariRiwayat ? 'riwayat' : 'dashboard';
-$urlKembali = $dariRiwayat ? '../admin/riwayat.php' : 'dashboard.php';
+$page_title = 'Detail Servis';
+$active_menu = 'Dashboard';
 
 require_once __DIR__ . '/../includes/header.php';
 ?>
@@ -95,9 +93,9 @@ require_once __DIR__ . '/../includes/header.php';
       <?= e($errorPage) ?>
     </p>
     <a
-      href="<?= e($urlKembali) ?>"
+      href="/teknisi/dashboard.php"
       class="inline-flex rounded-full border border-blue-darker px-7 py-3 text-sm font-semibold text-blue-darker">
-      Kembali ke <?= $dariRiwayat ? 'Riwayat' : 'Dashboard' ?>
+      Kembali ke Dashboard
     </a>
   </div>
 <?php else: ?>
@@ -409,7 +407,7 @@ require_once __DIR__ . '/../includes/header.php';
         <!-- PERSETUJUAN PELANGGAN -->
         <fieldset>
           <legend class="mb-2 text-sm font-bold text-blue-darker">
-            Persetujuan Pekerjaan Tambahan
+            Persetujuan Pelanggan
           </legend>
           <div class="grid grid-cols-2 gap-3">
             <div class="flex min-h-12 items-center justify-center rounded-xl border px-2 py-2 text-center text-xs font-semibold <?= $kelasSetuju ?>">
@@ -420,11 +418,9 @@ require_once __DIR__ . '/../includes/header.php';
             </div>
           </div>
           <p class="mt-2 text-xs text-tosca">
-            <?= match ($persetujuanPelanggan) {
-              'Ya' => 'Pekerjaan tambahan disetujui pelanggan.',
-              'Tidak' => 'Pekerjaan tambahan ditolak. Lanjutkan servis awal tanpa pekerjaan tambahan.',
-              default => 'Belum ada keputusan pekerjaan tambahan dari pelanggan.',
-            } ?>
+            <?= $persetujuanPelanggan === null
+              ? 'Menunggu konfirmasi pelanggan oleh admin.'
+              : 'Keputusan pelanggan telah dicatat oleh admin.' ?>
           </p>
         </fieldset>
 
@@ -470,17 +466,15 @@ require_once __DIR__ . '/../includes/header.php';
   <!-- TOMBOL AKSI -->
   <div class="mt-5 flex flex-wrap justify-end gap-3">
     <a
-      href="<?= e($urlKembali) ?>"
+      href="/teknisi/dashboard.php"
       class="inline-flex min-w-28 items-center justify-center rounded-full border border-[#29365F] bg-white-light px-8 py-3 text-sm font-semibold text-blue-darker transition hover:bg-gray-50">
       Kembali
     </a>
-    <?php if (!$dariRiwayat): ?>
-      <a
-        href="/teknisi/edit_servis.php?nota=<?= urlencode((string) $servis['no_nota']) ?>"
-        class="inline-flex min-w-48 items-center justify-center rounded-full bg-orange px-8 py-3 text-sm font-semibold text-white-light transition hover:bg-orange-hover">
-        Edit Servis
-      </a>
-    <?php endif; ?>
+    <a
+      href="/teknisi/edit_servis.php?nota=<?= urlencode((string) $servis['no_nota']) ?>"
+      class="inline-flex min-w-48 items-center justify-center rounded-full bg-orange px-8 py-3 text-sm font-semibold text-white-light transition hover:bg-orange-hover">
+      Edit Servis
+    </a>
   </div>
 
   <!-- FITUR DETAIL: TAMPILKAN/SEMBUNYIKAN PASSWORD PERANGKAT -->

@@ -211,10 +211,10 @@ if (
         if (
           $statusSebelumnya === 'Menunggu Persetujuan' &&
           $statusInput === 'Dikerjakan' &&
-          !in_array($dataTerkunci['persetujuan_pelanggan'], ['Ya', 'Tidak'], true)
+          $dataTerkunci['persetujuan_pelanggan'] !== 'Ya'
         ) {
           throw new RuntimeException(
-            'Tunggu keputusan pelanggan dicatat oleh admin sebelum melanjutkan servis.'
+            'Servis belum dapat dikerjakan sebelum pelanggan menyetujui melalui admin.'
           );
         }
 
@@ -323,10 +323,10 @@ if ($servis !== null) {
 
   $statusBerikutnya = $alurStatus[$statusAktif] ?? [];
 
-  // Keputusan Ya atau Tidak memungkinkan servis awal dilanjutkan.
+  // Persetujuan pelanggan harus dicatat admin sebelum pekerjaan dimulai.
   if (
     $statusAktif === 'Menunggu Persetujuan' &&
-    !in_array($servis['persetujuan_pelanggan'] ?? null, ['Ya', 'Tidak'], true)
+    ($servis['persetujuan_pelanggan'] ?? null) !== 'Ya'
   ) {
     $statusBerikutnya = array_values(array_diff($statusBerikutnya, ['Dikerjakan']));
   }
@@ -342,7 +342,7 @@ $bisaUbahSparepart = $servis !== null && !in_array(
 );
 
 $page_title = 'Edit Servis';
-$active_menu = 'dashboard';
+$active_menu = 'Dashboard';
 
 require_once __DIR__ . '/../includes/header.php';
 ?>
@@ -696,7 +696,7 @@ require_once __DIR__ . '/../includes/header.php';
           <!-- PERSETUJUAN PELANGGAN -->
           <fieldset>
             <legend class="mb-2 text-sm font-bold text-blue-darker">
-              Persetujuan Pekerjaan Tambahan
+              Persetujuan Pelanggan
             </legend>
 
             <div class="grid grid-cols-2 gap-3">
@@ -712,11 +712,9 @@ require_once __DIR__ . '/../includes/header.php';
             </div>
 
             <p class="mt-2 text-xs text-tosca">
-              <?= match ($persetujuanPelanggan) {
-                'Ya' => 'Pekerjaan tambahan disetujui pelanggan.',
-                'Tidak' => 'Pekerjaan tambahan ditolak. Lanjutkan servis awal tanpa pekerjaan tambahan.',
-                default => 'Belum ada keputusan pekerjaan tambahan dari pelanggan.',
-              } ?>
+              <?= $persetujuanPelanggan === null
+                ? 'Menunggu konfirmasi pelanggan oleh admin.'
+                : 'Keputusan pelanggan telah dicatat oleh admin.' ?>
             </p>
           </fieldset>
           <!-- Penggunaan sparepart hanya dapat dilakukan jika status servis belum selesai atau dibatalkan. -->
