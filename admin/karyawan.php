@@ -1,82 +1,48 @@
 <?php
+require_once __DIR__ . '/../includes/auth.php';   
+// Panggil koneksi database
+require_once __DIR__ . '/../includes/koneksi.php'; 
+
+$page_title = 'Karyawan';
+$active_menu = 'karyawan';
+$search_placeholder = 'Cari Karyawan...';
 
 // Panggil header & helper
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/helpers.php';
 
-// Data dummy karyawan
-$karyawan_list = [
-    [
-        'id'       => 1,
-        'nama'     => 'Ilham Ramadhan',
-        'username' => '@ilham',
-        'peran'    => 'Admin',
-        'no_hp'    => '0813-4455-9900',
-        'unit'     => '5 unit',
-        'status'   => 'Aktif',
-        'inisial'  => 'AD'
-    ],
-    [
-        'id'       => 2,
-        'nama'     => 'Bagas Putra',
-        'username' => '@bagas',
-        'peran'    => 'Teknisi',
-        'no_hp'    => '0813-4455-9901',
-        'unit'     => '3 unit',
-        'status'   => 'Aktif',
-        'inisial'  => 'TK'
-    ],
-    [
-        'id'       => 3,
-        'nama'     => 'Dimas Anggara',
-        'username' => '@dimas',
-        'peran'    => 'Teknisi',
-        'no_hp'    => '0813-4455-9902',
-        'unit'     => '8 unit',
-        'status'   => 'Aktif',
-        'inisial'  => 'TK'
-    ],
-    [
-        'id'       => 4,
-        'nama'     => 'Fajar Sidik',
-        'username' => '@fajar',
-        'peran'    => 'Teknisi',
-        'no_hp'    => '0813-4455-9903',
-        'unit'     => '2 unit',
-        'status'   => 'Aktif',
-        'inisial'  => 'TK'
-    ],
-    [
-        'id'       => 5,
-        'nama'     => 'Varellino',
-        'username' => '@varell',
-        'peran'    => 'Teknisi',
-        'no_hp'    => '0813-4455-9904',
-        'unit'     => '0 unit',
-        'status'   => 'Nonaktif',
-        'inisial'  => 'TK'
-    ],
-    [
-        'id'       => 6,
-        'nama'     => 'Sari Lestari',
-        'username' => '@sari',
-        'peran'    => 'Admin',
-        'no_hp'    => '0813-4455-9905',
-        'unit'     => '0 unit',
-        'status'   => 'Nonaktif',
-        'inisial'  => 'AD'
-    ],
-    [
-        'id'       => 7,
-        'nama'     => 'Rudi Tabuti',
-        'username' => '@rudi',
-        'peran'    => 'Teknisi',
-        'no_hp'    => '0813-4455-9906',
-        'unit'     => '1 unit',
-        'status'   => 'Aktif',
-        'inisial'  => 'TK'
-    ]
-];
+// Menyiapkan array kosong untuk menampung data
+$karyawan_list = [];
+
+try {
+    // 1. Ambil seluruh data dari tabel karyawan di Supabase
+    $stmt = $pdo->query("SELECT * FROM karyawan ORDER BY id_karyawan ASC");
+    $data_db = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // 2. Ubah format data dari database agar cocok dengan tabel HTML
+    foreach ($data_db as $row) {
+        // Bikin inisial otomatis (AD untuk Admin, TK untuk Teknisi)
+        $inisial = (strtolower($row['peran']) === 'admin') ? 'AD' : 'TK';
+        
+        // Ambil status dari database (default 'Aktif' jika belum diset)
+        $status_db = $row['status'] ?? 'Aktif';
+
+        $karyawan_list[] = [
+            'id'       => $row['id_karyawan'],
+            'nama'     => $row['nama_karyawan'],
+            'username' => $row['username'],
+            'peran'    => $row['peran'],
+            'unit'     => '0 unit', 
+            'status'   => $status_db,
+            'inisial'  => $inisial
+        ];
+    }
+} catch (PDOException $e) {
+    echo "<script>alert('Gagal mengambil data dari database: " . addslashes($e->getMessage()) . "');</script>";
+}
+
+// Hitung total karyawan untuk UI
+$total_karyawan = count($karyawan_list);
 ?>
 
     <!-- AREA AKSI: FILTER (KIRI) & TOMBOL TAMBAH (KANAN) -->
@@ -84,7 +50,7 @@ $karyawan_list = [
       <!-- Kelompok Filter Kategori -->
       <div class="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0" id="filterGroup">
         <button type="button" data-filter="all" class="filter-tab-btn px-6 py-2.5 rounded-full bg-tosca-dark text-white-light text-xs font-semibold shadow-xs transition cursor-pointer whitespace-nowrap">
-          Semua 7
+          Semua <?= $total_karyawan ?>
         </button>
         <button type="button" data-filter="teknisi" class="filter-tab-btn px-6 py-2.5 rounded-full bg-white-light text-white-darker border border-gray-200 text-xs font-medium hover:bg-white-light-hover transition cursor-pointer whitespace-nowrap">
           Teknisi
@@ -110,7 +76,7 @@ $karyawan_list = [
       <!-- Header Tabel -->
       <div class="flex items-center justify-between mb-5">
         <h2 class="text-lg font-bold text-blue-darker tracking-tight">Daftar Karyawan</h2>
-        <span class="text-sm text-white-dark-hover font-medium">7 karyawan</span>
+        <span class="text-sm text-white-dark-hover font-medium"><?= $total_karyawan ?> karyawan</span>
       </div>
 
       <!-- Tabel Responsif -->
@@ -120,13 +86,12 @@ $karyawan_list = [
             <tr class="border-b border-white-hover text-white-darker font-semibold text-[13px] tracking-wider">
               <th class="py-4 px-5">Karyawan</th>
               <th class="py-4 px-5 text-center">Peran</th>
-              <th class="py-4 px-5">No. HP</th>
               <th class="py-4 px-5 text-center">Unit Aktif</th>
               <th class="py-4 px-5 text-center">Status</th>
               <th class="py-4 px-5 text-center">Aksi</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-white-hover text-white-darker font-medium" id="tableBodyKaryawan">
+          <tbody id="tableBodyKaryawan" class="divide-y divide-white-hover text-white-darker font-medium">
             
             <?php foreach ($karyawan_list as $row): ?>
               <?php
@@ -139,7 +104,7 @@ $karyawan_list = [
                       $role_badge   = 'bg-orange-light text-danger-dark';
                   }
 
-                  // Logika Warna Berdasarkan Status
+                  // Logika Warna Berdasarkan Status Dinamis
                   if (strtolower($row['status']) === 'aktif') {
                       $status_badge = 'bg-success-light text-success-dark';
                   } else {
@@ -149,7 +114,8 @@ $karyawan_list = [
               
               <tr class="hover:bg-warning-light/40 transition-colors row-karyawan"
                   data-role="<?= strtolower(htmlspecialchars($row['peran'])) ?>"
-                  data-status="<?= strtolower(htmlspecialchars($row['status'])) ?>">
+                  data-status="<?= strtolower(htmlspecialchars($row['status'])) ?>"
+                  data-search="<?= strtolower(htmlspecialchars($row['nama'] . ' ' . $row['username'])) ?>">
                 
                 <!-- Karyawan -->
                 <td class="py-4 px-5">
@@ -171,24 +137,19 @@ $karyawan_list = [
                   </span>
                 </td>
                 
-                <!-- No. HP -->
-                <td class="py-4 px-5 font-medium text-white-darker">
-                  <?= htmlspecialchars($row['no_hp']) ?>
-                </td>
-                
                 <!-- Unit Aktif -->
                 <td class="py-4 px-5 text-center font-semibold text-blue-darker">
                   <?= htmlspecialchars($row['unit']) ?>
                 </td>
                 
-                <!-- Status -->
+                <!-- Status Dinamis -->
                 <td class="py-4 px-5 text-center">
                   <span class="inline-block w-28 py-2 rounded-full text-xs font-semibold tracking-wide <?= $status_badge ?>">
                     <?= htmlspecialchars($row['status']) ?>
                   </span>
                 </td>
                 
-                <!-- Aksi -->
+                <!-- Aksi (Tombol Hapus Memanggil Modal) -->
                 <td class="py-4 px-5 text-center">
                   <div class="inline-flex items-center gap-2">
                     <a href="edit_karyawan.php?id=<?= $row['id'] ?>" class="px-3.5 py-2 rounded-full border border-tosca-darker text-tosca-darker hover:bg-tosca-darker hover:text-white-light text-xs font-semibold transition cursor-pointer">
@@ -197,9 +158,8 @@ $karyawan_list = [
                     <a href="detail_karyawan.php?id=<?= $row['id'] ?>" class="px-3.5 py-2 rounded-full bg-tosca-dark hover:bg-tosca-dark-hover text-white-light text-xs font-semibold transition cursor-pointer">
                       Detail
                     </a>
-                    <!-- Modal Konfirmasi Hapus Dinamis -->
                     <button type="button" 
-                            onclick="bukaModalHapus('<?= htmlspecialchars($row['nama']) ?>', 'hapus_karyawan.php?id=<?= $row['id'] ?>')"
+                            onclick="bukaModalHapusKaryawan(<?= htmlspecialchars(json_encode($row['nama']), ENT_QUOTES) ?>, <?= htmlspecialchars(json_encode('hapus_karyawan.php?id=' . $row['id']), ENT_QUOTES) ?>)"
                             class="px-3.5 py-2 rounded-full border border-danger text-danger hover:bg-danger hover:text-white-light text-xs font-semibold transition cursor-pointer">
                       Hapus
                     </button>
@@ -207,48 +167,236 @@ $karyawan_list = [
                 </td>
               </tr>
             <?php endforeach; ?>
+
+            <!-- Baris Kosong Jika Filter / Pencarian Tidak Menemukan Data -->
+            <tr id="emptyFilterRow" style="display: none;">
+              <td colspan="5" class="py-8 text-center text-sm text-white-dark-hover">
+                Tidak ada data karyawan yang sesuai.
+              </td>
+            </tr>
             
           </tbody>
         </table>
       </div>
 
+      <!-- PAGINATION CONTROLS -->
+      <div id="paginationContainer" class="mt-6 pt-4 border-t border-white-hover flex flex-col sm:flex-row items-center justify-between gap-3">
+        <p id="paginationInfo" class="text-xs text-white-dark-hover font-medium"></p>
+        <div id="paginationButtons" class="flex items-center gap-1.5 flex-wrap"></div>
+      </div>
+
       <!-- BANNER PERINGATAN BAWAH TABEL -->
-      <div class="mt-8 p-4 rounded-2xl bg-lightblue-light text-lightblue-darker text-xs font-medium flex items-center gap-2">
+      <div class="mt-6 p-4 rounded-2xl bg-lightblue-light text-lightblue-darker text-xs font-medium flex items-center gap-2">
         <p>Password tidak ditampilkan di daftar. Gunakan Edit untuk mengatur ulang password karyawan.</p>
       </div>
     </div>
 
-    <!-- JAVASCRIPT: Client-side Filter Status (Karena Search Bar dihapus, tinggal filternya aja) -->
+    <!-- ==========================================
+         MODAL POP-UP KONFIRMASI HAPUS
+         ========================================== -->
+    <div id="modalHapusKaryawan" onclick="if(event.target === this) tutupModalHapusKaryawan()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 99999; background-color: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 1rem;">
+      <div class="bg-white-light w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl border border-gray-200">
+        
+        <!-- Ikon Tempat Sampah Merah -->
+        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-danger-light mb-5">
+          <svg class="h-8 w-8 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        </div>
+        
+        <!-- Teks Validasi -->
+        <h3 class="mb-2 text-xl font-bold text-blue-darker">Hapus Data?</h3>
+        <p class="mb-7 text-sm text-white-dark-hover leading-relaxed">
+          Data <span id="namaKaryawanHapus" class="font-bold text-blue-darker"></span> akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.
+        </p>
+        
+        <!-- Tombol Batal & Ya, Hapus -->
+        <div class="flex items-center justify-center gap-3">
+          <button type="button" onclick="tutupModalHapusKaryawan()" class="w-full rounded-full border border-gray-300 py-3 text-sm font-semibold text-blue-darker hover:bg-gray-50 transition cursor-pointer">
+            Batal
+          </button>
+          <a id="linkHapusKaryawan" href="#" class="w-full rounded-full bg-danger py-3 text-sm font-semibold text-white-light hover:bg-danger-dark transition cursor-pointer">
+            Ya, Hapus
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- JAVASCRIPT: Live Search, Filter, Pagination (8 Baris/Halaman) & Modal Logic -->
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         const filterButtons = document.querySelectorAll(".filter-tab-btn");
-        const rows = document.querySelectorAll(".row-karyawan");
+        const allRows = Array.from(document.querySelectorAll(".row-karyawan"));
+        const emptyRow = document.getElementById("emptyFilterRow");
+        const paginationInfo = document.getElementById("paginationInfo");
+        const paginationButtons = document.getElementById("paginationButtons");
+        
+        // Tangkap kotak pencarian dari header.php
+        const searchInput = document.querySelector('input[placeholder*="Cari"], header input[type="text"], header input[type="search"]');
 
+        const rowsPerPage = 8;
+        let currentPage = 1;
+        let currentFilter = "all";
+        let currentSearch = "";
+
+        // Ambil baris yang lolos filter tab DAN kata kunci pencarian
+        function getFilteredRows() {
+          return allRows.filter(row => {
+            const role = row.getAttribute("data-role") || "";
+            const status = row.getAttribute("data-status") || "";
+            const searchText = row.getAttribute("data-search") || "";
+
+            const matchFilter = currentFilter === "all" || role === currentFilter || status === currentFilter;
+            const matchSearch = currentSearch === "" || searchText.includes(currentSearch);
+
+            return matchFilter && matchSearch;
+          });
+        }
+
+        // Render tabel & tombol pagination
+        function renderTable() {
+          const filteredRows = getFilteredRows();
+          const totalItems = filteredRows.length;
+          const totalPages = Math.ceil(totalItems / rowsPerPage) || 1;
+
+          if (currentPage > totalPages) {
+            currentPage = totalPages;
+          }
+
+          const startIndex = (currentPage - 1) * rowsPerPage;
+          const endIndex = startIndex + rowsPerPage;
+
+          // Sembunyikan semua baris dulu
+          allRows.forEach(row => {
+            row.style.display = "none";
+          });
+
+          // Tampilkan maksimal 8 baris untuk halaman aktif
+          const visibleRows = filteredRows.slice(startIndex, endIndex);
+          visibleRows.forEach(row => {
+            row.style.display = "";
+          });
+
+          // Tampilkan pesan jika data kosong
+          if (emptyRow) {
+            emptyRow.style.display = totalItems === 0 ? "" : "none";
+          }
+
+          // Update info teks pagination
+          if (paginationInfo) {
+            if (totalItems === 0) {
+              paginationInfo.textContent = "Menampilkan 0 karyawan";
+            } else {
+              const showStart = startIndex + 1;
+              const showEnd = Math.min(endIndex, totalItems);
+              paginationInfo.textContent = `Menampilkan ${showStart} - ${showEnd} dari ${totalItems} karyawan`;
+            }
+          }
+
+          // Render tombol nomor halaman (warna orange dari input.css)
+          if (paginationButtons) {
+            paginationButtons.innerHTML = "";
+
+            if (totalPages > 1) {
+              // Tombol Sebelumnya
+              const prevBtn = document.createElement("button");
+              prevBtn.type = "button";
+              prevBtn.textContent = "Sebelumnya";
+              prevBtn.disabled = currentPage === 1;
+              prevBtn.className = currentPage === 1
+                ? "px-4 py-2 rounded-full bg-white-light text-white-dark border border-gray-200 text-xs font-medium opacity-50 cursor-not-allowed"
+                : "px-4 py-2 rounded-full bg-white-light text-white-darker border border-gray-200 hover:border-orange hover:text-orange text-xs font-medium transition cursor-pointer";
+              prevBtn.addEventListener("click", () => {
+                if (currentPage > 1) {
+                  currentPage--;
+                  renderTable();
+                }
+              });
+              paginationButtons.appendChild(prevBtn);
+
+              // Tombol Angka Halaman (1, 2, 3, ...)
+              for (let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement("button");
+                pageBtn.type = "button";
+                pageBtn.textContent = i;
+                pageBtn.className = i === currentPage
+                  ? "w-9 h-9 rounded-full bg-orange hover:bg-orange-hover text-white-light text-xs font-semibold shadow-xs transition cursor-pointer"
+                  : "w-9 h-9 rounded-full bg-white-light text-white-darker border border-gray-200 hover:border-orange hover:text-orange text-xs font-medium transition cursor-pointer";
+                pageBtn.addEventListener("click", () => {
+                  currentPage = i;
+                  renderTable();
+                });
+                paginationButtons.appendChild(pageBtn);
+              }
+
+              // Tombol Selanjutnya
+              const nextBtn = document.createElement("button");
+              nextBtn.type = "button";
+              nextBtn.textContent = "Selanjutnya";
+              nextBtn.disabled = currentPage === totalPages;
+              nextBtn.className = currentPage === totalPages
+                ? "px-4 py-2 rounded-full bg-white-light text-white-dark border border-gray-200 text-xs font-medium opacity-50 cursor-not-allowed"
+                : "px-4 py-2 rounded-full bg-white-light text-white-darker border border-gray-200 hover:border-orange hover:text-orange text-xs font-medium transition cursor-pointer";
+              nextBtn.addEventListener("click", () => {
+                if (currentPage < totalPages) {
+                  currentPage++;
+                  renderTable();
+                }
+              });
+              paginationButtons.appendChild(nextBtn);
+            }
+          }
+        }
+
+        // Event listener kotak pencarian di header
+        if (searchInput) {
+          const parentForm = searchInput.closest("form");
+          if (parentForm) {
+            parentForm.addEventListener("submit", function (e) {
+              e.preventDefault();
+            });
+          }
+
+          searchInput.addEventListener("input", function () {
+            currentSearch = this.value.toLowerCase().trim();
+            currentPage = 1;
+            renderTable();
+          });
+        }
+
+        // Event listener tombol filter tab
         filterButtons.forEach(btn => {
           btn.addEventListener("click", function () {
-            // Reset semua tombol ke style abu-abu outline
             filterButtons.forEach(b => {
               b.className = "filter-tab-btn px-6 py-2.5 rounded-full bg-white-light text-white-darker border border-gray-200 text-xs font-medium hover:bg-white-light-hover transition cursor-pointer whitespace-nowrap";
             });
-            // Bikin tombol yang diklik jadi tosca solid
             this.className = "filter-tab-btn px-6 py-2.5 rounded-full bg-tosca-dark text-white-light text-xs font-semibold shadow-xs transition cursor-pointer whitespace-nowrap";
             
-            const filter = this.getAttribute("data-filter");
-
-            // Filter baris tabel berdasarkan peran atau status
-            rows.forEach(row => {
-              const role = row.getAttribute("data-role");
-              const status = row.getAttribute("data-status");
-              
-              if (filter === "all" || role === filter || status === filter) {
-                row.style.display = "";
-              } else {
-                row.style.display = "none";
-              }
-            });
+            currentFilter = this.getAttribute("data-filter");
+            currentPage = 1;
+            renderTable();
           });
         });
+
+        // Jalankan pertama kali saat halaman dimuat
+        renderTable();
       });
+
+      // Fungsi Buka Modal Hapus
+      function bukaModalHapusKaryawan(nama, link) {
+        document.getElementById('namaKaryawanHapus').textContent = nama;
+        document.getElementById('linkHapusKaryawan').href = link;
+        
+        const modal = document.getElementById('modalHapusKaryawan');
+        modal.style.display = 'flex';
+      }
+
+      // Fungsi Tutup Modal Hapus
+      function tutupModalHapusKaryawan() {
+        const modal = document.getElementById('modalHapusKaryawan');
+        modal.style.display = 'none';
+      }
     </script>
 
 <?php
