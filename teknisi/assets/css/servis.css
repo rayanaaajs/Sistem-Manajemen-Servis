@@ -1,0 +1,285 @@
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1.225rem;
+    margin-top: 1.225rem
+}
+
+.panel-title .badge {
+    min-width: 5.425rem;
+    height: 1.575rem;
+    font-size: 0.7rem;
+    padding: 0 1.05rem
+}
+
+.part-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0.35rem 0 1.05rem
+}
+
+.part-head label {
+    margin: 0
+}
+
+.part-empty {
+    font-size: 0.875rem;
+    color: var(--muted);
+    border: 1px dashed var(--line);
+    border-radius: 0.7rem;
+    padding: 1.225rem;
+    text-align: center
+}
+
+.total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid var(--line);
+    border-radius: 0.7rem;
+    padding: 0.7rem 1.05rem;
+    margin-top: 1.225rem;
+    font-size: 0.787rem;
+    background: var(--card)
+}
+
+.total strong {
+    font-weight: 500
+}
+
+/* timeline */
+.timeline {
+    list-style: none;
+    margin-top: 1.575rem;
+    padding-left: 0.35rem
+}
+
+.tl {
+    display: flex;
+    gap: 1.225rem;
+    position: relative;
+    padding-bottom: 1.925rem;
+    min-height: 4.025rem
+}
+
+.tl:last-child {
+    padding-bottom: 0
+}
+
+.tl::before {
+    content: "";
+    position: absolute;
+    left: 0.875rem;
+    top: 2.1rem;
+    bottom: 2px;
+    width: 2px;
+    background: #d6d6dc
+}
+
+.tl:last-child::before {
+    display: none
+}
+
+.tl.done::before {
+    background: var(--teal)
+}
+
+.dot {
+    width: 1.925rem;
+    height: 1.925rem;
+    flex: none;
+    border-radius: 50%;
+    border: 1.5px solid #dcdce2;
+    background: #fff;
+    display: grid;
+    place-items: center
+}
+
+.tl.done .dot {
+    background: var(--teal);
+    border-color: var(--teal)
+}
+
+.tl.done .dot::after {
+    content: "";
+    width: 0.7rem;
+    height: 0.35rem;
+    border-left: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    transform: rotate(-45deg) translate(1px, -1px)
+}
+
+.tl.now .dot {
+    border: 2px solid #f6a173;
+    background: #fff;
+    box-shadow: 0 0 0 0.35rem #fde4d4
+}
+
+.tl.now .dot::after {
+    content: "";
+    width: 0.875rem;
+    height: 0.875rem;
+    border-radius: 50%;
+    background: var(--orange)
+}
+
+.tl b {
+    display: block;
+    font-size: 0.787rem
+}
+
+.tl small {
+    display: block;
+    font-size: 0.7rem;
+    color: #555a78;
+    margin-top: 0.263rem;
+    max-width: 14rem
+}
+
+.tl.todo b {
+    color: #8a8ea5;
+    font-weight: 600
+}
+
+.tl.todo small {
+    color: #a9acbd
+}
+
+.tl.cancel .dot {
+    background: var(--red);
+    border-color: var(--red)
+}
+
+.tl.cancel .dot::after {
+    content: "×";
+    color: #fff;
+    font-size: 1.225rem;
+    line-height: 1;
+    border: 0;
+    transform: none;
+    width: auto;
+    height: auto
+}
+
+
+
+/* tiga card simetris: tinggi & lebar sama */
+.cards3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+    gap: 1.4rem;
+    align-items: stretch
+}
+
+.cards3>.panel {
+    min-width: 0;
+    display: flex;
+    flex-direction: column
+}
+
+.form-actions {
+    flex-wrap: wrap
+}
+
+/* daftar sparepart: satu baris fleksibel, tanpa scrollbar ganda */
+.part-list {
+    display: flex;
+    flex-direction: column;
+    gap: .6rem
+}
+
+.part-row {
+    display: flex;
+    align-items: center;
+    gap: .5rem
+}
+
+.part-box {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    border: 1px solid var(--line);
+    border-radius: .6rem;
+    padding: .5rem .8rem;
+    font-size: .74rem;
+    background: var(--card)
+}
+
+.part-box .pn {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap
+}
+
+.part-box .pq {
+    white-space: nowrap
+}
+
+.part-box .pp {
+    white-space: nowrap;
+    text-align: right;
+    min-width: 5rem
+}
+
+.part-row .btn {
+    flex: none
+}
+
+@media (max-width:1279px) {
+    .cards3 {
+        grid-template-columns: repeat(2, minmax(0, 1fr))
+    }
+
+    .cards3>.panel:last-child {
+        grid-column: 1/-1
+    }
+}
+
+@media (max-width:760px) {
+    .cards3 {
+        grid-template-columns: 1fr
+    }
+
+    .form-actions .btn {
+        flex: 1
+    }
+}
+
+.part-box span {
+    overflow-wrap: anywhere
+}
+
+.part-box span:not(:first-child) {
+    white-space: nowrap
+}
+
+.part-head {
+    flex-wrap: wrap;
+    gap: .5rem
+}
+
+.part-row .btn {
+    flex: none
+}
+
+@media (max-width:760px) {
+    .cards3 .panel {
+        min-height: 0
+    }
+
+    .form-actions .btn {
+        flex: 1
+    }
+}
+
+.part-box .pn {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    overflow-wrap: anywhere
+}
