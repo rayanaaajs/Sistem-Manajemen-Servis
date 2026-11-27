@@ -4,8 +4,8 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 // Mundur 1 folder untuk memanggil vendor dari dalam folder auth
-require '../includes/koneksi.php';
-require '../vendor/autoload.php';
+require_once __DIR__ . '/../includes/koneksi.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 // Tangkap email dari input form (POST) ATAU dari URL tombol (GET)
 $email_tujuan = $_POST['email'] ?? $_GET['email'] ?? '';
@@ -37,55 +37,36 @@ if (!empty($email_tujuan)) {
             ]);
 
             // 5. KIRIM EMAIL DENGAN PHPMAILER
-            $link_reset = "http://localhost:8000/auth/reset_password.php?token=" . $token_baru;
+            // Gunakan pembaca environment yang sama dengan koneksi database.
+            $appUrl = rtrim(trim($getEnvValue('APP_URL')), '/');
+            $smtp_email = trim($getEnvValue('SMTP_EMAIL'));
+            $smtp_pass = str_replace(' ', '', trim($getEnvValue('SMTP_PASSWORD')));
 
-            // --- PEMBACA .ENV ANTI GAGAL ---
-            $env_file = __DIR__ . '/../.env';
-            $smtp_email = '';
-            $smtp_pass = '';
-
-            if (file_exists($env_file)) {
-                $lines = file($env_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-                foreach ($lines as $line) {
-                    if (strpos(trim($line), '#') === 0) continue; // Abaikan baris komentar
-                    $parts = explode('=', $line, 2);
-                    if (count($parts) == 2) {
-                        $key = trim($parts[0]);
-                        $value = trim(trim($parts[1]), '"\''); // Hapus otomatis tanda kutip
-                        if ($key === 'SMTP_EMAIL') $smtp_email = $value;
-                        if ($key === 'SMTP_PASSWORD') $smtp_pass = $value;
-                    }
-                }
+            if ($smtp_email === '' || $smtp_pass === '') {
+                throw new Exception('SMTP_EMAIL atau SMTP_PASSWORD belum tersedia.');
             }
+            if (!filter_var($appUrl, FILTER_VALIDATE_URL) ||
+                !in_array(parse_url($appUrl, PHP_URL_SCHEME), ['http', 'https'], true)) {
+                throw new Exception('APP_URL belum tersedia atau tidak valid.');
+            }
+
+            $link_reset = htmlspecialchars(
+                $appUrl . '/auth/reset_password.php?token=' . rawurlencode($token_baru),
+                ENT_QUOTES,
+                'UTF-8'
+            );
 
             $mail = new PHPMailer(true);
             $mail->isSMTP();
-            $mail->Host       = 'smtp.gmail.com';
-            $mail->SMTPAuth   = true;
-
-            
-            // Gunakan variabel yang ditarik manual dari brankas
-            $mail->Username   = $smtp_email; 
-            $mail->Password   = $smtp_pass; 
-            
+            $mail->Host = 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = $smtp_email;
+            $mail->Password = $smtp_pass;
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-            $mail->Port       = 465;
-
-            // Alamat Pengirim & Penerima
+            $mail->Port = 465;
+            $mail->Timeout = 15;
+            $mail->CharSet = 'UTF-8';
             $mail->setFrom($smtp_email, 'Admin Singhasari Computer');
-            $mail->addAddress($email_tujuan); 
-
-            // Mengambil email dan sandi dari brankas .env
-            $mail->Username   = $smtp_email;
-            $mail->Password   = $smtp_pass;
-
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-            $mail->Port       = 465;
-
-            // Pastikan pengirim juga mengambil dari .env
-            $mail->setFrom($smtp_email, 'Admin Singhasari Computer');
-
-            // Ubah menjadi dinamis! Email akan dikirim ke alamat yang diinputkan
             $mail->addAddress($email_tujuan);
 
             $mail->isHTML(true);
@@ -109,9 +90,11 @@ if (!empty($email_tujuan)) {
             echo "<script>alert('Email tidak terdaftar di sistem!'); window.history.back();</script>";
         }
     } catch (\PDOException $e) {
+        error_log('Reset password database: ' . $e->getMessage());
         echo "<script>alert('Terjadi kesalahan pada database Supabase!'); window.history.back();</script>";
     } catch (Exception $e) {
-        echo "<script>alert('Gagal mengirim email: {$mail->ErrorInfo}'); window.history.back();</script>";
+        error_log('Reset password PHPMailer: ' . $e->getMessage());
+        echo "<script>alert('Gagal mengirim email. Silakan coba lagi.'); window.history.back();</script>";
     }
 } else {
     echo "<script>alert('Email tidak valid!'); window.history.back();</script>";
