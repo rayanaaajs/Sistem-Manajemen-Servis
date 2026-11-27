@@ -175,6 +175,8 @@ if (
     } else {
       try {
         $pdo->beginTransaction();
+        // Kunci antrean sebelum mengunci baris servis (urutan sama dengan SQL).
+        $pdo->query("SELECT pg_advisory_xact_lock(731503, 1)")->closeCursor();
 
         // Kunci dan verifikasi servis serta role teknisi.
         $cek = $pdo->prepare("
@@ -292,7 +294,14 @@ if (
           'tipe' => 'error',
           'pesan' => $e instanceof RuntimeException
             ? $e->getMessage()
-            : 'Gagal menyimpan perubahan. Periksa status servis dan coba lagi.'
+            : (($e instanceof PDOException && ($e->errorInfo[0] ?? '') === 'P0001'
+              && preg_match(
+                '/Prioritas antrean: (nota [A-Za-z0-9-]{1,10} harus didahulukan|tidak ada servis siap dikerjakan)/',
+                (string) ($e->errorInfo[2] ?? ''),
+                $pesanPrioritas
+              ))
+              ? $pesanPrioritas[0] . '.'
+              : 'Gagal menyimpan perubahan. Periksa status servis dan coba lagi.')
         ];
       }
     }
@@ -317,6 +326,7 @@ $alurStatus = [
 ];
 
 $opsiStatusTersedia = [];
+$infoPrioritas = '';
 
 if ($servis !== null) {
   $statusAktif = (string) $servis['status_pengerjaan'];
@@ -329,6 +339,25 @@ if ($servis !== null) {
     !in_array($servis['persetujuan_pelanggan'] ?? null, ['Ya', 'Tidak'], true)
   ) {
     $statusBerikutnya = array_values(array_diff($statusBerikutnya, ['Dikerjakan']));
+  }
+
+  // Hanya batasi memulai pengerjaan, bukan pengecekan awal atau pembatalan.
+  if (in_array('Dikerjakan', $statusBerikutnya, true)) {
+    try {
+      $stmtPrioritas = $pdo->prepare('SELECT public.fn_get_prioritas_servis(CAST(:k AS integer))');
+      $stmtPrioritas->execute(['k' => $idKaryawan]);
+      $notaPrioritas = $stmtPrioritas->fetchColumn();
+      if ($notaPrioritas !== $nota) {
+        $statusBerikutnya = array_values(array_diff($statusBerikutnya, ['Dikerjakan']));
+        $infoPrioritas = $notaPrioritas
+          ? 'Prioritas antrean: selesaikan atau proses nota ' . $notaPrioritas . ' terlebih dahulu.'
+          : 'Belum ada servis yang siap dikerjakan.';
+      }
+    } catch (PDOException $e) {
+      error_log('edit_servis.php (prioritas): ' . $e->getMessage());
+      $statusBerikutnya = array_values(array_diff($statusBerikutnya, ['Dikerjakan']));
+      $infoPrioritas = 'Prioritas antrean belum dapat diperiksa. Muat ulang halaman.';
+    }
   }
 
   $opsiStatusTersedia = array_merge([$statusAktif], $statusBerikutnya);
@@ -678,6 +707,9 @@ require_once __DIR__ . '/../includes/header.php';
                   </option>
                 <?php endforeach; ?>
               </select>
+              <?php if ($infoPrioritas !== ''): ?>
+                <p class="mt-2 text-xs font-medium text-warning-dark" role="status"><?= e($infoPrioritas) ?></p>
+              <?php endif; ?>
             </div>
           </div>
 

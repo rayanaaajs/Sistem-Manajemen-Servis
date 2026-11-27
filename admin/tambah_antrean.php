@@ -160,6 +160,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax_action'])) {
         }
 
         $pdo->beginTransaction();
+        $pdo->query("SELECT pg_advisory_xact_lock(731503, 1)")->closeCursor();
 
         if ($id_pelanggan === '' || (int)$id_pelanggan <= 0) {
             $cekPel = $pdo->prepare("
@@ -313,10 +314,26 @@ try {
     $pelanggan_list = $stmtPel->fetchAll(PDO::FETCH_ASSOC);
 
     $stmtTek = $pdo->query("
-        SELECT id_karyawan, nama_karyawan 
-        FROM karyawan 
-        WHERE LOWER(peran) = 'teknisi' AND LOWER(COALESCE(status, 'aktif')) = 'aktif'
-        ORDER BY nama_karyawan ASC
+        SELECT k.id_karyawan, k.nama_karyawan,
+               CASE WHEN LOWER(k.peran) = 'teknisi' AND LOWER(COALESCE(k.status, 'aktif')) = 'aktif' THEN 1 ELSE 0 END AS aktif,
+               COALESCE(b.aktif_total, 0) AS aktif_total,
+               COALESCE(b.sedang_dikerjakan, 0) AS sedang_dikerjakan,
+               COALESCE(b.express_siap, 0) AS express_siap
+        FROM karyawan k
+        LEFT JOIN (
+            SELECT s.id_karyawan,
+                   COUNT(*) FILTER (WHERE s.status_pengerjaan NOT IN ('Selesai', 'Dibatalkan')) AS aktif_total,
+                   COUNT(*) FILTER (WHERE s.status_pengerjaan = 'Dikerjakan') AS sedang_dikerjakan,
+                   COUNT(*) FILTER (WHERE s.jenis_layanan = 'Express' AND (
+                       s.status_pengerjaan IN ('Menunggu', 'Diterima', 'Dikerjakan')
+                       OR (s.status_pengerjaan = 'Menunggu Persetujuan' AND s.persetujuan_pelanggan IN ('Ya', 'Tidak'))
+                   )) AS express_siap
+            FROM servis s
+            WHERE s.id_karyawan IS NOT NULL
+            GROUP BY s.id_karyawan
+        ) b ON b.id_karyawan = k.id_karyawan
+        WHERE LOWER(k.peran) = 'teknisi' AND LOWER(COALESCE(k.status, 'aktif')) = 'aktif'
+        ORDER BY aktif DESC, sedang_dikerjakan ASC, express_siap ASC, aktif_total ASC, k.nama_karyawan ASC, k.id_karyawan ASC
     ");
     $teknisi_aktif_list = $stmtTek->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
@@ -574,9 +591,9 @@ require_once __DIR__ . '/../includes/helpers.php';
                     class="w-full pl-9 pr-8 py-3 rounded-2xl border border-white-active bg-white-light text-sm font-medium text-blue-darker appearance-none focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition cursor-pointer"
                   >
                     <option value="" selected>Pilih Teknisi</option>
-                    <?php foreach ($teknisi_aktif_list as $tek): ?>
+                    <?php foreach ($teknisi_aktif_list as $idxTek => $tek): ?>
                       <option value="<?= (int)$tek['id_karyawan'] ?>" data-nama="<?= htmlspecialchars($tek['nama_karyawan']) ?>">
-                        <?= htmlspecialchars($tek['nama_karyawan']) ?>
+                        <?= htmlspecialchars($tek['nama_karyawan']) ?> (<?= (int)$tek['aktif_total'] ?> aktif, <?= (int)$tek['express_siap'] ?> Express, <?= (int)$tek['sedang_dikerjakan'] ?> dikerjakan)<?= $idxTek === 0 && (int)$tek['aktif'] === 1 ? ' - Rekomendasi' : '' ?>
                       </option>
                     <?php endforeach; ?>
                   </select>

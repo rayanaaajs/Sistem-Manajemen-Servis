@@ -59,7 +59,7 @@ $tampil = [];
 $total  = 0;
 
 try {
-  // Ambil seluruh daftar milik teknisi login sekali per pemuatan halaman.
+  // Ambil antrean aktif milik teknisi; status akhir ditampilkan di Riwayat.
   $stmtData = $pdo->prepare("
         SELECT s.no_nota as nota, 
                CONCAT_WS(' ', s.jenis_barang, s.merek_dan_spesifikasi) as perangkat,
@@ -71,12 +71,15 @@ try {
         FROM servis s
         JOIN pelanggan p ON s.id_pelanggan = p.id_pelanggan
         WHERE s.id_karyawan = :k
-        ORDER BY 
-            CASE 
-                WHEN s.status_pengerjaan = 'Dikerjakan' THEN 1
-                WHEN s.status_pengerjaan IN ('Diterima', 'Menunggu', 'Menunggu Persetujuan') THEN 2
-                ELSE 3 
+          AND s.status_pengerjaan NOT IN ('Selesai', 'Dibatalkan')
+        ORDER BY
+            CASE
+                WHEN s.status_pengerjaan = 'Dikerjakan' THEN 0
+                WHEN s.status_pengerjaan = 'Menunggu Persetujuan'
+                     AND COALESCE(s.persetujuan_pelanggan, '') NOT IN ('Ya', 'Tidak') THEN 2
+                ELSE 1
             END,
+            CASE WHEN s.jenis_layanan = 'Express' THEN 0 ELSE 1 END,
             s.tanggal_masuk ASC, s.no_nota ASC
     ");
   $stmtData->bindValue(':k', $id_karyawan, PDO::PARAM_INT);
@@ -133,8 +136,9 @@ require_once __DIR__ . '/../includes/header.php';
 
 <div class="flex flex-wrap items-center gap-3 mb-6 overflow-x-auto pb-2" id="filterChipGroup">
   <button type="button" class="chip-btn px-8 py-3 rounded-full bg-tosca-dark text-white-light text-xs font-semibold transition cursor-pointer whitespace-nowrap" data-filter="all">Semua <?= $total ?></button>
-  <button type="button" class="chip-btn px-8 py-3 rounded-full bg-white-light text-blue-darker border border-gray-200 text-xs font-medium hover:bg-white-light-hover transition cursor-pointer whitespace-nowrap" data-filter="Selesai">Selesai</button>
+  <button type="button" class="chip-btn px-8 py-3 rounded-full bg-white-light text-blue-darker border border-gray-200 text-xs font-medium hover:bg-white-light-hover transition cursor-pointer whitespace-nowrap" data-filter="Menunggu">Menunggu</button>
   <button type="button" class="chip-btn px-8 py-3 rounded-full bg-white-light text-blue-darker border border-gray-200 text-xs font-medium hover:bg-white-light-hover transition cursor-pointer whitespace-nowrap" data-filter="Dikerjakan">Dikerjakan</button>
+  <button type="button" class="chip-btn px-8 py-3 rounded-full bg-white-light text-blue-darker border border-gray-200 text-xs font-medium hover:bg-white-light-hover transition cursor-pointer whitespace-nowrap" data-filter="Menunggu Persetujuan">Menunggu Persetujuan</button>
   <button type="button" class="chip-btn px-8 py-3 rounded-full bg-white-light text-blue-darker border border-gray-200 text-xs font-medium hover:bg-white-light-hover transition cursor-pointer whitespace-nowrap" data-filter="Express">Express</button>
   <button type="button" class="chip-btn px-8 py-3 rounded-full bg-white-light text-blue-darker border border-gray-200 text-xs font-medium hover:bg-white-light-hover transition cursor-pointer whitespace-nowrap" data-filter="Reguler">Reguler</button>
 </div>
@@ -145,7 +149,7 @@ require_once __DIR__ . '/../includes/header.php';
 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-5" id="svcGrid">
   <?php if (empty($tampil)): ?>
     <div class="col-span-full text-center py-14 text-white-dark-hover bg-white-light border border-dashed border-gray-200 rounded-2xl">
-      Belum ada servis yang ditugaskan ke Anda.
+      Belum ada antrean servis aktif yang ditugaskan ke Anda.
     </div>
   <?php else: ?>
     <?php foreach ($tampil as $index => $s):
@@ -306,7 +310,11 @@ require_once __DIR__ . '/../includes/header.php';
       }) => {
         const isServiceFilter = currentFilter === 'Express' || currentFilter === 'Reguler';
         const matchFilter = currentFilter === 'all' ||
-          (isServiceFilter ? card.dataset.layanan === currentFilter : card.dataset.status === currentFilter);
+          (isServiceFilter ?
+            card.dataset.layanan === currentFilter :
+            currentFilter === 'Menunggu' ?
+            ['Menunggu', 'Diterima'].includes(card.dataset.status) :
+            card.dataset.status === currentFilter);
         return matchFilter && text.includes(query);
       }).map(({
         card
