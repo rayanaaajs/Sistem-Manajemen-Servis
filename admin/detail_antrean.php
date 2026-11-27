@@ -8,7 +8,13 @@ if (strtolower((string) ($_SESSION['role'] ?? '')) !== 'admin') {
 }
 
 $dariRiwayat = ($_GET['from'] ?? '') === 'riwayat';
-$urlKembali = $dariRiwayat ? 'riwayat.php' : 'antrean.php';
+$dariDashboard = ($_GET['from'] ?? '') === 'dashboard';
+$parameterDashboard = [];
+foreach (['range', 'start_date', 'end_date'] as $key) {
+  if (is_string($_GET[$key] ?? null)) $parameterDashboard[$key] = $_GET[$key];
+}
+$urlDashboard = 'dashboard.php' . ($parameterDashboard ? '?' . http_build_query($parameterDashboard) : '');
+$urlKembali = $dariRiwayat ? 'riwayat.php' : ($dariDashboard ? $urlDashboard : 'antrean.php');
 
 $kembaliDenganPesan = static function (string $pesan) use ($urlKembali): void {
   $flags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_INVALID_UTF8_SUBSTITUTE;
@@ -82,7 +88,7 @@ $riwayat = [];
 $errorRiwayat = '';
 
 try {
-    $stmtRiwayat = $pdo->prepare("
+  $stmtRiwayat = $pdo->prepare("
         SELECT
             t.status_pengerjaan,
             t.keterangan,
@@ -93,11 +99,11 @@ try {
         WHERE t.no_nota = :nota
         ORDER BY t.waktu_update ASC, t.id_tracking ASC
     ");
-    $stmtRiwayat->execute(['nota' => $no_nota]);
-    $riwayat = $stmtRiwayat->fetchAll(PDO::FETCH_ASSOC);
+  $stmtRiwayat->execute(['nota' => $no_nota]);
+  $riwayat = $stmtRiwayat->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
-    error_log('detail_antrean.php (tracking): ' . $e->getMessage());
-    $errorRiwayat = 'Gagal memuat riwayat perubahan.';
+  error_log('detail_antrean.php (tracking): ' . $e->getMessage());
+  $errorRiwayat = 'Gagal memuat riwayat perubahan.';
 }
 
 $kondisi_val     = $data['kondisi_awal_unit'] ?: 'Hidup';
@@ -115,7 +121,13 @@ if (count($partsTek) > 1 && !empty($partsTek[1])) {
 }
 
 $page_title = $dariRiwayat ? 'Detail Riwayat' : 'Detail Antrean';
-$active_menu = $dariRiwayat ? 'riwayat' : 'antrean';
+$active_menu = $dariRiwayat ? 'riwayat' : ($dariDashboard ? 'dashboard' : 'antrean');
+$flashDashboard = null;
+if ($dariDashboard) {
+  $flashDashboard = $_SESSION['flash_dashboard'] ?? null;
+  unset($_SESSION['flash_dashboard']);
+  if (empty($_SESSION['csrf_persetujuan'])) $_SESSION['csrf_persetujuan'] = bin2hex(random_bytes(32));
+}
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/helpers.php';
 
@@ -127,6 +139,11 @@ $status_tampil_detail = match (strtolower(trim($status_val))) {
 };
 ?>
 
+<?php if ($flashDashboard): ?>
+  <div role="alert" class="mb-5 rounded-2xl border border-gray-200 bg-white-light px-5 py-4 text-sm font-medium <?= ($flashDashboard['tipe'] ?? '') === 'success' ? 'text-success-dark' : 'text-danger-dark' ?>">
+    <?= e($flashDashboard['pesan'] ?? '') ?>
+  </div>
+<?php endif; ?>
 <!-- HEADER INFO NOTA (READ-ONLY) -->
 <div class="mb-4 flex flex-wrap items-center justify-between gap-2 bg-white-light px-6 py-4 rounded-2xl border border-white-hover/60">
   <div class="flex items-center gap-3">
@@ -470,6 +487,33 @@ $status_tampil_detail = match (strtolower(trim($status_val))) {
       </div>
     </div>
 
+    <?php if ($dariDashboard && $data['status_pengerjaan'] === 'Menunggu Persetujuan' && trim((string) ($data['persetujuan_pelanggan'] ?? '')) === ''): ?>
+      <section class="mt-6 rounded-2xl border border-warning-light-active bg-white-light-hover p-4">
+        <h3 class="mb-2 text-sm font-bold text-blue-darker">Konfirmasi Pelanggan</h3>
+        <p class="mb-4 text-xs text-gray-500">Hubungi pelanggan terlebih dahulu, lalu catat keputusan yang disampaikan.</p>
+        <?php
+        $nomorWA = preg_replace('/\D+/', '', (string) ($data['no_hp'] ?? ''));
+        if (str_starts_with($nomorWA, '0')) $nomorWA = '62' . substr($nomorWA, 1);
+        elseif (str_starts_with($nomorWA, '8')) $nomorWA = '62' . $nomorWA;
+        $pesanWA = 'Halo ' . ($data['nama_pelanggan'] ?? '') . ', kami dari SIPASTI menghubungi terkait servis nota ' . $no_nota . '. Mohon konfirmasi pekerjaan tambahan.';
+        ?>
+        <?php if ($nomorWA !== ''): ?>
+          <a href="<?= e('https://wa.me/' . $nomorWA . '?text=' . rawurlencode($pesanWA)) ?>" target="_blank" rel="noopener noreferrer" class="mb-3 inline-flex w-full items-center justify-center rounded-full bg-tosca-dark px-5 py-3 text-xs font-semibold text-white-light hover:bg-tosca-dark-hover">Hubungi Pelanggan via WhatsApp</a>
+        <?php endif; ?>
+        <form method="POST" action="<?= e($urlDashboard) ?>" onsubmit="return confirm('Sudah menghubungi pelanggan dan yakin mencatat keputusan ini?');">
+          <input type="hidden" name="csrf_persetujuan" value="<?= e($_SESSION['csrf_persetujuan']) ?>">
+          <input type="hidden" name="return_to" value="detail">
+          <input type="hidden" name="nota" value="<?= e($no_nota) ?>">
+          <div class="grid grid-cols-2 gap-3">
+            <button type="submit" name="keputusan" value="Ya" class="rounded-full bg-success-light px-4 py-3 text-sm font-semibold text-success-dark hover:bg-success-light-hover">Setuju</button>
+            <button type="submit" name="keputusan" value="Tidak" class="rounded-full bg-danger-light px-4 py-3 text-sm font-semibold text-danger-dark hover:bg-danger-light-hover">Tolak</button>
+          </div>
+        </form>
+      </section>
+    <?php elseif ($dariDashboard && $data['status_pengerjaan'] === 'Menunggu Persetujuan'): ?>
+      <p class="mt-4 text-xs font-medium text-blue-darker">Keputusan pelanggan: <?= e($data['persetujuan_pelanggan']) ?></p>
+    <?php endif; ?>
+
     <div class="mt-10 pt-4 flex items-center justify-end gap-3.5">
       <a
         href="<?= e($urlKembali) ?>"
@@ -478,7 +522,7 @@ $status_tampil_detail = match (strtolower(trim($status_val))) {
       </a>
       <?php if (!$dariRiwayat): ?>
         <a
-          href="edit_antrean.php?nota=<?= urlencode($data['no_nota']) ?>"
+          href="<?= e('edit_antrean.php?' . http_build_query(['nota' => $data['no_nota']] + ($dariDashboard ? ['from' => 'dashboard'] + $parameterDashboard : []))) ?>"
           class="px-8 py-3 rounded-full bg-orange hover:bg-orange-hover text-white-light text-sm font-semibold transition text-center cursor-pointer">
           Edit Antrean
         </a>

@@ -19,10 +19,59 @@ if (strtolower((string) ($_SESSION['role'] ?? '')) !== 'admin') {
     exit('Akses hanya untuk admin.');
 }
 
-$lihatDetail = array_key_exists('nota', $_GET);
-$page_title = $lihatDetail ? 'Detail Servis' : 'Dashboard Admin';
+$page_title = 'Dashboard Admin';
 $active_menu = 'Dashboard';
 $search_placeholder = 'Cari antrean menunggu persetujuan...';
+
+$zona = new DateTimeZone('Asia/Jakarta');
+$sekarang = new DateTimeImmutable('now', $zona);
+$hariIni = $sekarang->setTime(0, 0);
+$besok = $hariIni->modify('+1 day');
+$pilihanRentang = ['today' => 1, '7d' => 7, '30d' => 30];
+$rentang = is_string($_GET['range'] ?? null) ? $_GET['range'] : 'today';
+$errorRentang = '';
+$tanggalMulaiCustom = $hariIni->format('Y-m-d');
+$tanggalAkhirCustom = $tanggalMulaiCustom;
+$parseTanggal = static function ($nilai) use ($zona): ?DateTimeImmutable {
+    if (!is_string($nilai) || !preg_match('/^\d{4}-\d{2}-\d{2}$/D', $nilai)) return null;
+    $tanggal = DateTimeImmutable::createFromFormat('!Y-m-d', $nilai, $zona);
+    return $tanggal && $tanggal->format('Y-m-d') === $nilai ? $tanggal : null;
+};
+if ($rentang === 'custom') {
+    $mulai = $parseTanggal($_GET['start_date'] ?? null);
+    $sampai = $parseTanggal($_GET['end_date'] ?? null);
+    if (!$mulai || !$sampai || $mulai > $sampai) {
+        $errorRentang = 'Rentang tanggal tidak valid. Pilih tanggal mulai dan akhir yang sesuai.';
+        $rentang = 'today';
+    } else {
+        $tanggalMulaiCustom = $mulai->format('Y-m-d');
+        $tanggalAkhirCustom = $sampai->format('Y-m-d');
+    }
+} elseif (!isset($pilihanRentang[$rentang])) {
+    $rentang = 'today';
+}
+if ($rentang === 'custom') {
+    $awalRentang = $mulai;
+    $akhirRentang = $sampai->modify('+1 day');
+    $jumlahHari = (int) $awalRentang->diff($akhirRentang)->days;
+} else {
+    $jumlahHari = $pilihanRentang[$rentang];
+    $akhirRentang = $besok;
+    $awalRentang = $akhirRentang->modify("-{$jumlahHari} days");
+}
+$awalRentangLalu = $awalRentang->modify("-{$jumlahHari} days");
+$fmtTimestamp = static fn(DateTimeImmutable $date): string => $date->format('Y-m-d H:i:s');
+$awal = $fmtTimestamp($awalRentang);
+$akhir = $fmtTimestamp($akhirRentang);
+$awalLalu = $fmtTimestamp($awalRentangLalu);
+$parameterRentang = ['range' => $rentang];
+if ($rentang === 'custom') {
+    $parameterRentang += ['start_date' => $tanggalMulaiCustom, 'end_date' => $tanggalAkhirCustom];
+}
+$urlDashboard = 'dashboard.php?' . http_build_query($parameterRentang);
+$urlDetailDashboard = static fn(string $nota): string => 'detail_antrean.php?' . http_build_query(
+    ['nota' => $nota, 'from' => 'dashboard'] + $parameterRentang
+);
 
 if (empty($_SESSION['csrf_persetujuan'])) {
     $_SESSION['csrf_persetujuan'] = bin2hex(random_bytes(32));
@@ -33,9 +82,8 @@ if (empty($_SESSION['csrf_persetujuan'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $formNota = trim((string) ($_POST['nota'] ?? ''));
     $returnToDetail = ($_POST['return_to'] ?? '') === 'detail';
-    $tujuan = 'dashboard.php' . ($returnToDetail && $formNota !== '' && strlen($formNota) <= 10
-        ? '?nota=' . rawurlencode($formNota)
-        : '');
+    $tujuan = $returnToDetail && $formNota !== '' && strlen($formNota) <= 10
+        ? $urlDetailDashboard($formNota) : $urlDashboard;
 
     $kembali = static function (string $tipe, string $pesan) use ($tujuan): void {
         $_SESSION['flash_dashboard'] = ['tipe' => $tipe, 'pesan' => $pesan];
@@ -55,6 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         $pdo->beginTransaction();
+        $pdo->query('SELECT pg_advisory_xact_lock(731503, 1)')->closeCursor();
 
         // Cegah dua admin mencatat keputusan atas nota yang sama secara bersamaan.
         $cek = $pdo->prepare(<<<'SQL'
@@ -97,140 +146,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// Dukungan tautan detail lama: gunakan satu halaman detail saja.
+if (array_key_exists('nota', $_GET)) {
+    $notaLama = is_string($_GET['nota']) ? trim($_GET['nota']) : '';
+    header('Location: ' . $urlDetailDashboard($notaLama), true, 302);
+    exit;
+}
+
 $flashDashboard = $_SESSION['flash_dashboard'] ?? null;
 unset($_SESSION['flash_dashboard']);
 
-$zona = new DateTimeZone('Asia/Jakarta');
-$sekarang = new DateTimeImmutable('now', $zona);
-
-// Di URL dashboard.php?nota=..., data detail diambil secara khusus.
-// Query rekap/dashboard tidak dijalankan pada halaman detail.
-if ($lihatDetail) {
-    $nota = trim((string) $_GET['nota']);
-    $errorPage = '';
-    $servis = null;
-    $riwayat = [];
-    $sparepart = [];
-    $totalSparepart = 0.0;
-
-    $rupiah = static fn($nilai): string => 'Rp ' . number_format((float) $nilai, 0, ',', '.');
-    $tanggal = static fn($nilai): string => $nilai
-        ? date('d M Y, H:i', strtotime((string) $nilai))
-        : 'Belum ditentukan';
-    $normalisasiWhatsApp = static function (?string $nomor): string {
-        $angka = preg_replace('/\D+/', '', (string) $nomor);
-        if ($angka === '') return '';
-        if (str_starts_with($angka, '0')) return '62' . substr($angka, 1);
-        if (str_starts_with($angka, '8')) return '62' . $angka;
-        return $angka;
-    };
-    $urlWA = '';
-
-    if ($nota === '' || strlen($nota) > 10) {
-        $errorPage = 'Nomor nota tidak valid.';
-    } else {
-        try {
-            $stmt = $pdo->prepare(<<<'SQL'
-                SELECT s.no_nota, s.tanggal_masuk, s.jenis_barang,
-                       s.merek_dan_spesifikasi, s.kelengkapan_barang,
-                       s.kondisi_awal_unit, s.keluhan_kerusakan,
-                       s.catatan_cek_fisik, s.persetujuan_bongkar,
-                       s.persetujuan_pelanggan, s.status_pengerjaan,
-                       s.jenis_layanan, s.estimasi_pengambilan,
-                       s.biaya_jasa, s.biaya_urgent,
-                       p.nama_pelanggan, p.no_hp, p.alamat,
-                       COALESCE(k.nama_karyawan, 'Belum ditugaskan') AS nama_teknisi,
-                       COALESCE(v.status_pembayaran, 'Belum Lunas') AS status_pembayaran,
-                       COALESCE(v.status_pengambilan, 'Belum Diambil') AS status_pengambilan
-                FROM public.servis AS s
-                JOIN public.pelanggan AS p ON p.id_pelanggan = s.id_pelanggan
-                LEFT JOIN public.karyawan AS k ON k.id_karyawan = s.id_karyawan
-                LEFT JOIN public.validasi AS v ON v.no_nota = s.no_nota
-                WHERE s.no_nota = :nota
-                LIMIT 1
-            SQL);
-            $stmt->execute(['nota' => $nota]);
-            $servis = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
-
-            if ($servis === null) {
-                $errorPage = 'Servis tidak ditemukan.';
-            } else {
-                $stmt = $pdo->prepare(<<<'SQL'
-                    SELECT t.status_pengerjaan, t.keterangan, t.waktu_update,
-                           COALESCE(k.nama_karyawan, 'Sistem') AS nama_karyawan
-                    FROM public.tracking_servis AS t
-                    LEFT JOIN public.karyawan AS k ON k.id_karyawan = t.id_karyawan
-                    WHERE t.no_nota = :nota
-                    ORDER BY t.waktu_update ASC, t.id_tracking ASC
-                SQL);
-                $stmt->execute(['nota' => $nota]);
-                $riwayat = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                $stmt = $pdo->prepare(<<<'SQL'
-                    SELECT sp.nama_sparepart, ds.jumlah_dipakai, ds.subtotal_harga
-                    FROM public.detail_servis AS ds
-                    JOIN public.sparepart AS sp ON sp.id_sparepart = ds.id_sparepart
-                    WHERE ds.no_nota = :nota
-                    ORDER BY sp.nama_sparepart ASC
-                SQL);
-                $stmt->execute(['nota' => $nota]);
-                $sparepart = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                foreach ($sparepart as $item) {
-                    $totalSparepart += (float) $item['subtotal_harga'];
-                }
-
-                $nomorWA = $normalisasiWhatsApp((string) $servis['no_hp']);
-                $pesanWA = 'Halo ' . $servis['nama_pelanggan']
-                    . ', kami dari SIPASTI menghubungi terkait servis nota ' . $servis['no_nota'] . '.';
-                $urlWA = $nomorWA !== ''
-                    ? 'https://wa.me/' . $nomorWA . '?text=' . rawurlencode($pesanWA)
-                    : '';
-            }
-        } catch (PDOException $e) {
-            error_log('admin/dashboard_data.php/detail: ' . $e->getMessage());
-            $errorPage = 'Gagal mengambil data servis.';
-        }
+// Format tanggal Indonesia; input dan parameter SQL tetap memakai ISO Y-m-d.
+$formatTanggalDashboard = static function (DateTimeImmutable $tanggal, bool $tahun = true): string {
+    $bulan = [1 => 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+    return $tanggal->format('j') . ' ' . $bulan[(int) $tanggal->format('n')]
+        . ($tahun ? ' ' . $tanggal->format('Y') : '');
+};
+$formatRentangDashboard = static function (DateTimeImmutable $dari, DateTimeImmutable $ke, bool $tahun = true) use ($formatTanggalDashboard): string {
+    if ($dari->format('Y-m-d') === $ke->format('Y-m-d')) {
+        return $formatTanggalDashboard($dari, $tahun);
     }
-    return;
-}
+    if ($dari->format('Y-m') === $ke->format('Y-m')) {
+        return $dari->format('j') . '–' . $formatTanggalDashboard($ke, $tahun);
+    }
+    if ($dari->format('Y') === $ke->format('Y')) {
+        return $formatTanggalDashboard($dari, false) . ' – ' . $formatTanggalDashboard($ke, $tahun);
+    }
+    // Tahun tetap ditampilkan pada kedua batas jika melewati pergantian tahun.
+    return $formatTanggalDashboard($dari) . ' – ' . $formatTanggalDashboard($ke);
+};
 
-$hariIni = $sekarang->setTime(0, 0);
-$besok = $hariIni->modify('+1 day');
-$pilihanRentang = ['today' => 1, '7d' => 7, '30d' => 30];
-$rentang = (string) ($_GET['range'] ?? 'today');
-if (!isset($pilihanRentang[$rentang])) {
-    $rentang = 'today';
-}
-
-$jumlahHari = $pilihanRentang[$rentang];
-$awalRentang = $besok->modify("-{$jumlahHari} days");
-$awalRentangLalu = $awalRentang->modify("-{$jumlahHari} days");
-$awalBulan = $hariIni->modify('first day of this month');
-$awalBulanBerikut = $awalBulan->modify('first day of next month');
-
-$fmtTimestamp = static fn(DateTimeImmutable $date): string => $date->format('Y-m-d H:i:s');
-$awal = $fmtTimestamp($awalRentang);
-$akhir = $fmtTimestamp($besok);
-$awalLalu = $fmtTimestamp($awalRentangLalu);
-$awalGrafik = $fmtTimestamp($awalBulan);
-$akhirGrafik = $fmtTimestamp($awalBulanBerikut);
-
-$bulanLaporan = $sekarang->format('F Y');
-$namaBulan = [
-    'January' => 'Januari',
-    'February' => 'Februari',
-    'March' => 'Maret',
-    'April' => 'April',
-    'May' => 'Mei',
-    'June' => 'Juni',
-    'July' => 'Juli',
-    'August' => 'Agustus',
-    'September' => 'September',
-    'October' => 'Oktober',
-    'November' => 'November',
-    'December' => 'Desember',
-];
-$bulan_laporan = strtr($bulanLaporan, $namaBulan);
+// Judul laporan dan chip memakai rentang yang sama dengan filter.
+$labelPeriode = $formatRentangDashboard($awalRentang, $akhirRentang->modify('-1 day'));
+$bulan_laporan = $labelPeriode;
 
 $formatRupiah = static function (float $nilai): string {
     if ($nilai >= 1_000_000_000) return 'Rp ' . number_format($nilai / 1_000_000_000, 1, ',', '.') . ' M';
@@ -288,9 +236,8 @@ $selesai_jumlah_halaman = 1;
 $selesai_awal = 0;
 $selesai_akhir = 0;
 
-$urlHalamanSelesai = static function (int $halaman) use ($rentang, $selesai_cari): string {
-    return 'dashboard.php?' . http_build_query([
-        'range' => $rentang,
+$urlHalamanSelesai = static function (int $halaman) use ($parameterRentang, $selesai_cari): string {
+    return 'dashboard.php?' . http_build_query($parameterRentang + [
         'selesai_q' => $selesai_cari,
         'selesai_page' => max(1, $halaman),
     ]) . '#servis-selesai';
@@ -304,12 +251,10 @@ try {
         SELECT
             COUNT(*) FILTER (WHERE s.tanggal_masuk >= ? AND s.tanggal_masuk < ?) AS masuk,
             COUNT(*) FILTER (WHERE s.tanggal_masuk >= ? AND s.tanggal_masuk < ?) AS masuk_lalu,
-            COUNT(*) FILTER (WHERE s.status_pengerjaan = 'Dikerjakan') AS dikerjakan,
-            COUNT(*) FILTER (WHERE s.status_pengerjaan = 'Menunggu') AS menunggu,
-            COUNT(*) FILTER (WHERE s.status_pengerjaan = 'Selesai') AS total_selesai,
-            COUNT(*) FILTER (WHERE s.status_pengerjaan = 'Dibatalkan') AS total_batal,
-            COUNT(*) FILTER (WHERE s.status_pengerjaan = 'Selesai' AND (v.tanggal_diambil IS NOT NULL OR v.status_pengambilan IN ('Sudah Diambil', 'Diambil'))) AS sudah_diambil,
-            COUNT(*) FILTER (WHERE s.status_pengerjaan = 'Selesai' AND v.tanggal_diambil IS NULL AND COALESCE(v.status_pengambilan, 'Belum Diambil') NOT IN ('Sudah Diambil', 'Diambil')) AS di_toko,
+            COUNT(*) FILTER (WHERE s.status_pengerjaan = 'Dikerjakan' AND s.tanggal_masuk >= ? AND s.tanggal_masuk < ?) AS dikerjakan,
+            COUNT(*) FILTER (WHERE s.status_pengerjaan = 'Menunggu' AND s.tanggal_masuk >= ? AND s.tanggal_masuk < ?) AS menunggu,
+            COUNT(*) FILTER (WHERE s.status_pengerjaan = 'Selesai' AND s.tanggal_masuk >= ? AND s.tanggal_masuk < ?) AS selesai_dari_masuk,
+            COALESCE(SUM(d.jumlah_sparepart) FILTER (WHERE s.tanggal_masuk >= ? AND s.tanggal_masuk < ?), 0) AS jumlah_sparepart,
             COALESCE(SUM(CASE WHEN v.status_pembayaran = 'Lunas'
                                AND s.tanggal_masuk >= ? AND s.tanggal_masuk < ?
                               THEN COALESCE(s.biaya_jasa, 0)
@@ -325,22 +270,64 @@ try {
         FROM public.servis AS s
         LEFT JOIN public.validasi AS v ON v.no_nota = s.no_nota
         LEFT JOIN (
-            SELECT no_nota, SUM(subtotal_harga) AS total_sparepart
+            SELECT no_nota, SUM(subtotal_harga) AS total_sparepart, SUM(jumlah_dipakai) AS jumlah_sparepart
             FROM public.detail_servis GROUP BY no_nota
         ) AS d ON d.no_nota = s.no_nota
     SQL);
-    $stmt->execute([$awal, $akhir, $awalLalu, $awal, $awal, $akhir, $awalLalu, $awal]);
+    $stmt->execute([
+        $awal,
+        $akhir,
+        $awalLalu,
+        $awal,
+        $awal,
+        $akhir,
+        $awal,
+        $akhir,
+        $awal,
+        $akhir,
+        $awal,
+        $akhir,
+        $awal,
+        $akhir,
+        $awalLalu,
+        $awal,
+    ]);
     $rekap = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Waktu status benar-benar menjadi Selesai berasal dari tracking_servis.
+    // Hasil pekerjaan mengikuti waktu perubahan status, bukan tanggal masuk.
+    // Status barang adalah kondisi terkini dari nota yang selesai dalam periode.
     $stmt = $pdo->prepare(<<<'SQL'
         SELECT
-            COUNT(DISTINCT no_nota) FILTER (WHERE waktu_update >= ? AND waktu_update < ?) AS selesai,
-            COUNT(DISTINCT no_nota) FILTER (WHERE waktu_update >= ? AND waktu_update < ?) AS selesai_lalu
-        FROM public.tracking_servis
-        WHERE status_pengerjaan = 'Selesai'
+            COUNT(DISTINCT t.no_nota) FILTER (WHERE t.status_pengerjaan = 'Selesai' AND t.waktu_update >= ? AND t.waktu_update < ?) AS selesai,
+            COUNT(DISTINCT t.no_nota) FILTER (WHERE t.status_pengerjaan = 'Selesai' AND t.waktu_update >= ? AND t.waktu_update < ?) AS selesai_lalu,
+            COUNT(DISTINCT t.no_nota) FILTER (WHERE t.status_pengerjaan = 'Dibatalkan' AND t.waktu_update >= ? AND t.waktu_update < ?) AS batal,
+            COUNT(DISTINCT t.no_nota) FILTER (
+                WHERE t.status_pengerjaan = 'Selesai' AND t.waktu_update >= ? AND t.waktu_update < ?
+                  AND (v.tanggal_diambil IS NOT NULL OR v.status_pengambilan IN ('Sudah Diambil', 'Diambil'))
+            ) AS sudah_diambil,
+            COUNT(DISTINCT t.no_nota) FILTER (
+                WHERE t.status_pengerjaan = 'Selesai' AND t.waktu_update >= ? AND t.waktu_update < ?
+                  AND v.tanggal_diambil IS NULL AND COALESCE(v.status_pengambilan, 'Belum Diambil') NOT IN ('Sudah Diambil', 'Diambil')
+            ) AS di_toko
+        FROM public.tracking_servis AS t
+        LEFT JOIN public.validasi AS v ON v.no_nota = t.no_nota
+        WHERE t.status_pengerjaan IN ('Selesai', 'Dibatalkan')
+          AND t.waktu_update >= ? AND t.waktu_update < ?
     SQL);
-    $stmt->execute([$awal, $akhir, $awalLalu, $awal]);
+    $stmt->execute([
+        $awal,
+        $akhir,
+        $awalLalu,
+        $awal,
+        $awal,
+        $akhir,
+        $awal,
+        $akhir,
+        $awal,
+        $akhir,
+        $awalLalu,
+        $akhir,
+    ]);
     $rekapSelesai = $stmt->fetch(PDO::FETCH_ASSOC);
 
     $jumlahMasuk = (int) $rekap['masuk'];
@@ -365,55 +352,59 @@ try {
         'label_bawah' => 'Periode lalu: ' . $formatRupiah($omzetLalu),
         'badge' => $indikatorPerubahan($omzet, $omzetLalu),
     ];
-    $hasil_pekerjaan['selesai'] = (int) $rekap['total_selesai'];
-    $hasil_pekerjaan['cancel'] = (int) $rekap['total_batal'];
-    $status_barang['di_ambil_user'] = (int) $rekap['sudah_diambil'];
-    $status_barang['barang_di_toko'] = (int) $rekap['di_toko'];
+    $hasil_pekerjaan['selesai'] = $jumlahSelesai;
+    $hasil_pekerjaan['cancel'] = (int) $rekapSelesai['batal'];
+    $status_barang['di_ambil_user'] = (int) $rekapSelesai['sudah_diambil'];
+    $status_barang['barang_di_toko'] = (int) $rekapSelesai['di_toko'];
     $jumlahDikerjakan = (int) $rekap['dikerjakan'];
     $jumlahMenunggu = (int) $rekap['menunggu'];
 
-    // Grafik lima kemungkinan minggu kalender dalam satu bulan (7 hari per segmen).
+    // Maksimal tujuh titik: harian untuk periode pendek, agregasi untuk periode panjang.
+    // Seluruh data dalam interval tetap dijumlahkan oleh SQL, bukan dibuang.
+    $langkah = max(1, (int) ceil($jumlahHari / 7));
     $stmt = $pdo->prepare(<<<'SQL'
-        SELECT minggu, SUM(masuk) AS masuk, SUM(selesai) AS selesai
+        SELECT FLOOR((hari - CAST(? AS date))::numeric / CAST(? AS integer))::int AS grup,
+               SUM(masuk) AS masuk, SUM(selesai) AS selesai
         FROM (
-            SELECT CEIL(EXTRACT(DAY FROM tanggal_masuk) / 7.0)::int AS minggu,
-                   1 AS masuk, 0 AS selesai
-            FROM public.servis
-            WHERE tanggal_masuk >= ? AND tanggal_masuk < ?
+            SELECT tanggal_masuk::date AS hari, 1 AS masuk, 0 AS selesai
+            FROM public.servis WHERE tanggal_masuk >= ? AND tanggal_masuk < ?
             UNION ALL
-            SELECT CEIL(EXTRACT(DAY FROM waktu_update) / 7.0)::int AS minggu,
-                   0 AS masuk, 1 AS selesai
+            SELECT MIN(waktu_update)::date AS hari, 0 AS masuk, 1 AS selesai
             FROM public.tracking_servis
-            WHERE status_pengerjaan = 'Selesai'
-              AND waktu_update >= ? AND waktu_update < ?
+            WHERE status_pengerjaan = 'Selesai' AND waktu_update >= ? AND waktu_update < ?
+            GROUP BY no_nota
         ) AS sumber
-        GROUP BY minggu
-        ORDER BY minggu
+        GROUP BY grup ORDER BY grup
     SQL);
-    $stmt->execute([$awalGrafik, $akhirGrafik, $awalGrafik, $akhirGrafik]);
-    $grafikDb = [];
+    $stmt->execute([$awalRentang->format('Y-m-d'), $langkah, $awal, $akhir, $awal, $akhir]);
+    $grupGrafik = [];
     foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-        $grafikDb[(int) $row['minggu']] = $row;
+        $grupGrafik[(int) $row['grup']] = $row;
     }
-    $jumlahMinggu = (int) ceil((int) $awalBulan->format('t') / 7);
-    $totalMasukBulan = 0;
-    $totalSelesaiBulan = 0;
-    for ($i = 1; $i <= $jumlahMinggu; $i++) {
-        $masuk = (int) ($grafikDb[$i]['masuk'] ?? 0);
-        $selesai = (int) ($grafikDb[$i]['selesai'] ?? 0);
-        $data_grafik_servis[] = ['minggu' => 'Mg ' . $i, 'masuk' => $masuk, 'selesai' => $selesai];
-        $totalMasukBulan += $masuk;
-        $totalSelesaiBulan += $selesai;
+    for ($i = 0; $i < (int) ceil($jumlahHari / $langkah); $i++) {
+        $dari = $awalRentang->modify('+' . ($i * $langkah) . ' days');
+        $ke = $awalRentang->modify('+' . min($jumlahHari - 1, ($i + 1) * $langkah - 1) . ' days');
+        // Key minggu dipertahankan: label lengkap pada tooltip, label ringkas pada sumbu X.
+        $data_grafik_servis[] = [
+            'minggu' => $formatRentangDashboard($dari, $ke),
+            'label_singkat' => $formatRentangDashboard($dari, $ke, $awalRentang->format('Y') !== $akhirRentang->modify('-1 day')->format('Y')),
+            'masuk' => (int) ($grupGrafik[$i]['masuk'] ?? 0),
+            'selesai' => (int) ($grupGrafik[$i]['selesai'] ?? 0),
+        ];
     }
-    $selesai_text = $totalSelesaiBulan . ' / ' . $totalMasukBulan;
-    $persen_selesai = $totalMasukBulan > 0
-        ? min(100, round(($totalSelesaiBulan / $totalMasukBulan) * 100))
+
+    // Progress: nota masuk dalam periode yang saat ini sudah selesai.
+    // Pembilang dan penyebut menggunakan kelompok nota yang sama.
+    $selesaiDariMasuk = (int) $rekap['selesai_dari_masuk'];
+    $selesai_text = $selesaiDariMasuk . ' / ' . $jumlahMasuk;
+    $persen_selesai = $jumlahMasuk > 0
+        ? min(100, round(($selesaiDariMasuk / $jumlahMasuk) * 100))
         : 0;
 
     // Semua teknisi (termasuk yang belum ditugaskan) tampil berdasarkan database.
-    $stmt = $pdo->query(<<<'SQL'
+    $stmt = $pdo->prepare(<<<'SQL'
         SELECT k.nama_karyawan AS nama,
-               COUNT(s.no_nota) AS semua,
+               COUNT(s.no_nota) FILTER (WHERE s.tanggal_masuk >= ? AND s.tanggal_masuk < ?) AS semua,
                COUNT(s.no_nota) FILTER (
                    WHERE s.status_pengerjaan IN ('Menunggu', 'Diterima', 'Menunggu Persetujuan', 'Dikerjakan')
                ) AS aktif
@@ -423,6 +414,7 @@ try {
         GROUP BY k.id_karyawan, k.nama_karyawan
         ORDER BY aktif DESC, k.nama_karyawan ASC
     SQL);
+    $stmt->execute([$awal, $akhir]);
     $teknisi = $stmt->fetchAll(PDO::FETCH_ASSOC);
     foreach ($teknisi as $i => $row) {
         $nama = (string) $row['nama'];
@@ -430,7 +422,7 @@ try {
         $beban_teknisi[] = [
             'nama' => $nama,
             'unit' => $aktif,
-            'warna' => $i === 0 ? 'bg-orange' : 'bg-tosca',
+            'warna' => $aktif > 5 ? 'bg-orange' : 'bg-tosca',
         ];
         $pekerjaan_teknisi[$nama] = (int) $row['semua'];
         $max_beban_teknisi = max($max_beban_teknisi, $aktif);
@@ -441,8 +433,9 @@ try {
         'badge' => count($teknisi) . ' Teknisi',
     ];
 
-    // Jumlah jenis sparepart (bukan jumlah seluruh stok fisik).
-    $total_sparepart = (int) $pdo->query('SELECT COUNT(*) FROM public.sparepart')->fetchColumn();
+    // Pemakaian sparepart dari nota masuk pada periode terpilih.
+    // detail_servis tidak mempunyai tanggal pemakaian.
+    $total_sparepart = (int) $rekap['jumlah_sparepart'];
     $max_sparepart = max(50, (int) (ceil($total_sparepart / 50) * 50));
     $persen_sparepart = $total_sparepart > 0
         ? min(100, (int) round(($total_sparepart / $max_sparepart) * 100))
@@ -450,7 +443,11 @@ try {
 
     // Jumlah record dihitung untuk seluruh servis selesai, bukan hanya satu halaman.
     // Query pencarian menggunakan parameter terikat untuk mencegah SQL injection.
-    $kondisiSelesai = " WHERE s.status_pengerjaan = 'Selesai'";
+    $kondisiSelesai = " WHERE s.status_pengerjaan = 'Selesai'
+        AND NOT (
+            COALESCE(v.status_pembayaran, '') = 'Lunas'
+            AND COALESCE(v.status_pengambilan, '') = 'Sudah Diambil'
+        )";
     $parameterCari = [];
 
     if ($selesai_cari !== '') {
@@ -463,7 +460,8 @@ try {
 
     $stmt = $pdo->prepare(
         'SELECT COUNT(*) FROM public.servis AS s '
-            . 'JOIN public.pelanggan AS p ON p.id_pelanggan = s.id_pelanggan'
+            . 'JOIN public.pelanggan AS p ON p.id_pelanggan = s.id_pelanggan '
+            . 'LEFT JOIN public.validasi AS v ON v.no_nota = s.no_nota'
             . $kondisiSelesai
     );
     $stmt->execute($parameterCari);
@@ -482,7 +480,8 @@ try {
                COALESCE(k.nama_karyawan, 'Belum ditugaskan') AS teknisi,
                s.status_pengerjaan AS status,
                s.jenis_layanan AS layanan,
-               COALESCE(v.status_pembayaran, 'Belum Lunas') AS status_pembayaran
+               COALESCE(v.status_pembayaran, 'Belum Lunas') AS status_pembayaran,
+               COALESCE(v.status_pengambilan, 'Belum Diambil') AS status_pengambilan
         FROM public.servis AS s
         JOIN public.pelanggan AS p ON p.id_pelanggan = s.id_pelanggan
         LEFT JOIN public.karyawan AS k ON k.id_karyawan = s.id_karyawan

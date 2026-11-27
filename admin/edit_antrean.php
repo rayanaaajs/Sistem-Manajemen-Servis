@@ -6,10 +6,19 @@ error_reporting(E_ALL);
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/koneksi.php';
 
+$dariDashboard = ($_GET['from'] ?? '') === 'dashboard';
+$parameterDashboard = [];
+foreach (['range', 'start_date', 'end_date'] as $key) {
+  if (is_string($_GET[$key] ?? null)) $parameterDashboard[$key] = $_GET[$key];
+}
+$urlDashboard = 'dashboard.php' . ($parameterDashboard ? '?' . http_build_query($parameterDashboard) : '');
+$urlKembali = $dariDashboard ? $urlDashboard : 'antrean.php';
+$urlKembaliJs = json_encode($urlKembali, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+
 $no_nota = trim($_GET['nota'] ?? $_POST['no_nota'] ?? '');
 
 if ($no_nota === '') {
-  echo "<script>alert('Nomor nota tidak ditemukan di URL!'); window.location.href='antrean.php';</script>";
+  echo "<script>alert('Nomor nota tidak ditemukan di URL!'); window.location.href=$urlKembaliJs;</script>";
   exit;
 }
 
@@ -31,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $oldData = $stmtOld->fetch(PDO::FETCH_ASSOC);
 
     if (!$oldData) {
-      echo "<script>alert('Data nota tidak ditemukan!'); window.location.href='antrean.php';</script>";
+      echo "<script>alert('Data nota tidak ditemukan!'); window.location.href=$urlKembaliJs;</script>";
       exit;
     }
 
@@ -152,7 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
       $pdo->commit();
 
-      echo "<script>alert('Finalisasi biaya & status nota " . addslashes($no_nota) . " berhasil disimpan!'); window.location.href='antrean.php';</script>";
+      echo "<script>alert('Finalisasi biaya & status nota " . addslashes($no_nota) . " berhasil disimpan!'); window.location.href=$urlKembaliJs;</script>";
       exit;
     }
 
@@ -342,7 +351,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $pdo->commit();
 
-    echo "<script>alert('Perubahan data nota " . addslashes($no_nota) . " berhasil disimpan!'); window.location.href='antrean.php';</script>";
+    echo "<script>alert('Perubahan data nota " . addslashes($no_nota) . " berhasil disimpan!'); window.location.href=$urlKembaliJs;</script>";
     exit;
   } catch (\Throwable $e) {
     if ($pdo->inTransaction()) {
@@ -380,7 +389,7 @@ try {
   $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
   if (!$data) {
-    echo "<script>alert('Data nota tidak ditemukan di database!'); window.location.href='antrean.php';</script>";
+    echo "<script>alert('Data nota tidak ditemukan di database!'); window.location.href=$urlKembaliJs;</script>";
     exit;
   }
 
@@ -481,7 +490,7 @@ $lockedInputClass = $is_selesai
   : 'w-full px-4 py-3.5 rounded-2xl border border-white-active bg-white-light-hover text-sm font-medium text-blue-darker focus:outline-none focus:border-tosca-dark focus:ring-2 focus:ring-tosca-dark/20 transition';
 
 $page_title = 'Edit Antrean';
-$active_menu = 'antrean';
+$active_menu = $dariDashboard ? 'dashboard' : 'antrean';
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/helpers.php';
 
@@ -518,7 +527,7 @@ $status_tampil_edit = match (strtolower(trim($status_val))) {
 
 <!-- FORM 3 KOLOM -->
 <form
-  action="edit_antrean.php?nota=<?= urlencode($data['no_nota']) ?>"
+  action="<?= e('edit_antrean.php?' . http_build_query(['nota' => $data['no_nota']] + ($dariDashboard ? ['from' => 'dashboard'] + $parameterDashboard : []))) ?>"
   method="POST"
   id="formEditAntrean"
   class="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
@@ -973,7 +982,7 @@ $status_tampil_edit = match (strtolower(trim($status_val))) {
 
     <div class="mt-10 pt-4 flex items-center justify-end gap-3.5">
       <a
-        href="antrean.php"
+        href="<?= e($urlKembali) ?>"
         class="px-8 py-3 rounded-full border border-tosca-dark hover:bg-tosca-dark-hover text-tosca-dark hover:text-white-light text-sm font-semibold transition text-center cursor-pointer">
         Batal
       </a>
